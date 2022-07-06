@@ -52,13 +52,12 @@ class State:
         return [(item, "", item in self.select, 0) for item in self.items]
 
     # A function that returns header information. The content of the header is described in "config.py".
-    def headers(self, width = None):
+    def headers(self, width=None):
         return [self.config.header_dir.format(**os.environ) + self.grepstr]
 
     # A function that returns the file path of the currently selected file.
     def target(self):
-        if self.field >= 0: return self.items[self.focus].split()[self.field]
-        else              : return self.items[self.focus].strip()
+        return self.items[self.focus].strip()
 
     # Read the process information.
     def update(self):
@@ -69,7 +68,7 @@ class State:
     def reload(self):
         if   self.args.text : self.text = self.args.text
         elif self.args.input: self.text = pathlib.Path(self.args.input).read_text()
-        elif self.args.cmd  : self.text = subprocess.check_output(self.args.cmd, shell = True).decode()
+        elif self.args.cmd  : self.text = subprocess.check_output(self.args.cmd, shell=True).decode()
         else                : self.text = ""
 
 # A function that starts the curses session of process number selection mode.
@@ -91,12 +90,18 @@ def start(stdscr, args, conf):
 
         # Draw to the screen.
         stdscr.erase()
-        cui.draw_pgrep_window(stdscr, st.headers(), st.contents(), st.focus, conf.cmap)
+        cui.draw_textchooser_window(stdscr, st.headers(), st.contents(), st.focus, conf.cmap)
         stdscr.refresh()
 
         # Accepts keystrokes and executes the corresponding command.
         # Note that the return value of the function "keybind.input()" is just a string.
         exec(key.input(stdscr, st))
+
+    # Split the output if the specified field is valid.
+    for n, line in enumerate(st.result):
+        values = line.split()
+        if 0 <= args.field < len(values):
+            st.result[n] = values[args.field]
 
     return " ".join(st.result).strip()
 

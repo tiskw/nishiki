@@ -66,11 +66,11 @@ class FilerState:
 
     # A function that returns the file information (dictionary type) or the value corresponding
     # to the given key of the currently selected file.
-    def item(self, key = None):
+    def item(self, key=None):
         return self.items[self.focus][key] if key else self.items[self.focus]
 
     # A function that returns header information. The content of the header is described in "config.py".
-    def headers(self, width = None):
+    def headers(self, width=None):
         usr = self.config.header_dir.format(**os.environ)
         grp = "\x1b[31m/" + self.grepstr if self.grepstr else ""
         return [usr + self.dirpath + grp, self.config.header_file + self.item("name")]
@@ -82,8 +82,8 @@ class FilerState:
     # A function that updates the results of ls for the current and previous directory.
     def update(self):
         self.focus = 0
-        self.files = utils.dictls(self.dirpath, ls_opt = "A" if self.showdot else "", previous = False, cmap = self.config.cmap)
-        self.prevs = utils.dictls(self.dirpath, ls_opt = "A" if self.showdot else "", previous = True,  cmap = self.config.cmap)
+        self.files = utils.dictls(self.dirpath, ls_opt="A" if self.showdot else "", previous=False, cmap=self.config.cmap)
+        self.prevs = utils.dictls(self.dirpath, ls_opt="A" if self.showdot else "", previous=True,  cmap=self.config.cmap)
         self.grepstr = ""
         self.grep()
 

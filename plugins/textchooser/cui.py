@@ -52,7 +52,7 @@ def listbox(win, rect, contents, focus, cmap):
         # Format the string based on the width information.
         # The drawing area does not extend beyond the rect, and the inversion affects the right edge of the screen.
         # Make sure that the string length matches the width.
-        line = utils.clipstr(left, w - utils.strlen(right) - 4, fill = " ", append = "~")
+        line = utils.clipstr(left, w - utils.strlen(right) - 4, fill=" ", append="~")
         line = "  " + line + " " + right + " "
 
         # If attr is an integer, convert it to the corresponding color.
@@ -123,7 +123,7 @@ def textbox(win, rect, text):
 
 # A function that draws a window screen in process number selection mode.
 # The variable content is a list that stores the drawing contents.
-def draw_pgrep_window(win, headers, contents, focus, cmap):
+def draw_textchooser_window(win, headers, contents, focus, cmap):
 
     # Get the screen size.
     h_max, w_max = win.getmaxyx()

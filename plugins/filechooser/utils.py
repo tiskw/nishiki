@@ -15,7 +15,7 @@ def clip(x_min, x, x_max):
 # A function that limits the given string to a specified length. This function supports multi-byte characters.
 # If the specified string is longer than the specified length, fill the right side with the character "fill".
 # This function uses strwidths() to calculate the character width.
-def clipstr(text, width, fill = None, append = None):
+def clipstr(text, width, fill=None, append=None):
 
     # If the argument "fill" is specified and the string is shorter than the specified length, white spaces are added.
     # In some cases, this processing may generate a string which slightly exceed the specified length,
@@ -42,7 +42,7 @@ def clipstr(text, width, fill = None, append = None):
 # A function to arrange strings in a table format.
 # This functionality is close to the command "column" commonly used in Linux system,
 # but the implementation is completely unique, and there is no particular compatibility with the "column" command.
-def column(texts, width, join = True):
+def column(texts, width, join=True):
 
     # Divide the given array (character string) by length.
     def chunk(xs, length):
@@ -79,7 +79,7 @@ def column(texts, width, join = True):
 # If the argument previous is true, ls the previous directory.
 # The return value is a list of dictionary which has the following keys:
 #     ["perm", "nlinks", "user", "group", "size", "month", "day", "time", "name", "path"]
-def dictls(dirpath, ls_opt, previous = False, cmap = dict()):
+def dictls(dirpath, ls_opt, previous=False, cmap=dict()):
 
     # Variable names and data types for interpreting the results of the ls command.
     KEYS  = ["perm", "nlinks", "user", "group", "size", "date", "time", "name"]
@@ -91,7 +91,7 @@ def dictls(dirpath, ls_opt, previous = False, cmap = dict()):
 
     # Decompose the result of the "ls" command into a dictionary type.
     def tokenize(line):
-        vals = line.split(maxsplit = len(KEYS)-1)
+        vals = line.split(maxsplit=len(KEYS)-1)
         return {key:t(val) for key, t, val in zip(KEYS, TYPES, vals)}
 
     # After decomposing the result of the "ls" command into a dictionary type,
@@ -116,14 +116,14 @@ def dictls(dirpath, ls_opt, previous = False, cmap = dict()):
 # A function that returns a list of file names that match the argument "name".
 # If multiple elements match, it returns the first one.
 # If no matching element is found, the default value is returned.
-def findindex(items, name, default = 0):
+def findindex(items, name, default=0):
 
     candidates = (n for n, item in enumerate(items) if item["name"] == name)
-    return min(candidates, default = default)
+    return min(candidates, default=default)
 
 # A function that clips a string to a specified length. This function supports multi-byte characters.
 # The specifications of this function is the same as "clipstr()" except that this function will cut the left side of the given string.
-def rclipstr(text, width, fill = None, append = None):
+def rclipstr(text, width, fill=None, append=None):
 
     return clipstr(text[::-1], width, fill, append)[::-1]
 
@@ -131,7 +131,7 @@ def rclipstr(text, width, fill = None, append = None):
 # STDERR is disabled so as not to destroy the curses interface.
 def runcmd(command):
 
-    try   : return subprocess.check_output(command + " 2> /dev/null", shell = True).decode(errors = "backslashreplace").strip()
+    try   : return subprocess.check_output(command + " 2> /dev/null", shell=True).decode(errors="backslashreplace").strip()
     except: return None
 
 # Make the file path the shortest.
