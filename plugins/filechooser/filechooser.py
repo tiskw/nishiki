@@ -19,9 +19,9 @@ __version__ = "0.3"
 # A function that parses command line arguments.
 def parse_commandline_arguments():
 
-    parser = argparse.ArgumentParser(description = __doc__.strip())
-    parser.add_argument("-o", "--output", default = "", help = "Output file")
-    parser.add_argument("-v", "--version", action = "version", version = get_version())
+    parser = argparse.ArgumentParser(description=__doc__.strip())
+    parser.add_argument("-o", "--output", default="", help="Output file")
+    parser.add_argument("-v", "--version", action="version", version=get_version())
 
     return parser.parse_args()
 
@@ -33,7 +33,7 @@ def get_version():
 # Dump the given string to file.
 def print_to_file(text, filepath):
 
-    os.makedirs(os.path.dirname(filepath), exist_ok = True)
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
     with open(filepath, "wt") as ofp:
         ofp.write(text)
@@ -50,6 +50,10 @@ def main():
 
     # Initialize the locale for curses.
     locale.setlocale(locale.LC_ALL, "")
+
+    # Remove output file if exists.
+    if args.output and os.path.exists(args.output):
+        os.unlink(args.output)
 
     # Start the filer/pgrep session, get the output, and print it to STDOUT.
     output = curses.wrapper(lambda win: session.start(win, args, conf))

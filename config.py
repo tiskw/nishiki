@@ -75,6 +75,7 @@ class NishikiConfig(typing.NamedTuple):
         "la"  : "ls -ahl --color=auto --group-directories-first",
         "ls"  : "ls -h --color=auto --group-directories-first",
         "ll"  : "ls -lh --color=auto --group-directories-first",
+        "sl"  : "ls -h --color=auto --group-directories-first",
         "mv"  : "mv -i",
         "rm"  : "rm -i",
     }
@@ -94,8 +95,8 @@ class NishikiConfig(typing.NamedTuple):
     #   * example 3: [">> "FILE", ""] matches with "ls /some/existing/file/path "
     completions: list = [
         # Docker command completions.
-        (("docker", "exec", ".*"), "shell",  r""),
-        (("docker", "run",  ".*"), "shell",  r"docker image list --format '{{.Repository}}:{{.Tag}}'"),
+        (("docker", "exec", ".*"), "shell",  r"docker container ls -a --format '{{.Names}}'"),
+        (("docker", "run",  ".*"), "shell",  r"docker image ls --format '{{.Repository}}:{{.Tag}}'"),
         (("docker", ".*"),         "subcmd", r"docker --help | grep -E '^  [^ -]'"),
 
         # Git command completions.

@@ -11,7 +11,7 @@ import cui
 
 # The main function of this module.
 # The other functions other than this function should not be exposed to the outside.
-def preview(win, rect, filepath, max_preview_bytes = 4096):
+def preview(win, rect, filepath, max_preview_bytes=4096):
 
     # Decompose the rect into (x, y, w, h) for making it easier to use later.
     x, y, w, h = rect

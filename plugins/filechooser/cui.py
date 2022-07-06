@@ -100,7 +100,7 @@ def listbox(win, rect, contents, focus, cmap):
         # Format the string based on the width information.
         # The drawing area does not extend beyond the rect, and the inversion affects the right edge of the screen.
         # Make sure that the string length matches the width.
-        line = utils.clipstr(left, w - utils.strlen(right) - 4, fill = " ", append = "~")
+        line = utils.clipstr(left, w - utils.strlen(right) - 4, fill=" ", append="~")
         line = "  " + line + " " + right + " "
 
         # If attr is an integer, convert it to the corresponding color.
@@ -151,7 +151,7 @@ def textbox(win, rect, text):
 
             # Limit the number of characters to be drawn so that the drawing area does not exceed the rect.
             if col + utils.strlen(value) >= w:
-                value = utils.clipstr(value, w - col, append = "~")
+                value = utils.clipstr(value, w - col, append="~")
 
             # Interpret escape sequences.
             # Enclose it in try-except, since many errors tend to be caused in here.

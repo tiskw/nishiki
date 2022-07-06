@@ -16,7 +16,7 @@ def clip(x_min, x, x_max):
 # A function that limits the given string to a specified length. This function supports multi-byte characters.
 # If the specified string is longer than the specified length, fill the right side with the character "fill".
 # This function uses strwidths() to calculate the character width.
-def clipstr(text, width, fill = None, append = None):
+def clipstr(text, width, fill=None, append=None):
 
     # If the argument "fill" is specified and the string is shorter than the specified length, white spaces are added.
     # In some cases, this processing may generate a string which slightly exceed the specified length,
@@ -43,7 +43,7 @@ def clipstr(text, width, fill = None, append = None):
 # A function that returns the process information of the current user.
 # The return value is a list of dictionary which has the following keys, where "cmdname" is a base name of command.
 #     ["pid", "user", "start", "%cpu", "%mem", "command"]
-def dictps(my_process_only = True):
+def dictps(my_process_only=True):
 
     # Decomposes the result of the "ps" command into a dictionary.
     def tokenize(header, line):
@@ -55,7 +55,7 @@ def dictps(my_process_only = True):
     ps_command_out = runcmd(f"ps -e -o pid,user,start,pcpu,pmem,cmd").strip()
 
     # Decompose the command result in the first line (header part) and other parts.
-    header, *lines = (line.strip().split(maxsplit = 5) for line in ps_command_out.split("\n"))
+    header, *lines = (line.strip().split(maxsplit=5) for line in ps_command_out.split("\n"))
 
     # Converts the result to dictionary and returns it.
     items = [tokenize(header, line) for line in lines]
@@ -66,7 +66,7 @@ def dictps(my_process_only = True):
 # STDERR is disabled so as not to destroy the curses interface.
 def runcmd(command):
 
-    try   : return subprocess.check_output(command + " 2> /dev/null", shell = True).decode(errors = "backslashreplace").strip()
+    try   : return subprocess.check_output(command + " 2> /dev/null", shell=True).decode(errors="backslashreplace").strip()
     except: return None
 
 # A function that calculates the length of a string. This function supports multi-byte.
