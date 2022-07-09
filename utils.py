@@ -69,9 +69,9 @@ def get_git_status(color1 = "\x1b[32m", color2 = "\x1b[33m"):
     branch = runcmd("git rev-parse --abbrev-ref HEAD 2> /dev/null")
     status = runcmd("git status --porcelain 2> /dev/null")
 
-    if   branch and status: return (color2 + "\ufb2b " + branch + "\x1b[0m")
-    elif branch           : return (color1 + "\uf9c1 " + branch + "\x1b[0m")
-    else                  : return (" "                + branch + "\x1b[0m")
+    if   branch and status: return (color2 + branch + "!\x1b[0m")
+    elif branch           : return (color1 + branch + " \x1b[0m")
+    else                  : return (         branch + " \x1b[0m")
 
 
 def get_color(path, ls_colors={}):
