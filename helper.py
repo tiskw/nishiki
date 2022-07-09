@@ -37,8 +37,8 @@ class Helper:
         # Update window size.
         self.size = (os.get_terminal_size()[0], self.cfg.height)
 
-        # Erase cache of file paths.
-        self.cache["path"].clear()
+        # Erase caches.
+        self.cache = {ft:dict() for ft in self.FUNCTYPES + [None]}
 
     def __exit__(self ,type, value, traceback):
         """
@@ -76,7 +76,8 @@ class Helper:
         target = tokens[-1] if len(tokens) > 0 else ""
 
         # Find matched preproc function and it's attributes (i.e. function type and option).
-        ftype, option, cfunc = get_matched_preproc_func(tokens)
+        # If the `tokens` is empty list, then `token` will be replaced to `[""]`.
+        ftype, option, cfunc = get_matched_preproc_func(tokens if tokens else [""])
 
         # Run the preproc function.
         self.result, self.lines = cfunc(target, tokens, lhs, option, *self.size, self.cache[ftype], self.cfg)
