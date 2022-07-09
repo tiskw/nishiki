@@ -12,7 +12,6 @@ class NishikiConfig(typing.NamedTuple):
     This class provides a collection of immutable constant values as a named tuple for
     customizing the configuration of Nishiki.
     """
-
     ################################################################################################
     # Basic settings.
     ################################################################################################

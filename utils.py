@@ -3,7 +3,7 @@ This `utils` module provides utility functions used in Nishiki.
 """
 
 # Import standard libraries.
-import os, re, shlex, stat, subprocess, unicodedata
+import os, re, stat, subprocess, unicodedata
 
 
 def strwidth(text):
@@ -84,7 +84,10 @@ def get_color(path, ls_colors={}):
     Returns:
         str: ANSI escape sequence of the file colorization.
     """
-    mode = path.stat().st_mode
+    # Get file stat.
+    mode = path.stat(follow_symlinks=False).st_mode
+
+    # Returns color string (ANSI escape sequence).
     if   stat.S_ISBLK(mode)  != 0: return "\x1b["  + ls_colors.get("bd", "0") + "m"
     elif stat.S_ISCHR(mode)  != 0: return "\x1b["  + ls_colors.get("cd", "0") + "m"
     elif stat.S_ISFIFO(mode) != 0: return "\x1b["  + ls_colors.get("pi", "0") + "m"
