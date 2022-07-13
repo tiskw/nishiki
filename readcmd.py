@@ -179,6 +179,9 @@ class ReadCmd:
             # Synchronize editor history data.
             self.editor.set_history(self.histmn.data)
 
+            # Forcibly changed to insert mode.
+            self.editor.mode = "I"
+
             # Initialize returned value.
             ret, cache = None, {"cwd" : utils.getcwd(), "git" : utils.get_git_status(),
                                 "host": os.uname()[1],  "user": getpass.getuser()}
