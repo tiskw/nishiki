@@ -85,7 +85,7 @@ def get_color(path, ls_colors={}):
         str: ANSI escape sequence of the file colorization.
     """
     # Get file stat.
-    mode = path.stat(follow_symlinks=False).st_mode
+    mode = path.lstat().st_mode
 
     # Returns color string (ANSI escape sequence).
     if   stat.S_ISBLK(mode)  != 0: return "\x1b["  + ls_colors.get("bd", "0") + "m"
