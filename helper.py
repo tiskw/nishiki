@@ -3,7 +3,7 @@ This `helper` module provides `Helper` class which has a function to complete us
 """
 
 # Import standard libraries.
-import mimetypes, re, os, pathlib
+import itertools, mimetypes, re, os, pathlib
 
 # Import original modules.
 import utils
@@ -206,7 +206,7 @@ def preproc_path(target, tokens, lhs, option, width, height, cache, cfg):
         result (str) : Completion result.
         lines  (list): List of completion lines.
     """
-    def colorize_name(name, path):
+    def colorize(name, path):
         """
         Colorize file name.
 
@@ -219,6 +219,19 @@ def preproc_path(target, tokens, lhs, option, width, height, cache, cfg):
         """
         return utils.get_color(path, cfg.ls_colors) + str(name) + "\x1b[0m"
 
+    def sort_key(filename, dirpath):
+        """
+        Sorting key for group-directories-first sorting.
+
+        Args:
+            filename (str): File name.
+            dirpath  (str): Directory path.
+
+        Returns:
+            sort_target (str): String instance to be sorted.
+        """
+        return ("d_" if os.path.isdir(os.path.join(dirpath, filename)) else "f_") + filename
+
     # Split the target token to directory path and file name while expandnig tilde `~` to `$HOME`.
     # NOTE: The `target_dir` will be an empty strnig if the target directory is the current directory.
     if target.endswith("/"): target_dir, target_name = (os.path.expanduser(target), "")
@@ -228,13 +241,22 @@ def preproc_path(target, tokens, lhs, option, width, height, cache, cfg):
     if not os.path.exists(target_dir if target_dir else "."):
         return preproc_from_candidates({}, target, lhs, width, height)
 
-    # If the target filename is a hidden file, then show all files including hidden files.
-    show_dot = target_name.startswith(".")
+    # If the target directory is not in the cache, create the cache,
+    # where the cache is a sorted list of file names in the directory.
+    if target_dir not in cache:
+        cache[target_dir] = sorted(os.listdir(target_dir if target_dir else "."),
+                                   key=lambda name: sort_key(name, target_dir))
 
-    # Get a list of files in the directory and create candidates dictionary.
-    names = sorted([name for name in os.listdir(target_dir if target_dir else ".") if name.startswith(target_name)])
-    paths = [name if target_dir == "./" else os.path.join(target_dir, name) for name in names[:cfg.max_comp_items]]
-    cands = {path:colorize_name(name, path) for name, path in zip(names, paths) if show_dot or not name.startswith(".")}
+    # Get a list of files in the directory.
+    names = (name for name in cache[target_dir] if name.startswith(target_name))
+
+    # If the target filename is not a hidden file, drop all hidden files from the candidates.
+    if not target_name.startswith("."):
+        names = (name for name in names if not name.startswith("."))
+
+    # Create candidate dictionaly.
+    pairs = ((name, os.path.join(target_dir, name)) for name in names)
+    cands = {path:colorize(name, path) for name, path in itertools.islice(pairs, 0, cfg.max_comp_items)}
 
     # Computes `result` and `lines` from candidate dictionary and returns them.
     return preproc_from_candidates(cands, target, lhs, width, height)
@@ -328,8 +350,8 @@ def preproc_shell(target, tokens, lhs, option, width, height, cache, cfg):
         lines  (list): List of completion lines.
     """
     # Run the given command, filter matched lines, and create candidate dictionary.
-    lines = utils.filter_startswith(target, utils.runcmd(option, split=True, cache=cache))
-    cands = {s.split()[0]:s for s in lines[:cfg.max_comp_items] if s}
+    lines = (line for line in utils.runcmd(option, split=True, cache=cache) if line.startswith(target))
+    cands = {s.split()[0]:s for s in itertools.islice(lines, 0, cfg.max_comp_items) if s}
 
     # Computes `result` and `lines` from candidate dictionary and returns them.
     return preproc_from_candidates(cands, target, lhs, width, height)
@@ -373,8 +395,8 @@ def preproc_subcmd(target, tokens, lhs, option, width, height, cache, cfg):
         return token1 + separator + token2
 
     # Run the given command, filter matched lines, and create candidate dictionary.
-    lines = utils.filter_startswith(target, utils.runcmd(option, split=True, cache=cache))
-    cands = {s.split()[0]:get_display_string(s) for s in lines[:cfg.max_comp_items] if s}
+    lines = (line for line in utils.runcmd(option, split=True, cache=cache) if line.startswith(target))
+    cands = {s.split()[0]:get_display_string(s) for s in itertools.islice(lines, 0, cfg.max_comp_items) if s}
 
     # Computes `result` and `lines` from candidate dictionary and returns them.
     return preproc_from_candidates(cands, target, lhs, width, height)
