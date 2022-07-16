@@ -116,7 +116,7 @@ class ViEditor(EditorBase):
             self.mode: Updates editing mode.
         """
         # Mode transition.
-        if c in {"a", "i", "A", "I"}: self.mode = "I"
+        if c in {"a", "i", "A", "I", "s", "S"}: self.mode = "I"
 
         # Text editing.
         if   c == "0": self.lhs, self.rhs = ("",                       self.lhs + self.rhs)
