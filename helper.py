@@ -111,10 +111,12 @@ def match(patterns, tokens, index_token=0):
 
         # Case 2: pattern "FILE"
         elif pattern == "FILE":
-            if not os.path.exists(token): return False
+            if not os.path.exists(token):
+                return False
 
         # Case 3: others
-        elif not re.match(pattern, token): return False
+        elif not re.match(pattern, token):
+            return False
 
         index_token += 1
 
@@ -204,21 +206,35 @@ def preproc_path(target, tokens, lhs, option, width, height, cache, cfg):
         result (str) : Completion result.
         lines  (list): List of completion lines.
     """
-    # Get target directory.
-    dirpath = pathlib.Path(os.path.expanduser(target))
-    dirpath = dirpath if (dirpath.is_dir() and target.endswith("/")) else dirpath.parent
+    def colorize_name(name, path):
+        """
+        Colorize file name.
+
+        Args:
+            name (str): File name.
+            path (str): File path which is used for getting file attributes.
+
+        Returns:
+            colorized_name (str): File name clorized by ANSI escape sequence.
+        """
+        return utils.get_color(path, cfg.ls_colors) + str(name) + "\x1b[0m"
+
+    # Split the target token to directory path and file name while expandnig tilde `~` to `$HOME`.
+    # NOTE: The `target_dir` will be an empty strnig if the target directory is the current directory.
+    if target.endswith("/"): target_dir, target_name = (os.path.expanduser(target), "")
+    else                   : target_dir, target_name = os.path.split(os.path.expanduser(target))
 
     # Returns empty candidates if the `dirpath` does not exists.
-    if not dirpath.exists(): return preproc_from_candidates({}, target, lhs, width, height)
+    if not os.path.exists(target_dir if target_dir else "."):
+        return preproc_from_candidates({}, target, lhs, width, height)
 
     # If the target filename is a hidden file, then show all files including hidden files.
-    show_dot = os.path.basename(target).startswith(".")
+    show_dot = target_name.startswith(".")
 
-    # Otherwise, get a list of files in the directory and create candidates dictionary.
-    paths = utils.sort_path(utils.filter_startswith(os.path.expanduser(target), dirpath.iterdir()))
-    name  = lambda path: str(path).replace(os.path.expanduser("~"), "~")
-    disp  = lambda path: utils.get_color(path, cfg.ls_colors) + str(path.name) + "\x1b[0m"
-    cands = {name(path):disp(path) for path in paths if (show_dot or not path.name.startswith("."))}
+    # Get a list of files in the directory and create candidates dictionary.
+    names = sorted([name for name in os.listdir(target_dir if target_dir else ".") if name.startswith(target_name)])
+    paths = [name if target_dir == "./" else os.path.join(target_dir, name) for name in names[:cfg.max_comp_items]]
+    cands = {path:colorize_name(name, path) for name, path in zip(names, paths) if show_dot or not name.startswith(".")}
 
     # Computes `result` and `lines` from candidate dictionary and returns them.
     return preproc_from_candidates(cands, target, lhs, width, height)
@@ -270,7 +286,8 @@ def preproc_preview(target, tokens, lhs, option, width, height, cache, cfg):
     path = pathlib.Path(tokens[-2] if len(tokens) > 1 else "").resolve()
 
     # Do nothing if the target file not exists.
-    if not path.is_file(): return (result, lines)
+    if not path.is_file():
+        return (result, lines)
 
     # Compute width of the left-side of the preview window.
     w = width - int(width * cfg.preview_window_ratio) - len(cfg.preview_delim)
@@ -280,7 +297,8 @@ def preproc_preview(target, tokens, lhs, option, width, height, cache, cfg):
         cache[str(path)] = get_preview_contents(path, cfg.previews)
 
     # Do nothing if preview contents is None (i.e. preview command is not registered).
-    if cache[str(path)] is None: return (result, lines)
+    if cache[str(path)] is None:
+        return (result, lines)
 
     # Compute preview lines.
     preview_lines = cache[str(path)] + [""] * height
@@ -311,7 +329,7 @@ def preproc_shell(target, tokens, lhs, option, width, height, cache, cfg):
     """
     # Run the given command, filter matched lines, and create candidate dictionary.
     lines = utils.filter_startswith(target, utils.runcmd(option, split=True, cache=cache))
-    cands = {s.split()[0]:s for s in lines if s}
+    cands = {s.split()[0]:s for s in lines[:cfg.max_comp_items] if s}
 
     # Computes `result` and `lines` from candidate dictionary and returns them.
     return preproc_from_candidates(cands, target, lhs, width, height)
@@ -342,7 +360,8 @@ def preproc_subcmd(target, tokens, lhs, option, width, height, cache, cfg):
             text (str): A sub-command string.
         """
         # Do nothing if no whitespace in the given string.
-        if " " not in text: return text
+        if " " not in text:
+            return text
 
         # Split sub-command string to command and description.
         token1, token2 = text.split(maxsplit=1)
@@ -355,7 +374,7 @@ def preproc_subcmd(target, tokens, lhs, option, width, height, cache, cfg):
 
     # Run the given command, filter matched lines, and create candidate dictionary.
     lines = utils.filter_startswith(target, utils.runcmd(option, split=True, cache=cache))
-    cands = {s.split()[0]:get_display_string(s) for s in lines if s}
+    cands = {s.split()[0]:get_display_string(s) for s in lines[:cfg.max_comp_items] if s}
 
     # Computes `result` and `lines` from candidate dictionary and returns them.
     return preproc_from_candidates(cands, target, lhs, width, height)
@@ -389,6 +408,9 @@ def preproc_from_candidates(cands, target, lhs, width, height):
         token = result.split()[-1] if result else ""
         if os.path.isdir(os.path.expanduser(token)): result = result.rstrip("/") + "/"
         elif len(cands) == 1                       : result = result.rstrip(" ") + " "
+
+        # Repalce `$HOME` to `~`.
+        result = result.replace(os.environ["HOME"], "~")
 
         return (result, lines)
 
