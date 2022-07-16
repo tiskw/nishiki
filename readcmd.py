@@ -7,7 +7,7 @@ Reference:
 """
 
 # Import standard libraries.
-import getpass, os, pathlib, re, subprocess, sys, tty, termios
+import getpass, os, pathlib, re, signal, subprocess, sys, tty, termios
 
 # Import original modules.
 import editor, helper, writer, utils
@@ -114,16 +114,8 @@ class ReadCmd:
         # Resotre terminal attribute (i.e. exiting cbreak mode).
         termios.tcsetattr(self.fileno, termios.TCSADRAIN, self.tacopy)
 
-    def __input_mainloop__(self, ret, cache):
+    def __draw_prompt__(self, cache):
         """
-        Main loop of the interactive session.
-
-        Args:
-            ret   (str) : User input.
-            cache (dict): Cache variables used in the prompts.
-
-        Notes:
-            The variable `ret` is `None` if user is still typing something.
         """
         # Complete user input.
         self.helper.preproc(self.editor.lhs, self.editor.rhs)
@@ -143,10 +135,24 @@ class ReadCmd:
         # Write prompts.
         self.writer.write(H1, H2, P1, P2, clhs, crhs, self.helper.lines, chint)
 
+        return chint
+
+    def __input_mainloop__(self, ret, cache):
+        """
+        Main loop of the interactive session.
+
+        Args:
+            ret   (str) : User input.
+            cache (dict): Cache variables used in the prompts.
+
+        Notes:
+            The variable `ret` is `None` if user is still typing something.
+        """
+        # Draw prompt.
+        chint = self.__draw_prompt__(cache)
+
         # Get user input.
         self.editor.input()
-
-        # Handle used inputs.
 
         # If the last character is Ctrl-D, or Enter key, then set the user input text to `ret`.
         if   self.editor.char == "^D": ret = "^D"
@@ -177,6 +183,9 @@ class ReadCmd:
         """
         with self, self.editor, self.writer, self.helper:
 
+            # Override SIGINT signal.
+            signal.signal(signal.SIGINT, self.signal_handler)
+
             # Initialize left and right hand side of the user input.
             self.editor.lhs, self.editor.rhs = lhs, rhs
 
@@ -187,11 +196,11 @@ class ReadCmd:
             self.editor.mode = "I"
 
             # Initialize returned value.
-            ret, cache = None, {"cwd" : utils.getcwd(), "git" : utils.get_git_status(),
-                                "host": os.uname()[1],  "user": getpass.getuser()}
+            ret, self.cache = None, {"cwd" : utils.getcwd(), "git" : utils.get_git_status(),
+                                     "host": os.uname()[1],  "user": getpass.getuser()}
 
             # Main loop of user input.
-            while ret is None: ret = self.__input_mainloop__(ret, cache)
+            while ret is None: ret = self.__input_mainloop__(ret, self.cache)
 
         # Manage keybinds.
         if self.KEYBIND_SEPARATOR in ret:
@@ -220,6 +229,22 @@ class ReadCmd:
             ret = self.config.aliases[tokens[0]] + ret[len(tokens[0]):]
 
         return ret
+
+    def signal_handler(self, signum, frame):
+        """
+        Signal handler for command editing session.
+
+        Args:
+            signum (int)  : Signal number.
+            frame  (frame): Frame object.
+        """
+        if signum == signal.SIGINT:
+
+            # Clear editing buffer.
+            self.editor.lhs, self.editor.rhs = ("", "")
+
+            # Re-draw prompt.
+            self.__draw_prompt__(self.cache)
 
 
 # vim: expandtab tabstop=4 shiftwidth=4 fdm=marker
