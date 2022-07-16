@@ -3,7 +3,7 @@ This `utils` module provides utility functions used in Nishiki.
 """
 
 # Import standard libraries.
-import os, re, stat, subprocess, unicodedata
+import os, pathlib, re, stat, subprocess, unicodedata
 
 
 def strwidth(text):
@@ -79,13 +79,13 @@ def get_color(path, ls_colors={}):
     File path colorization.
 
     Args:
-        path (pathlib.Path): A `pathlib.Path` instance to be colorized.
+        path (str or pathlib.Path): A `pathlib.Path` instance to be colorized.
 
     Returns:
         str: ANSI escape sequence of the file colorization.
     """
     # Get file stat.
-    mode = path.stat(follow_symlinks=False).st_mode
+    mode = path.lstat().st_mode if isinstance(path, pathlib.Path) else os.lstat(path).st_mode
 
     # Returns color string (ANSI escape sequence).
     if   stat.S_ISBLK(mode)  != 0: return "\x1b["  + ls_colors.get("bd", "0") + "m"
@@ -113,6 +113,7 @@ def colorize(text, syntax="sh", enc="utf-8"):
     """
     # Text colorization.
     return subprocess.check_output(["highlight", "-q", "-S", syntax, "-O", "ansi"],
+                                   stderr=subprocess.STDOUT,
                                    input=str(text).encode(enc)).decode(enc).strip("\n")
 
 
@@ -126,7 +127,8 @@ def get_common_substr(strings):
     Returns:
         str: Common sub-string of the string list.
     """
-    if len(strings) == 0: return ""
+    if len(strings) == 0:
+        return ""
 
     min_length = min(len(s) for s in strings)
 
@@ -280,13 +282,15 @@ def column(strs, width, height, delim="   "):
     for col in range(width // (len(delim) + 1)):
 
         # Exit if no string is remained.
-        if len(strs) <= height*col: return lines
+        if len(strs) <= height*col:
+            return lines
 
         # Compute the right position.
         c_pos += (0 if col == 0 else len(delim)) + max(map(strwidth, strs[height*col:height*col+height]))
 
         # Exit if line length exceeds the screen width.
-        if c_pos >= width: return lines
+        if c_pos >= width:
+            return lines
 
         # Create lines.
         for row in range(min(height, len(strs) - height*col)):
@@ -317,47 +321,6 @@ def parse_command_options(command, cache=dict()):
                 cache[command][opt.split("=")[0].strip()] = line.strip()
 
     return cache[command]
-
-
-def filter_startswith(word, targets):
-    """
-    Filter strings that matched (in terms of `startswith`) with the given `word`.
-
-    Args:
-        word    (str) : Matching word.
-        targets (list): A list of strings to be matched.
-
-    Returns:
-        (list): A list of strings that start with the given `word`.
-    """
-    return filter(lambda s: str(s).startswith(word), targets)
-
-
-def sort_path(list_paths, group_directories_first=True):
-    """
-    Returns sorted list of file paths.
-
-    Args:
-        list_paths              (list): A list of pathlib.Path instances.
-        group_directories_first (bool): True if prioritize directory.
-
-    Returns:
-        list_paths_sorted (list): Sorted path list.
-    """
-    def sort_key(path):
-        """
-        Sorting key for group-directories-first sorting.
-
-        Args:
-            path (pathlib.Path): Path instance.
-
-        Returns:
-            path_str (str): String instance to be sorted.
-        """
-        return ("d_" if path.is_dir() else "f_")  + str(path)
-
-    if group_directories_first: return sorted(list_paths, key=sort_key)
-    else                      : return sorted(list_paths)
 
 
 def deduplicate(list_strings):

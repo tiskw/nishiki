@@ -5,10 +5,10 @@ nishiki - a simple shell wrapper
 __VERSION__ = "0.0"
 
 # Import standard libraries.
-import argparse, datetime, importlib, os, traceback, shlex, subprocess, sys
+import argparse, datetime, importlib, os, signal, traceback, shlex, subprocess, sys
 
 # Import original modules.
-import readcmd, utils
+import readcmd, runner, utils
 
 
 def parse_args():
@@ -34,40 +34,6 @@ def parse_args():
     return parser.parse_args()
 
 
-def chdir(cmd, args):
-    """
-    Change current directory.
-
-    Args:
-        cmd  (str) : Raw user input.
-        args (list): Parsed used input.
-    """
-    if len(args) == 1: os.chdir(os.path.expanduser("~"))
-    else             : os.chdir(os.path.expanduser(args[1]))
-
-
-def run(cmd, args, cfg):
-    """
-    Run the given command.
-
-    Args:
-        cmd  (str)          : Raw user input.
-        args (list)         : Parsed user input.
-        cfg  (NishikiConfig): Config instance.
-    """
-    # Print user input.
-    datetimestr = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print("{C7}[{s}]{CX} {c}".format(c=utils.colorize(cmd), s=datetimestr, **cfg.colors))
-
-    # Run command.
-    if   args[0] == "exit": sys.exit()
-    elif args[0] == "cd"  : chdir(cmd, args)
-    else                  : subprocess.run(cmd, shell=True)
-
-    # Print blank line for readability.
-    print("")
-
-
 def main(args):
     """
     Entry point of Nishiki.
@@ -85,6 +51,9 @@ def main(args):
     # Create ReadCmd instance.
     rc = readcmd.ReadCmd(cfg)
 
+    # Create CommandRunner instance.
+    cr = runner.CmdRunner()
+
     # Print welcome message.
     print(cfg.welcome_message.format(**cfg.colors))
 
@@ -95,7 +64,7 @@ def main(args):
 
         # Run command if the user input is not None and not empty string.
         if ret is not None and len(ret) > 0:
-            try              : run(ret, shlex.split(ret), cfg)
+            try              : cr.run(ret, shlex.split(ret), cfg)
             except SystemExit: break
             except           : print(traceback.format_exc())
 
