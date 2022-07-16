@@ -25,6 +25,9 @@ class NishikiConfig(typing.NamedTuple):
     # Maximum size of the history.
     history_size: int = 10000
 
+    # Deny list of the history.
+    history_deny_list: list = ["exit .*", "^D", "^L"]
+
     # Path to a temporary file which is used for storing plugin's output.
     plugin_dump_path: str = "/tmp/nishiki/plugin_tmp_dump.txt"
 
@@ -33,6 +36,9 @@ class NishikiConfig(typing.NamedTuple):
 
     # Welcome message.
     welcome_message: str = "Welcome to {C1}N {C5}I {C2}S {C3}H {C5}I {C4}K {C5}I {CX}!!\n"
+
+    # Upper limit of candidates in command line completion.
+    max_comp_items: int = 128
 
     ################################################################################################
     # Prompt settings.
