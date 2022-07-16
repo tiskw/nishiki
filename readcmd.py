@@ -36,6 +36,10 @@ class HistoryManager:
         Args:
             text (str): A text to be appended.
         """
+        # Do nothing if the text starts with whitespace, or the text matches with the deny list.
+        if len(text) == 0 or text.startswith(" ") or any(re.match(pattern, text) for pattern in self.cfg.history_deny_list):
+            return
+
         # Append to history list.
         self.data = utils.deduplicate([text.strip()] + self.data)
 
