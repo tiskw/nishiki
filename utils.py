@@ -113,6 +113,7 @@ def colorize(text, syntax="sh", enc="utf-8"):
     """
     # Text colorization.
     return subprocess.check_output(["highlight", "-q", "-S", syntax, "-O", "ansi"],
+                                   stderr=subprocess.STDOUT,
                                    input=str(text).encode(enc)).decode(enc).strip("\n")
 
 
