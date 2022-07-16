@@ -105,11 +105,11 @@ class NishikiConfig(typing.NamedTuple):
         (("docker", ".*"),         "subcmd", r"docker --help | grep -E '^  [^ -]'"),
 
         # Git command completions.
-        (("git", "branch",   ".*"), "shell",  r"git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"),
-        (("git", "checkout", ".*"), "shell",  r"git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"),
-        (("git", "merge",    ".*"), "shell",  r"git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"),
-        (("git", "push",     ".*"), "shell",  r"git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"),
-        (("git", ".*"),             "subcmd", r"git --help | grep -E '^   [^ ]'"),
+        (("git", "branch",   ">>", ".*"), "shell",  r"git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"),
+        (("git", "checkout", ">>", ".*"), "shell",  r"git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"),
+        (("git", "merge",    ">>", ".*"), "shell",  r"git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"),
+        (("git", "push",     ">>", ".*"), "shell",  r"git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"),
+        (("git", ".*"),                   "subcmd", r"git --help | grep -E '^   [^ ]'"),
 
         # Ssh command completions.
         (("ssh", ".*"), "shell", "cat ~/.ssh/config | grep '^Host ' | cut -b 6-"),
