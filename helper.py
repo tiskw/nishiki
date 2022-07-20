@@ -427,14 +427,12 @@ def preproc_from_candidates(cands, target, lhs, width, height):
         result = lhs[:-len(target)] + utils.get_common_substr(list(cands.keys()))
 
         # Add "/" or " " if the current token is directory or unique.
-        token = result.split()[-1] if result else ""
-        if os.path.isdir(os.path.expanduser(token)): result = result.rstrip("/") + "/"
-        elif len(cands) == 1                       : result = result.rstrip(" ") + " "
+        token = os.path.expanduser(result.split()[-1] if result else "")
+        if   len(cands) == 1 and os.path.isdir(token): result = result.rstrip("/") + "/"
+        elif len(cands) == 1                         : result = result.rstrip(" ") + " "
 
-        # Repalce `$HOME` to `~`.
-        result = result.replace(os.environ["HOME"], "~")
-
-        return (result, lines)
+        # Repalce `$HOME` to `~` in `result`.
+        return (result.replace(os.environ["HOME"], "~"), lines)
 
     # Returns empty results if the candidate is empty.
     else: return (lhs, [""] * height)
