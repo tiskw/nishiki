@@ -34,6 +34,21 @@ def parse_args():
     return parser.parse_args()
 
 
+def save_crash_log():
+    """
+    Save traceback log.
+    """
+    # Create output directory if not exists.
+    os.makedirs(os.path.expanduser("~/.config/nishiki"), exist_ok=True)
+
+    # Create time stamp.
+    datetimestr = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+    # Save crash log.
+    with open(os.path.expanduser("~/.config/nishiki/crash_%s.log" % datetimestr)) as ifp:
+        ifp.write(traceback.format_exc())
+
+
 def main(args):
     """
     Entry point of Nishiki.
@@ -60,7 +75,8 @@ def main(args):
     while True:
 
         # Get user input.
-        ret = rc.input()
+        try   : ret = rc.input()
+        except: save_crash_log()
 
         # Run command if the user input is not None and not empty string.
         if ret is not None and len(ret) > 0:
