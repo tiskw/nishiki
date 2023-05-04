@@ -1,0 +1,112 @@
+# Config file for NiShiKi
+
+
+################################################################################
+# General settings
+################################################################################
+[GENERAL]
+
+# Height of drawing area.
+area_hgt = 12
+
+# Length of mergin in the column display.
+column_margin = 3
+
+
+################################################################################
+# Prompt settings
+################################################################################
+[PROMPT]
+
+prompt1 = "\u001B[37m[\u001B[32m{user}@{host}\u001B[37m]-[\u001B[33m{date}\u001B[37m]-[\u001B[34m{time}\u001B[37m]-[\u001B[35m{cwd}\u001B[37m]\u001B[m"
+prompt2 = "{git}"
+prompt3 = "\u001B[37m>>\u001B[m "
+
+
+################################################################################
+# Alias settings
+################################################################################
+[ALIAS]
+
+ls = "ls -h --color=auto --group-directories-first"
+ll = "ls -hl --color=auto --group-directories-first"
+la = "ls -ahl --color=auto --group-directories-first"
+sl = "ls -h --color=auto --group-directories-first"
+
+cp = "cp -i"
+mv = "mv -i"
+rm = "rm -i"
+
+diff = "diff --color=auto"
+grep = "grep --color=auto"
+
+
+################################################################################
+# Keybind settings
+################################################################################
+[KEYBIND]
+
+"^F" = "!int filechooser"
+"^P" = "!int procchooser"
+"^V" = "!ext xclip -o"
+
+
+################################################################################
+# Completion settings
+################################################################################
+[COMPLETION]
+
+completions = [
+    # Docker command completions.
+    [["docker", "exec", ".*"], "shell",  "docker container ls -a --format '{{.Names}}'"],
+    [["docker", "run",  ".*"], "shell",  "docker image ls --format '{{.Repository}}:{{.Tag}}'"],
+    [["docker", ".*"],         "subcmd", "docker --help | grep -E '^  [^ -]'"],
+
+    # Git command completions.
+    [["git", "branch",   ">>", ".*"], "shell",  "git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"],
+    [["git", "checkout", ">>", ".*"], "shell",  "git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"],
+    [["git", "merge",    ">>", ".*"], "shell",  "git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"],
+    [["git", "push",     ">>", ".*"], "shell",  "git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"],
+    [["git", ".*"],                   "subcmd", "git --help | grep -E '^   [^ ]'"],
+
+    # Ssh command completions.
+    [["ssh", ".*"], "shell", "cat ~/.ssh/config | grep '^Host ' | cut -b 6-"],
+
+    # Low priority completions.
+    [["[./~].*",],       "path",    ""],
+    [[".+",],            "command", ""],
+    [[">>", "-.*"],      "option",  ""],
+    [[">>", "FILE", ""], "preview", ""],
+    [[">>", ".*"],       "path",    ""],
+]
+
+
+################################################################################
+# Preview settings
+################################################################################
+[PREVIEW]
+
+# An ordered list of preview table, where the format of the key is MIME type splitted
+# by "/". You are able to check the file MIME type by the command `file --mime <filepath>`.
+previews = [
+    # Text file: colorize file.
+    ["text/.*",          "timeout 0.1s highlight --force -O ansi {path}"],
+    ["application/x-sh", "timeout 0.1s highlight --force -O ansi {path}"],
+
+    # Media file: display media infomation.
+    ["image/.*", "file {path} | sed 's/, /\n/g'"],
+    ["video/.*", "file {path} | sed 's/, /\n/g'"],
+
+    # Archive file: list archive contents.
+    [".*/x-7z-compressed", "timeout 0.1s 7z l    {path}"],
+    [".*/zip",             "timeout 0.1s zipinfo {path}"],
+]
+
+# Delimiter of the preview window.
+preview_delim = " \u2502 "
+
+# Ratio of the preview window.
+preview_ratio = 0.45
+
+
+# vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker
