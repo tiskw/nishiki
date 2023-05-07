@@ -6,9 +6,18 @@
 
 #include "history_manager.hxx"
 
+#include <algorithm>
 #include <fstream>
+#include <set>
 
 #include "command_runner.hxx"
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// File local macros
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Chack the given element is contained in the given set.
+#define contains(map, elem) (map.find(elem) != map.end())
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // HistoryManager: Constructors
@@ -99,7 +108,47 @@ void
 HistoryManager::normalize(void)
 const noexcept
 {
-    // TBD.
+    // Initialize a vector to store histories.
+    std::vector<StringX> histories;
+
+    // Open the history file with read permission.
+    std::ifstream ifs(this->path.string());
+
+    // Read the history file and memorize it.
+    for (std::string line; getline(ifs, line); line.clear())
+        histories.emplace_back(StringX(line).strip());
+
+    // Close the file.
+    ifs.close();
+
+    // Reverse the order of the histories.
+    std::reverse(histories.begin(), histories.end());
+
+    // Initialize a vector to store deduplicated histories.
+    std::vector<StringX> histories_deduplicated;
+
+    // Initialize a set to judge deduplication.
+    std::set<StringX> hist_cache;
+
+    // Deduplicate the histories.
+    for (const StringX& hist : histories)
+    {
+        if ((hist.size() > 0) and (not contains(hist_cache, hist)))
+        {
+            histories_deduplicated.emplace_back(hist);
+            hist_cache.insert(hist);
+        }
+    }
+
+    // Restore the order of the histories.
+    std::reverse(histories_deduplicated.begin(), histories_deduplicated.end());
+
+    // Open the history file again with write permission.
+    std::ofstream ofs(this->path.string());
+
+    // Write to the history file.
+    for (const StringX& hist : histories_deduplicated)
+        ofs << hist << std::endl;
 }
 
 ///// FUNCTION /////
