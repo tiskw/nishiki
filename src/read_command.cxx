@@ -147,16 +147,11 @@ const noexcept
               + delim + this->buffer.get_rhs()
               + delim + StringX(command.substr(4, std::string::npos)).strip());
 
+    // Parse error.
     else
         std::cout << "\033[33mNiShiKi: Error while parsing NiShiKi-special command \033[m" << std::endl;
 
     return StringX("");
-
-    // // Parse error.
-    // else return (delim + StringX("int")
-    //            + delim + this->buffer.get_lhs()
-    //            + delim + this->buffer.get_rhs()
-    //            + delim + StringX("echo keybind command parse error: " + command));
 }
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker
