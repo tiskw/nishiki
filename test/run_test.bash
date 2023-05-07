@@ -116,7 +116,8 @@ sleep 0.1s
 # Test file chooser 1/2.
 xdotool type 'ls '
 xdotool key ctrl+f
-xdotool type 'jjjjjjjjkkkkkkkkhl'
+xdotool type 'jjjjjjjjkkkkkkkkhl-l'
+xdotool type 'G0  '
 xdotool type '/LIC'
 xdotool key Return
 xdotool key Return
@@ -135,7 +136,7 @@ xdotool type 'me'
 xdotool key Return
 xdotool key ctrl+f
 xdotool key ctrl+b
-xdotool key Return
+xdotool type 'q'
 sleep 0.2s
 xdotool key Return
 sleep 0.2s

@@ -82,7 +82,7 @@ const noexcept
     std::ofstream ofs(this->path.string(), std::ios_base::app);
 
     // Write to the history file.
-    ofs << command.string() << std::endl; 
+    ofs << command.strip().string() << std::endl; 
 }
 
 ///// FUNCTION /////

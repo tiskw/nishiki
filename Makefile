@@ -37,6 +37,8 @@ test: external/cxxopts.hpp external/glob.hpp external/toml.hpp version.hxx
 	python3 build.py --target nishiki-test --src ./src --out ./test --link ncursesw --cc gcc --gcov
 	bash test/run_test.bash &
 	test/nishiki-test --config test/config.toml
+	test/nishiki-test --help
+	test/nishiki-test --version
 	lcov -c -d test/ -o test/lcov.info
 	genhtml test/lcov.info -o test/lcov/
 

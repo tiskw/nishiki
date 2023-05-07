@@ -92,11 +92,15 @@ noexcept
     if (this->storage.size() > 0)
     {
         // Get the current editing buffer.
-        std::pair<StringX, StringX> item = this->storage.back();
+        std::pair<StringX, StringX>& item = this->storage.back();
 
         // Discard the current editing buffer if not the history target.
         if (not HistoryManager::is_history_target(item.first + item.second))
             this->storage.pop_back();
+
+        // Strip the editing buffer.
+        if (item.second.size() > 0) item.second = item.second.strip();
+        else                        item.first  = item.first.strip();
     }
 
     // Create new buffer in the storage.
