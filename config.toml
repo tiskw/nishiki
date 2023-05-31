@@ -12,15 +12,17 @@ area_hgt = 12
 # Length of mergin in the column display.
 column_margin = 3
 
+# Color of command hints.
+hint_color = "\u001B[97m"
 
 ################################################################################
 # Prompt settings
 ################################################################################
 [PROMPT]
 
-prompt1 = "\u001B[37m[\u001B[32m{user}@{host}\u001B[37m]-[\u001B[33m{date}\u001B[37m]-[\u001B[34m{time}\u001B[37m]-[\u001B[35m{cwd}\u001B[37m]\u001B[m"
+prompt1 = "\u001B[97m[\u001B[32m{user}@{host}\u001B[97m]-[\u001B[33m{date}\u001B[97m]-[\u001B[34m{time}\u001B[97m]-[\u001B[35m{cwd}\u001B[97m]\u001B[m"
 prompt2 = "{git}"
-prompt3 = "\u001B[37m>>\u001B[m "
+prompt3 = "\u001B[97m>>\u001B[m "
 
 
 ################################################################################

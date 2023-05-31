@@ -980,6 +980,7 @@ const noexcept
 
     // Initialize iterators.
     StringX::const_iterator iter     = this->cbegin();
+    StringX::const_iterator iter_bgn = this->cbegin();
     StringX::const_iterator iter_end = this->cend();
 
     while (iter != iter_end)
@@ -999,9 +1000,12 @@ const noexcept
             default  : push_normal_token(token, iter, iter_end);       break;  // Others.
         }
 
-        // Automatically add zero-width characters (e.g. ANSI escape sequence).
-        while ((iter != iter_end) and (iter->width == 0))
-            token.push_back(*(iter++));
+        // Automatically push-back zero-width characters (e.g. ANSI escape sequence).
+        while ((token.width() > 0) and (iter != iter_bgn) and (iter != iter_end) and (token.back().width == 0))
+        {
+            --iter;
+            token.pop(StringX::Pos::END);
+        }
 
         // Push the token to the returned vector.
         if (token.size() > 0)
@@ -1169,19 +1173,19 @@ noexcept
     //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
     //   load. This function-local function is sometimes used in the source code of NiShiKi.
     //
-    constexpr auto check_terminate_condition = [](const size_t& idx1, const StringX& s1,
-                                                  const size_t& idx2, const StringX& s2)
+    constexpr auto check_terminate_condition = [](size_t idx1, const StringX& s1,
+                                                  size_t idx2, const StringX& s2)
     {
         // End condition 1: both s1 and s2 finished at the same time.
         if ((idx1 == s1.size()) and (idx2 == s2.size()))
             return (int8_t) 0;
 
         // End condition 2: s1 finished earlier.
-        if ((idx1 == s1.size()))
+        if (idx1 == s1.size())
             return (int8_t) -1;
 
         // End condition 3: s2 finished earlier.
-        if ((idx2 == s2.size()))
+        if (idx2 == s2.size())
             return (int8_t) +1;
 
         // End condition 4: faced to inequal character and s1 < s2.
@@ -1199,11 +1203,11 @@ noexcept
     while (true)
     {
         // Skip zero-width characters.
-        while (idx1 < s1.size() and s1[idx1].width == 0)
+        while (idx1 < s1.size() and (s1[idx1].width == 0))
             ++idx1;
  
         // Skip zero-width characters.
-        while (idx2 < s2.size() and s2[idx2].width == 0)
+        while (idx2 < s2.size() and (s2[idx2].width == 0))
             ++idx2;
 
         res = check_terminate_condition(idx1, s1, idx2, s2);
