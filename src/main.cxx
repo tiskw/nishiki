@@ -112,7 +112,7 @@ main(const int32_t argc, const char* argv[])
 
     // Show welcome message.
     std::cout << "Welcome to ";
-    std::cout << "\033[31mN \033[37mI \033[32mS \033[33mH \033[37mI \033[35mK \033[37mI\033[m !!";
+    std::cout << "\033[31mN \033[35mI \033[32mS \033[33mH \033[35mI \033[36mK \033[35mI\033[m !!";
     std::cout << std::endl;
 
     // Load config file.

@@ -76,6 +76,7 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
 
     if      ((section == "GENERAL") and (value == "area_hgt"     )) config.area_hgt      = node.value_or(config.area_hgt);
     else if ((section == "GENERAL") and (value == "column_margin")) config.column_margin = node.value_or(config.column_margin);
+    else if ((section == "GENERAL") and (value == "hint_color"   )) config.hint_color = node.value_or(config.hint_color);
     else if ((section == "GENERAL")                               ) show_error_message_and_exit(section, value);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -214,6 +215,7 @@ noexcept
     config.area_hgt      = 6u;
     config.column_margin = 3u;
     config.path_tmp_file = "/tmp/nishiki.tmp";
+    config.hint_color    = "\033[97m";
 
     // The [PROMPT] settings.
     config.prompt1 = "[{user}@{host}]-[{cwd}]";
