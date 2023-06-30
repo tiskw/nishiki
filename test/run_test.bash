@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# This is a test runner for NiShiKi, that is, call NiShiKi and type command
+# some commands automatically. This script assumed to be called as a background
+# process, and NiShiKi is called just after calling this script.
+
 ####################################################################################################
 # Wait while NiShiKi test command found.
 ####################################################################################################
@@ -44,13 +48,13 @@ fi
 # Basic commands.
 xdotool type 'echo "NiShiKi"'
 xdotool key Return
-sleep 0.1s
+sleep 0.2s
 
 # Delete characters.
 xdotool type 'echo "NiShiKi"'
 xdotool key ctrl+h
 xdotool key Backspace
-sleep 0.1s
+sleep 0.2s
 
 # Normal mode.
 xdotool type 'echo "NiShiKi"'
@@ -63,7 +67,7 @@ xdotool type 'A'
 xdotool key ctrl+bracketleft
 xdotool type 'I'
 xdotool key Return
-sleep 0.1s
+sleep 0.2s
 
 # Filename completion.
 xdotool type 'ls RE'
@@ -72,46 +76,46 @@ xdotool key Return
 xdotool type 'ls src/c'
 xdotool key ctrl+i
 xdotool key Return
-sleep 0.1s
+sleep 0.2s
 
 # Directory path completion.
 xdotool type 'ls ext'
 xdotool key Tab
 xdotool key Return
-sleep 0.1s
+sleep 0.2s
 
 # History completion.
 xdotool type 'ls '
 xdotool key ctrl+n 
 xdotool key Return
-sleep 0.1s
+sleep 0.2s
 
 # Option completion.
 xdotool type 'find --help '
 xdotool key Return
-sleep 0.1s
+sleep 0.2s
 
 # Subcommand completion.
 xdotool type 'git status '
 xdotool key Return
-sleep 0.1s
+sleep 0.2s
 
 # Shell completions.
 xdotool type 'git branch '
 xdotool key Return
-sleep 0.1s
+sleep 0.2s
 
 # Preview completion.
 xdotool type 'ls src/main.cxx '
 xdotool key Return
 xdotool type 'ls LICENSE '
 xdotool key Return
-sleep 0.1s
+sleep 0.2s
 
 # Alias command.
 xdotool type 'alias'
 xdotool key Return
-sleep 0.1s
+sleep 0.2s
 
 # Test file chooser 1/2.
 xdotool type 'ls '
@@ -169,7 +173,7 @@ xdotool type 'cd not_existing_directory'
 xdotool key Return
 sleep 0.1s
 
-# Exit NiSHiKi.
-xdotool key ctrl+d
+# # Exit NiSHiKi.
+# xdotool key ctrl+d
 
 # vim: noexpandtab shiftwidth=4 tabstop=4 fdm=marker

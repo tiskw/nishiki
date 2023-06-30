@@ -88,6 +88,16 @@ void
 TextBuffer::create(const StringX& lhs, const StringX& rhs)
 noexcept
 {
+    // Append the editing buffer if the current index is not the last buffer.
+    if ((this->storage.size() > 0) and (this->index < (this->storage.size() - 1)))
+    {
+        // Append the buffer to the last.
+        this->storage.emplace_back(this->storage[this->index]);
+
+        // Delete the appended buffer.
+        this->storage.erase(this->storage.begin() + this->index);
+    }
+
     // Do nothing if the buffer storage is empty.
     if (this->storage.size() > 0)
     {

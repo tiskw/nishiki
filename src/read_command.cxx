@@ -105,7 +105,8 @@ noexcept
 
             // Exit function if ENTER is pressed.
             case '\n':
-            case '\r': this->hist.append(lhs + rhs); return (lhs + rhs);
+            case '\r': this->hist.append(lhs + rhs);
+                       return (lhs + rhs);
 
             // Otherwise update editing buffer.
             default: this->buffer.edit(cx); break;
