@@ -173,7 +173,7 @@ xdotool type 'cd not_existing_directory'
 xdotool key Return
 sleep 0.1s
 
-# # Exit NiSHiKi.
-# xdotool key ctrl+d
+# Exit NiSHiKi.
+xdotool key ctrl+d
 
 # vim: noexpandtab shiftwidth=4 tabstop=4 fdm=marker
