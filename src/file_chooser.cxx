@@ -94,17 +94,17 @@ noexcept
             switch (key)
             {
                 // Keybind to continue the file chooser process.
-                case 0x02: this->move_index_cdir(-hgt_list);     break;
-                case 0x06: this->move_index_cdir(+hgt_list);     break;
-                case '/' : this->is_grep_mode = true;            break;
-                case '-' : this->chdir_prev();                   break;
-                case 'G' : this->index_cdir = this->cdir.size(); break;
-                case 'h' : this->chdir_prev();                   break;
-                case 'j' : this->move_index_cdir(+1);            break;
-                case 'k' : this->move_index_cdir(-1);            break;
-                case 'l' : this->chdir_next();                   break;
-                case '0' : this->index_cdir = 0;                 break;
-                case ' ' : this->toggle_select();                break;
+                case 0x02: this->move_index_cdir(-hgt_list);         break;
+                case 0x06: this->move_index_cdir(+hgt_list);         break;
+                case '/' : this->is_grep_mode = true;                break;
+                case '-' : this->chdir_prev();                       break;
+                case 'G' : this->index_cdir = this->cdir.size() - 1; break;
+                case 'h' : this->chdir_prev();                       break;
+                case 'j' : this->move_index_cdir(+1);                break;
+                case 'k' : this->move_index_cdir(-1);                break;
+                case 'l' : this->chdir_next();                       break;
+                case '0' : this->index_cdir = 0;                     break;
+                case ' ' : this->toggle_select();                    break;
 
                 // Keybinds to exit the file chooser process.
                 case 'q' : return std::vector<StringX>();

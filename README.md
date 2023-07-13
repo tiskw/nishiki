@@ -74,7 +74,17 @@ For more details about the usage of NiShiKi, see [the online document](https://t
 For Developers
 ----------------------------------------------------------------------------------------------------
 
-Our code provides a way to test NiShiKi and measure the coverage of the source code.
+### Additional preparations
+
+You need to install the following packages to run `make check`, `make count` and `make test`.
+
+```console
+apt install cloc cppcheck lcov
+```
+
+### Test and coveerage measurement
+
+Our code provides a procedure to test NiShiKi and measure the coverage of the source code.
 See [the online document](https://tiskw.gitbook.io/nishiki-online-document/for-developers/test-and-coverage)
 for more details.
 

@@ -12,17 +12,28 @@ area_hgt = 12
 # Length of mergin in the column display.
 column_margin = 3
 
-# Color of command hints.
-hint_color = "\u001B[97m"
+# Prefix and postfix of the history hint.
+# For example, you can set ANSI color code to colorize history hint.
+histhint_pre  = "\u001B[37m"
+histhint_post = "\u001B[m"
+
 
 ################################################################################
 # Prompt settings
 ################################################################################
 [PROMPT]
 
-prompt1 = "\u001B[97m[\u001B[32m{user}@{host}\u001B[97m]-[\u001B[33m{date}\u001B[97m]-[\u001B[34m{time}\u001B[97m]-[\u001B[35m{cwd}\u001B[97m]\u001B[m"
+# Prompts for editing area. The layout of prompt is the following.
+#
+# <- prompt1 ---------------> <------------ propmt2 ->
+# <- prompt3 -> <- user input ----------------------->
+#
+prompt1 = "\u001B[37m[\u001B[32m{user}@{host}\u001B[37m]-[\u001B[33m{date}\u001B[37m]-[\u001B[34m{time}\u001B[37m]-[\u001B[35m{cwd}\u001B[37m]\u001B[m"
 prompt2 = "{git}"
 prompt3 = "\u001B[97m>>\u001B[m "
+
+# Prompts for completion area.
+prompt_comp = "\u001B[37m|\u001B[m "
 
 
 ################################################################################

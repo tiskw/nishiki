@@ -23,13 +23,14 @@ typedef struct
     // [GENERAL] settings.
     uint16_t    area_hgt;
     uint16_t    column_margin;
-    std::string path_tmp_file;
-    std::string hint_color;
+    std::string histhint_pre;
+    std::string histhint_post;
 
     // [PROMPT] settings.
     std::string prompt1;
     std::string prompt2;
     std::string prompt3;
+    std::string prompt_comp;
 
     // [ALIAS] settings.
     std::map<StringX, StringX> aliases;
