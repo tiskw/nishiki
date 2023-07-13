@@ -1,9 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ source file: config.cxx
-//
-// This file provides:
-//   - the global variable `config` which stores configuration values for NiShiKi.
-//   - the function `load_config` which reads config file and update `config` variable.
+/// C++ source file: config.cxx                                                                  ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "config.hxx"
@@ -17,19 +13,23 @@
 #define TOML_EXCEPTIONS 0
 #include <toml.hpp>
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Global variable
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 NishikiConfig config;
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Functions
+// File-local functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Read one config item to the global variable `config`.
+void
+set_config(const toml::table& table, const toml::key& section, const toml::key& value)
+noexcept
+// [Abstract]
+//   Read one config item to the global variable `config`.
 //
 // [Args]
 //   table   (const toml::table&): [IN] Top node of the config file.
@@ -38,10 +38,8 @@ NishikiConfig config;
 //
 // [Returns]
 //   void
-//
-void
-set_config(const toml::table& table, const toml::key& section, const toml::key& value)
-{
+{   // {{{
+
     ///// FUNCTION-LOCAL FUNCTION /////
     //
     // Show error message and quit this software.
@@ -59,7 +57,7 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
     //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
     //   load. This function-local function is sometimes used in the source code of NiShiKi.
     //
-    constexpr auto show_error_message_and_exit = [](const toml::key& section, const toml::key& value)
+    constexpr auto show_error_message = [](const toml::key& section, const toml::key& value)
     {
         std::cout << "\033[33m";
         std::cout << "NiShiKi: Error occured while parsing config file\n";
@@ -78,7 +76,7 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
     else if ((section == "GENERAL") and (value == "column_margin")) config.column_margin = node.value_or(config.column_margin);
     else if ((section == "GENERAL") and (value == "histhint_pre" )) config.histhint_pre  = node.value_or(config.histhint_pre);
     else if ((section == "GENERAL") and (value == "histhint_post")) config.histhint_post = node.value_or(config.histhint_post);
-    else if ((section == "GENERAL")                               ) show_error_message_and_exit(section, value);
+    else if ((section == "GENERAL")                               ) show_error_message(section, value);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Read the [PROMPT] section.
@@ -86,9 +84,10 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
 
     else if ((section == "PROMPT") and (value == "prompt1"    )) config.prompt1     = node.value_or(config.prompt1);
     else if ((section == "PROMPT") and (value == "prompt2"    )) config.prompt2     = node.value_or(config.prompt2);
-    else if ((section == "PROMPT") and (value == "prompt3"    )) config.prompt3     = node.value_or(config.prompt3);
+    else if ((section == "PROMPT") and (value == "prompt3_ins")) config.prompt3_ins = node.value_or(config.prompt3_ins);
+    else if ((section == "PROMPT") and (value == "prompt3_nor")) config.prompt3_nor = node.value_or(config.prompt3_nor);
     else if ((section == "PROMPT") and (value == "prompt_comp")) config.prompt_comp = node.value_or(config.prompt_comp);
-    else if ((section == "PROMPT")                             ) show_error_message_and_exit(section, value);
+    else if ((section == "PROMPT")                             ) show_error_message(section, value);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Read the [ALIAS] section.
@@ -165,7 +164,7 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
         }
     
     }
-    else if (section == "COMPLETION") show_error_message_and_exit(section, value);
+    else if (section == "COMPLETION") show_error_message(section, value);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Read the [PREVIEW] section.
@@ -185,30 +184,26 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
     }
     else if ((section == "PREVIEW") and (value == "preview_delim")) config.preview_delim = node.value_or(config.preview_delim);
     else if ((section == "PREVIEW") and (value == "preview_ratio")) config.preview_ratio = node.value_or(config.preview_ratio);
-    else if ((section == "PREVIEW")                               ) show_error_message_and_exit(section, value);
+    else if ((section == "PREVIEW")                               ) show_error_message(section, value);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Otherwise, show error message and exit.
     ////////////////////////////////////////////////////////////////////////////////////////////////
     
-    else show_error_message_and_exit(section, value);
-};
+    else show_error_message(section, value);
 
-///// FUNCTION /////
-//
-// Load config file written in TOML format.
-// The result will be stored in the global variable `config` that is declared in `config.cxx`.
-//
-// [Args]
-//   filepath (const char*): [IN] Path to TOML file.
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void
 load_config(std::string filepath)
 noexcept
-{
+{   // {{{
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Set default values
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -222,7 +217,8 @@ noexcept
     // The [PROMPT] settings.
     config.prompt1     = "[{user}@{host}]-[{cwd}]";
     config.prompt2     = "{git}";
-    config.prompt3     = ">> ";
+    config.prompt3_ins = ">> ";
+    config.prompt3_nor = "|| ";
     config.prompt_comp = "| ";
 
     // The [ALIAS] settings.
@@ -284,6 +280,8 @@ noexcept
             for (auto node_value : *node_section.second.as_table())
                 set_config(table, node_section.first, node_value.first);
     }
-}
+
+}   // }}}
+
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

@@ -1,8 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ source file: edit_helper.cxx
-//
-// This file defines the class `EditHelper` which will be used for computing command/path
-// completion candidate, and complete it to users for more confirtable command editing.
+/// C++ source file: edit_helper.cxx                                                             ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "edit_helper.hxx"
@@ -17,6 +14,7 @@
 #include "string_x.hxx"
 #include "utils.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // File local macros
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,37 +22,32 @@
 // Chack the given element is contained in the given set.
 #define contains(map, elem) (map.find(elem) != map.end())
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EditHelper: Constructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EditHelper::EditHelper(void)
-{
+{   // {{{
+
     // Get terminal size.
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     this->wid = w.ws_col;
     this->hgt = config.area_hgt - 2;
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EditHelper: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Returns condidates of completion.
-//
-// Args:
-//   lhs (const StringX&): [IN] Left-hand-side of the user input.
-//
-// Returns:
-//   (std::vector<StringX>): Array of lines (strings) for showing completion candidates to users.
-//
 std::vector<StringX>
 EditHelper::candidate(const StringX& lhs)
 noexcept
-{
+{   // {{{
+
     ///// FUNCTION-LOCAL FUNCTION /////
     //
     // Return True if the given tokens matched with the given patterns.
@@ -181,23 +174,14 @@ noexcept
         this->cands_preview(tokens, option);
 
     return this->lines;
-}
 
-///// FUNCTION /////
-//
-// Execute completion.
-// This function should be called after calling `candidate` function.
-//
-// Args:
-//   lhs (const StringX&): [IN] Left-hand-side of the user input.
-//
-// Returns:
-//   (StringX): Completed left-hand-side string.
-//
+}   // }}}
+
 StringX
 EditHelper::complete(const StringX& lhs)
 const noexcept
-{
+{   // {{{
+
     // Split the given text (left hand side of the cursor) to tokens.
     std::vector<StringX> tokens = lhs.tokenize();
 
@@ -237,28 +221,19 @@ const noexcept
 
         return lhs_without_last_token + get_common_substring(keys);
     }
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EditHelper: Private functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Compute command completion candidates.
-// The result candidates will be stored in `this->cands`.
-//
-// [Args]
-//   tokens (const std::vector<StringX>&): [IN] Parsed tokens of the user input.
-//   option (const std::string&)         : [IN] Optional string of the completion.
-//
-// [Returns]
-//   void
-//
 void
 EditHelper::cands_command(const std::vector<StringX>& tokens, const std::string& option)
 noexcept
-{
+{   // {{{
+
     // Define static variable that contains all available command names.
     static const std::vector<StringX> COMMANDS = get_system_commands();
 
@@ -272,24 +247,14 @@ noexcept
     for (const StringX& cmd : COMMANDS)
         if (cmd.startswith(token))
             this->cands.emplace_back(cmd, cmd);
-}
 
-///// FUNCTION /////
-//
-// Compute file path completion candidates.
-// The result candidates will be stored in `this->cands`.
-//
-// [Args]
-//   tokens (const std::vector<StringX>&): [IN] Parsed tokens of the user input.
-//   option (const std::string&)         : [IN] Optional string of the completion.
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 EditHelper::cands_filepath(const std::vector<StringX>& tokens, const std::string& option)
 noexcept
-{
+{   // {{{
+
     ///// FUNCTION-LOCAL FUNCTION /////
     //
     // Colorize the given token.
@@ -338,21 +303,14 @@ noexcept
             this->cands.emplace_back(str_query, str_display);
         }
     }
-}
 
-///// FUNCTION /////
-//
-// [Args]
-//   tokens (const std::vector<StringX>&): [IN] Parsed tokens of the user input.
-//   option (const std::string)          : [IN] Optional string for the options.
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 EditHelper::cands_option(const std::vector<StringX>& tokens, const std::string& option)
 noexcept
-{
+{   // {{{
+
     // Cache of the command options.
     static std::map<StringX, std::map<StringX, StringX>> opt_cache;
 
@@ -407,23 +365,14 @@ noexcept
     for (auto [opt, desc] : opt_cache[command])
         if (opt.startswith(token))
             this->cands.emplace_back(opt, desc);
-}
 
-///// FUNCTION /////
-//
-// Compute completion candidates for preview.
-//
-// [Args]
-//   tokens (const std::vector<StringX>&): [IN] Parsed tokens of the user input.
-//   option (const std::string)          : [IN] Optional string for the preview.
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 EditHelper::cands_preview(const std::vector<StringX>& tokens, const std::string& option)
 noexcept
-{
+{   // {{{
+
     ///// FUNCTION-LOCAL FUNCTION /////
     //
     // Returns last non-whitespace token.
@@ -485,23 +434,14 @@ noexcept
         // Clip the target line again.
         this->lines[idx] = this->lines[idx].clip(this->wid - 1);
     }
-}
 
-///// FUNCTION /////
-//
-// Compute completion candidates from shell command.
-//
-// [Args]
-//   tokens (const std::vector<StringX>&): [IN] Parsed tokens of the user input.
-//   option (const std::string&)         : [IN] Optional string (normally it is a shell command).
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 EditHelper::cands_shell(const std::vector<StringX>& tokens, const std::string& option)
 noexcept
-{
+{   // {{{
+
     // Get the target token.
     const StringX token = (tokens.size() > 0) ? tokens.back().strip() : StringX("");
 
@@ -520,23 +460,14 @@ noexcept
         if (line_1st_token.startswith(token))
             this->cands.emplace_back(line_1st_token, line);
     }
-}
 
-///// FUNCTION /////
-//
-// Compute completion candidates from sub command.
-//
-// [Args]
-//   tokens (const std::vector<StringX>&): [IN] Parsed tokens of the user input.
-//   option (const std::string&)         : [IN] Optional string.
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 EditHelper::cands_subcmd(const std::vector<StringX>& tokens, const std::string& option)
 noexcept
-{
+{   // {{{
+
     // Get the target token.
     const StringX token = (tokens.size() > 0) ? tokens.back().strip() : StringX("");
 
@@ -582,22 +513,14 @@ noexcept
             this->cands.emplace_back(elems[0], token1 + separator + token2);
         }
     }
-}
 
-///// FUNCTION /////
-//
-// Convert candidate to strings that will be shown to users.
-//
-// [Args]
-//   cands (const std::vector<std::pair<StringX, StringX>>&): [IN] Completion candidates.
-//
-// [Returns]
-//   (std::vector<StringX>): Array of lines (strings) for showing completion candidates to users.
-//
+}   // }}}
+
 void
 EditHelper::lines_from_cands(const std::vector<std::pair<StringX, StringX>>& cands)
 noexcept
-{
+{   // {{{
+
     // Get descriptions of the completion candidates.
     std::vector<StringX> texts;
     for (const auto& pair : cands)
@@ -611,7 +534,9 @@ noexcept
     // Add decoration at the left line and clip line width.
     for (size_t i = 0; i < this->lines.size(); ++i)
         if (this->lines[i].size() > 0)
-            this->lines[i] = StringX("\033[37m|\033[m ") + this->lines[i].clip(this->wid - 3);
-}
+            this->lines[i] = StringX(config.prompt_comp) + this->lines[i].clip(this->wid - 3);
+
+}   // }}}
+
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ source file: directory.cxx
-//
-// This file defines the class `Directory` which manages directory.
+/// C++ source file: directory.cxx                                                               ///
+///                                                                                              ///
+/// This file defines the class `Directory` which manages directory.                             ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef DIRECTORY_HXX
@@ -10,15 +10,18 @@
 #include <filesystem>
 #include <vector>
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Define constants
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define DIRECTORY_NO_ITEM ("NO FILES/DIRECTORIES FOUND")
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// CursesScreen: A class for Curses stdscr
+// Class definition
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class Directory : public std::vector<std::string>
 {
     public:
@@ -33,39 +36,82 @@ class Directory : public std::vector<std::string>
         // Getter and setter functions
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Get path of the current directoy.
         const std::filesystem::path&
         get(void)
         const noexcept;
+        // [Abstract]
+        //   Get path of the current directory.
+        //
+        // [Args]
+        //   void
+        //
+        // [Returns]
+        //   (const std::filesystem::path&): Current directory path.
 
-        // Get full path of index-th item.
         std::filesystem::path
         get_relative(const uint32_t index, const std::filesystem::path& root)
         const noexcept;
+        // [Abstract]
+        //   Get relative path of index-th item.
+        //
+        // [Args]
+        //   index (const uint32_t)              : [IN] Index of the target item.
+        //   root  (const std::filesystem::path&): [IN] Root of the relative path.
+        //
+        // [Returns]
+        //   (std::string): Relative path.
 
-        // Set path.
         void
         set(const std::filesystem::path& path)
         noexcept;
+        // [Abstract]
+        //   Set directory path.
+        //
+        // [Args]
+        //   path (const std::filesystem::path&): [IN] Destination path.
+        //
+        // [Returns]
+        //   void
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Member functions
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Append to the path and move to it.
         bool
         append(const std::string& name)
         noexcept;
+        // [Abstract]
+        //   Append to the path and move to it.
+        //
+        // [Args]
+        //   name (const std::string&): [IN] File/directory name to be appended.
+        //
+        // [Returns]
+        //   (bool): True if the directory is actually changed.
 
-        // Get color of the item.
         uint8_t
         color(const uint32_t index)
         const noexcept;
+        // [Abstract]
+        //   Get color of the item.
+        //
+        // [Args]
+        //   index (const uint32_t): [IN] Index of the specified item.
+        //
+        // [Returns]
+        //   (uint8_t): ANSI-like color index.
 
-        // Update directory contents.
         bool
         update(void)
         noexcept;
+        // [Abstract]
+        //   Update contents of directories.
+        //
+        // [Args]
+        //   void
+        //
+        // [Returns]
+        //   (bool): Returns true if directory contents is actually changed.
 
     private:
 
@@ -73,11 +119,13 @@ class Directory : public std::vector<std::string>
         // Private member variables
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Directory path.
         std::filesystem::path path;
+        // [Abstract]
+        //   Directory path.
 
-        // Path of the current item.
         std::filesystem::path cache;
+        // [Abstract]
+        //   Path of the current item.
 };
 
 #endif
