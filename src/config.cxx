@@ -76,17 +76,19 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
 
     if      ((section == "GENERAL") and (value == "area_hgt"     )) config.area_hgt      = node.value_or(config.area_hgt);
     else if ((section == "GENERAL") and (value == "column_margin")) config.column_margin = node.value_or(config.column_margin);
-    else if ((section == "GENERAL") and (value == "hint_color"   )) config.hint_color = node.value_or(config.hint_color);
+    else if ((section == "GENERAL") and (value == "histhint_pre" )) config.histhint_pre  = node.value_or(config.histhint_pre);
+    else if ((section == "GENERAL") and (value == "histhint_post")) config.histhint_post = node.value_or(config.histhint_post);
     else if ((section == "GENERAL")                               ) show_error_message_and_exit(section, value);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Read the [PROMPT] section.
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    else if ((section == "PROMPT") and (value == "prompt1")) config.prompt1 = node.value_or(config.prompt1);
-    else if ((section == "PROMPT") and (value == "prompt2")) config.prompt2 = node.value_or(config.prompt2);
-    else if ((section == "PROMPT") and (value == "prompt3")) config.prompt3 = node.value_or(config.prompt3);
-    else if ((section == "PROMPT")                         ) show_error_message_and_exit(section, value);
+    else if ((section == "PROMPT") and (value == "prompt1"    )) config.prompt1     = node.value_or(config.prompt1);
+    else if ((section == "PROMPT") and (value == "prompt2"    )) config.prompt2     = node.value_or(config.prompt2);
+    else if ((section == "PROMPT") and (value == "prompt3"    )) config.prompt3     = node.value_or(config.prompt3);
+    else if ((section == "PROMPT") and (value == "prompt_comp")) config.prompt_comp = node.value_or(config.prompt_comp);
+    else if ((section == "PROMPT")                             ) show_error_message_and_exit(section, value);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Read the [ALIAS] section.
@@ -214,13 +216,14 @@ noexcept
     // The [GENERAL] settings.
     config.area_hgt      = 6u;
     config.column_margin = 3u;
-    config.path_tmp_file = "/tmp/nishiki.tmp";
-    config.hint_color    = "\033[97m";
+    config.histhint_pre  = "";
+    config.histhint_post = "";
 
     // The [PROMPT] settings.
-    config.prompt1 = "[{user}@{host}]-[{cwd}]";
-    config.prompt2 = "{git}";
-    config.prompt3 = ">> ";
+    config.prompt1     = "[{user}@{host}]-[{cwd}]";
+    config.prompt2     = "{git}";
+    config.prompt3     = ">> ";
+    config.prompt_comp = "| ";
 
     // The [ALIAS] settings.
     config.aliases.clear();
