@@ -152,11 +152,11 @@ noexcept
     std::vector<std::string> tokens_str;
     for (const StringX& token : tokens)
         if (token.size() > 0 and token[0].value != ' ')
-            tokens_str.emplace_back(token.string());
+            tokens_str.push_back(token.string());
 
     // Add empty token if the editing line ends with white-space.
     if (lhs.size() > 0 and lhs.back().value == ' ')
-        tokens_str.emplace_back("");
+        tokens_str.push_back("");
 
     // Get completion type and it's optional string.
     auto [comp_type, option] = get_target(tokens_str);
@@ -271,7 +271,7 @@ noexcept
     // Filter matched command names.
     for (const StringX& cmd : COMMANDS)
         if (cmd.startswith(token))
-            this->cands.emplace_back(std::make_pair(cmd, cmd));
+            this->cands.emplace_back(cmd, cmd);
 }
 
 ///// FUNCTION /////
@@ -335,7 +335,7 @@ noexcept
         {
             StringX str_query   = StringX((query_dir / name).c_str());
             StringX str_display = StringX(colorize_token(name));
-            this->cands.emplace_back(std::make_pair(str_query, str_display));
+            this->cands.emplace_back(str_query, str_display);
         }
     }
 }
@@ -406,7 +406,7 @@ noexcept
     // Add matched options.
     for (auto [opt, desc] : opt_cache[command])
         if (opt.startswith(token))
-            this->cands.emplace_back(std::make_pair(opt, desc));
+            this->cands.emplace_back(opt, desc);
 }
 
 ///// FUNCTION /////
@@ -518,7 +518,7 @@ noexcept
 
         // Register matched output lines.
         if (line_1st_token.startswith(token))
-            this->cands.emplace_back(std::make_pair(line_1st_token, line));
+            this->cands.emplace_back(line_1st_token, line);
     }
 }
 
@@ -552,7 +552,7 @@ noexcept
 
         // Run command and register each line.
         for (const std::string& line : split(run_command(option), "\n"))
-            subcmd_cache[option].emplace_back(StringX(line).strip());
+            subcmd_cache[option].push_back(StringX(line).strip());
     }
 
     for (const StringX& line : subcmd_cache[option])
@@ -579,7 +579,7 @@ noexcept
             // Create separator between completion candidate and description.
             StringX separator = StringX(" ") + CharX(".") * width_seperator + StringX(" ");
 
-            this->cands.emplace_back(std::make_pair(elems[0], token1 + separator + token2));
+            this->cands.emplace_back(elems[0], token1 + separator + token2);
         }
     }
 }
@@ -606,7 +606,7 @@ noexcept
     // Format descriptions in a column style.
     this->lines.clear();
     for (const StringX& line : column(texts, this->wid, this->hgt, config.column_margin))
-        this->lines.emplace_back(line);
+        this->lines.push_back(line);
 
     // Add decoration at the left line and clip line width.
     for (size_t i = 0; i < this->lines.size(); ++i)

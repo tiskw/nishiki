@@ -61,7 +61,7 @@ noexcept
     // Memorize all texts where initial select flag is false.
     this->items.clear();
     for (uint32_t n = 1; n < lines.size(); ++n)
-        this->items.emplace_back(std::make_tuple(lines[n], false, n - 1));
+        this->items.emplace_back(lines[n], false, n - 1);
 
     // Initialize view.
     this->views.clear();

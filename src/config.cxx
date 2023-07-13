@@ -76,6 +76,7 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
 
     if      ((section == "GENERAL") and (value == "area_hgt"     )) config.area_hgt      = node.value_or(config.area_hgt);
     else if ((section == "GENERAL") and (value == "column_margin")) config.column_margin = node.value_or(config.column_margin);
+    else if ((section == "GENERAL") and (value == "hint_color"   )) config.hint_color = node.value_or(config.hint_color);
     else if ((section == "GENERAL")                               ) show_error_message_and_exit(section, value);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,12 +127,12 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
             ////////////////////////////////////////////////////////////////////////////////////
 
             // Get the node of the completion pattern.
-            const toml::array* ptrn_node = entry.as_array()->at(0).as_array();
+            const toml::array* pattern_node = entry.as_array()->at(0).as_array();
 
             // Read pattern strings.
             std::vector<std::string> pattern;
-            for (const auto& ptrn_token : *ptrn_node)
-                pattern.emplace_back(ptrn_token.value_or(""));
+            for (const auto& ptrn_token : *pattern_node)
+                pattern.push_back(ptrn_token.value_or(""));
 
             ////////////////////////////////////////////////////////////////////////////////////
             // Read completion type
@@ -158,7 +159,7 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
             const char* opt_strptr = entry.as_array()->at(2).value_or("");
 
             // Register the triplet of completion pattern, completion type, and optional string.
-            config.completions.push_back(std::make_tuple(pattern, ctype, std::string(opt_strptr)));
+            config.completions.emplace_back(pattern, ctype, std::string(opt_strptr));
         }
     
     }
@@ -177,7 +178,7 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
             const char*        pattern_strptr = entry_items->at(0).value_or("");
             const char*        command_strptr = entry_items->at(1).value_or("");
 
-            config.previews.emplace_back(std::make_pair(pattern_strptr, command_strptr));
+            config.previews.emplace_back(pattern_strptr, command_strptr);
         }
     }
     else if ((section == "PREVIEW") and (value == "preview_delim")) config.preview_delim = node.value_or(config.preview_delim);
@@ -214,6 +215,7 @@ noexcept
     config.area_hgt      = 6u;
     config.column_margin = 3u;
     config.path_tmp_file = "/tmp/nishiki.tmp";
+    config.hint_color    = "\033[97m";
 
     // The [PROMPT] settings.
     config.prompt1 = "[{user}@{host}]-[{cwd}]";

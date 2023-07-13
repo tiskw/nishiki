@@ -24,6 +24,7 @@ typedef struct
     uint16_t    area_hgt;
     uint16_t    column_margin;
     std::string path_tmp_file;
+    std::string hint_color;
 
     // [PROMPT] settings.
     std::string prompt1;

@@ -120,7 +120,7 @@ const noexcept
 
         // Case 2: `rhs` is empty.
         else if (rhs.size() == 0)
-            return lhs.colorize() + StringX("\033[7m") + hist_comp.front() + StringX("\033[m\033[37m") + hist_comp.substr(1) + StringX("\033[m");
+            return lhs.colorize() + StringX("\033[7m") + hist_comp.front() + StringX("\033[m" + config.hint_color) + hist_comp.substr(1) + StringX("\033[m");
 
         // Case 3: others.
         else
@@ -131,8 +131,8 @@ const noexcept
     StringX eline = generate_editing_line(lhs, rhs, hist_comp);
 
     // Append Prompt before the editing line.
-    if      (mode == TextBuffer::Mode::INSERT) eline = StringX("\033[37m>>\033[m ") + eline;
-    else if (mode == TextBuffer::Mode::NORMAL) eline = StringX("\033[37m||\033[m ") + eline;
+    if      (mode == TextBuffer::Mode::INSERT) eline = StringX("\033[97m>>\033[m ") + eline;
+    else if (mode == TextBuffer::Mode::NORMAL) eline = StringX("\033[97m||\033[m ") + eline;
 
     // Print header, prompts, editing line, and completion candidates.
     std::cout << "\033[" << config.area_hgt << "F" << std::endl;
