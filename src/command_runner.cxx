@@ -1,9 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ source file: command_runner.cxx
-//
-// A command runner for NiShiKi to run user input in a backend. The command runner can manage both
-// normal shell command and NiShiKi-special command. See the comment of
-// `CommandRunner::command_nishiki` function for more details about the NiShiKi-special command.
+/// C++ source file: command_runner.cxx                                                          ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "command_runner.hxx"
@@ -15,12 +11,14 @@
 #include "text_chooser.hxx"
 #include "utils.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CommandRunner: Constructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CommandRunner::CommandRunner(void)
 { /* Do nothing */ }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CommandRunner: Getter and setter functions
@@ -29,26 +27,16 @@ CommandRunner::CommandRunner(void)
 const StringX& CommandRunner::get_next_lhs(void) const noexcept { return this->lhs_next; }
 const StringX& CommandRunner::get_next_rhs(void) const noexcept { return this->rhs_next; }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CommandRunner: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Run the given command. New strings for the next editing buffer will be set to `this->lhs_next`
-// and `this->rhs_next`. This function can accept both shell command and NiShiKi-special command
-// that starts with the string NISHIKI_CMD_DELIM (defined in command_runner.hxx).
-//
-// [Args]
-//   input (const StringX&): [IN] Input string.
-//
-// [Returns]
-//   (int32_t): EXIT_SUCCESS if succeeded otherwise EXIT_FAILURE.
-//
 int32_t
 CommandRunner::run(const StringX& input)
 noexcept
-{
+{   // {{{
+
     // Clear next editing buffer.
     this->lhs_next.clear();
     this->rhs_next.clear();
@@ -89,49 +77,32 @@ noexcept
     // Process other commands: call external command.
     else
         return this->command_exec(command);
-};
+
+}; // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CommandRunner: Private member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Callback function of "alias" command.
-// This function prints all aliases values to STDOUT.
-//
-// [Args]
-//   aliases (const std::map<StringX, StringX>&): [IN] All aliases.
-//
-// [Returns]
-//   (int32_t): EXIT_SUCCESS if succeeded otherwise EXIT_FAILURE.
-//
 int32_t
-CommandRunner::command_alias()
+CommandRunner::command_alias(void)
 const noexcept
-{
+{   // {{{
+
     // Print all aliases.
     for (const auto& pair : config.aliases)
         std::cout << pair.first << '\t' << pair.second << std::endl;
 
     return EXIT_SUCCESS;
-}
 
-///// FUNCTION /////
-//
-// Callback function of "cd" command.
-// This function changes current directory.
-//
-// [Args]
-//   tokens (const std::vector<StringX>&): [IN] List of tokens.
-//
-// [Returns]
-//   (int32_t): EXIT_SUCCESS if succeeded otherwise EXIT_FAILURE.
-//
+}   // }}}
+
 int32_t
 CommandRunner::command_cd(const std::vector<StringX>& tokens)
 const noexcept
-{
+{   // {{{
+
     // A variable to store a path to move.
     std::string target;
 
@@ -154,23 +125,14 @@ const noexcept
     std::filesystem::current_path(target);
 
     return EXIT_SUCCESS;
-}
 
-///// FUNCTION /////
-//
-// Callback function of the other command.
-// This function executes the given command using the backend shell.
-//
-// [Args]
-//   command (const std::string&): [IN] Called command.
-//
-// [Returns]
-//   (int32_t): Return value of the called external command.
-//
+}   // }}}
+
 int32_t
 CommandRunner::command_exec(const std::string& command)
 const noexcept
-{
+{   // {{{
+
     // Run command.
     const int ret = system(command.c_str());
 
@@ -179,46 +141,14 @@ const noexcept
         std::cout << "NiShiKi: a child process could not be created" << std::endl;
 
     return ret;
-}
 
-///// FUNCTION /////
-//
-// Callback function of the NiShiKi-special command.
-// This funtion parse NiShiKi-special command and run it.
-//
-// [Args]
-//   command (const std::string&): [IN] Called command.
-//
-// [Returns]
-//   (int32_t): Return value of the called external command.
-//
-// [Note]
-//   NiShiKi-special command is a commans to modify editing buffer.
-//   The modified editing buffer will be stored in `this->lhs_next` and `this->rhs_next`,
-//   and these two member variables will be passed to the EditBuffer instance.
-//
-//   There are two types of NiShiKi-special command, internal command and external command.
-//   As for the internal command, 3 types of command is allowed, file chooser, process chooser,
-//   and history chooser. These commands are known as "plugins". See the online document for more
-//   details about these plugins. As for external command, any external command can be specified.
-//   The result of the external command is added or directly used to the current editing buffer.
-//
-//   The format of the NiShiKi-special command is:
-//
-//     ::NISHIKI::{type}::NISHIKI::{lhs}::NISHIKI::{rhs}::NISHIKI::{cmd}
-//
-//   where "::NISHIKI::" is a delimiter of the NiShiKi-special command and defined
-//   as NISHIKI_CMD_DELIM macro in `command_runner.hxx`. The meaning of each tokens are the following:
-//
-//   - type: Command type. Either of "int" (internal command) or "ext" (external command).
-//   - lhs : Left-hand-side of the current editing buffer.
-//   - rhs : Right-hand-side of the current editing buffer.
-//   - cmd : Command contents.
-//
+}   // }}}
+
 int32_t
 CommandRunner::command_nishiki(const std::string& command)
 noexcept
-{
+{   // {{{
+
     ///// FUNCTION-LOCAL FUNCTION /////
     //
     // Print error message and contents of splitted tokens.
@@ -291,6 +221,8 @@ noexcept
     else return print_error_message(tokens);
 
     return EXIT_SUCCESS;
-}
+
+}   // }}}
+
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

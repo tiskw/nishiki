@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ header file: command_runner.hxx
-//
-// A command runner for NiShiKi to run user input in a backend. The command runner can manage both
-// normal shell command and NiShiKi-special command. See the comment of
-// `CommandRunner::command_nishiki` function for more details about the NiShiKi-special command.
+/// C++ header file: command_runner.hxx                                                          ///
+///                                                                                              ///
+/// A command runner for NiShiKi to run user input in a backend. The command runner can manage   ///
+/// both normal shell command and NiShiKi-special command. See the comments of                   ///
+/// `CommandRunner::command_nishiki` function for more details about the NiShiKi-special command.///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef COMMAND_RUNNER_HXX
@@ -11,11 +11,13 @@
 
 #include "string_x.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Define constants
+// Constants
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define NISHIKI_CMD_DELIM ":NISHIKI:"
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CommandRunner: A class to run command
@@ -44,6 +46,17 @@ class CommandRunner
         int32_t
         run(const StringX& input)
         noexcept;
+        // [Abstract]
+        //   Run the given command. New strings for the next editing buffer will be set to
+        //   `this->lhs_next` and `this->rhs_next`. This function can accept both shell command and
+        //   NiShiKi-special command that starts with the string NISHIKI_CMD_DELIM
+        //   (defined in command_runner.hxx).
+        //
+        // [Args]
+        //   input (const StringX&): [IN] Input string.
+        //
+        // [Returns]
+        //   (int32_t): EXIT_SUCCESS if succeeded otherwise EXIT_FAILURE.
 
     private:
 
@@ -51,38 +64,91 @@ class CommandRunner
         // Private member variables
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Next Left/right hand side of the editing text. This variables will be passed to
-        // the EditBuffer instance and used as an initial value of the editing text.
         StringX lhs_next, rhs_next;
+        // [Abstract]
+        //   Next Left/right hand side of the editing text. This variables will be passed to
+        //   the EditBuffer instance and used as an initial value of the editing text.
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Private member functions
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Callback function of "alias" command.
-        // This function prints all aliases values to STDOUT.
         int32_t
-        command_alias()
+        command_alias(void)
         const noexcept;
+        // [Abstract]
+        //   Callback function of "alias" command.
+        //   This function prints all aliases values to STDOUT.
+        //
+        // [Args]
+        //   void
+        //
+        // [Returns]
+        //   (int32_t): EXIT_SUCCESS if succeeded otherwise EXIT_FAILURE.
 
-        // Callback function of "cd" command.
-        // This function changes current directory.
         int32_t
         command_cd(const std::vector<StringX>& tokens)
         const noexcept;
+        // [Abstract]
+        //   Callback function of "cd" command.
+        //   This function changes current directory.
+        //
+        // [Args]
+        //   tokens (const std::vector<StringX>&): [IN] List of tokens.
+        //
+        // [Returns]
+        //   (int32_t): EXIT_SUCCESS if succeeded otherwise EXIT_FAILURE.
 
-        // Callback function of the other external command.
-        // This function executes the given command using the backend shell.
         int32_t
         command_exec(const std::string& command)
         const noexcept;
+        // [Abstract]
+        //   Callback function of the other command.
+        //   This function executes the given command using the backend shell.
+        //
+        // [Args]
+        //   command (const std::string&): [IN] Called command.
+        //
+        // [Returns]
+        //   (int32_t): Return value of the called external command.
 
-        // Callback function of the NiShiKi-special command.
-        // This funtion parse NiShiKi-special command and run it.
         int32_t
         command_nishiki(const std::string& command)
         noexcept;
+        // [Abstract]
+        //   Callback function of the NiShiKi-special command.
+        //   This funtion parse NiShiKi-special command and run it.
+        //
+        // [Args]
+        //   command (const std::string&): [IN] Called command.
+        //
+        // [Returns]
+        //   (int32_t): Return value of the called external command.
+        //
+        // [Notes]
+        //   NiShiKi-special command is a commans to modify editing buffer.
+        //   The modified editing buffer will be stored in `this->lhs_next` and `this->rhs_next`,
+        //   and these two member variables will be passed to the EditBuffer instance.
+        //
+        //   There are two types of NiShiKi-special command, internal command and external command.
+        //   As for the internal command, 3 types of command is allowed, file chooser, process chooser,
+        //   and history chooser. These commands are known as "plugins". See the online document for more
+        //   details about these plugins. As for external command, any external command can be specified.
+        //   The result of the external command is added or directly used to the current editing buffer.
+        //
+        //   The format of the NiShiKi-special command is:
+        //
+        //     ::NISHIKI::{type}::NISHIKI::{lhs}::NISHIKI::{rhs}::NISHIKI::{cmd}
+        //
+        //   where "::NISHIKI::" is a delimiter of the NiShiKi-special command and defined
+        //   as NISHIKI_CMD_DELIM macro in `command_runner.hxx`. The meaning of each tokens are the following:
+        //
+        //   - type: Command type. Either of "int" (internal command) or "ext" (external command).
+        //   - lhs : Left-hand-side of the current editing buffer.
+        //   - rhs : Right-hand-side of the current editing buffer.
+        //   - cmd : Command contents.
 };
+
 
 #endif
 

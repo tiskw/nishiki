@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ source file: curses_screen.cxx
-//
-// This file defines `CursesScreen` which is a base class for the curses-based class like
-// FileChooser and TextChooser.
+/// C++ source file: curses_screen.cxx                                                           ///
+///                                                                                              ///
+/// This file defines `CursesScreen` which is a base class for the curses-based class like       ///
+/// FileChooser and TextChooser.                                                                 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "curses_screen.hxx"
@@ -10,12 +10,14 @@
 #include <locale.h>
 #include <ncurses.h>
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CursesScreen: Constructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CursesScreen::CursesScreen(void)
-{
+{   // {{{
+
     // Set locale to enable UTF-8 display.
     setlocale(LC_ALL, "");
 
@@ -48,20 +50,25 @@ CursesScreen::CursesScreen(void)
 
     // Hide curses cursor.
     curs_set(0);
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CursesScreen: Destructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CursesScreen::~CursesScreen(void)
-{
+{   // {{{
+
     // Finalize curses.
     endwin();
 
     // Hide terminal cursor.
     fputs("\033[?25l", stdout);
     fflush(stdout);
-}
+
+}   // }}}
+
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

@@ -169,8 +169,8 @@ noexcept
     this->hist_cache.clear();
 
     // Update the cache.
-    for (const auto& [lhs, rhs] : storage)
-        this->hist_cache.push_back(lhs + rhs);
+    for (const auto& pair : storage)
+        this->hist_cache.push_back(pair.first + pair.second);
 }
 
 ///// FUNCTION /////

@@ -12,8 +12,10 @@ area_hgt = 12
 # Length of mergin in the column display.
 column_margin = 3
 
-# Color of command hints.
-hint_color = "\u001B[97m"
+# Prefix and postfix of the history hint.
+# For example, you can set ANSI color code to colorize history hint.
+histhint_pre  = ""
+histhint_post = ""
 
 # Unknown config item.
 unknown = 3
@@ -24,9 +26,20 @@ unknown = 3
 ################################################################################
 [PROMPT]
 
+# Prompts for editing area. The layout of prompt is the following.
+#
+# <- prompt1 ---------------> <------------ propmt2 ->
+# <- prompt3 -> <- user input ----------------------->
+#
 prompt1 = "\u001B[97m[\u001B[32m{user}@{host}\u001B[97m]-[\u001B[33m{date}\u001B[97m]-[\u001B[34m{time}\u001B[97m]-[\u001B[35m{cwd}\u001B[97m]\u001B[m w/ veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeery long prompt"
 prompt2 = "{git}"
-prompt3 = "\u001B[97m>>\u001B[m "
+
+# Prompt3 has two values, for INSERT mode and NORMAL mode.
+prompt3_ins = "\u001B[37m->\u001B[m "
+prompt3_nor = "\u001B[37m>-\u001B[m "
+
+# Prompts for completion area.
+prompt_comp = "\u001B[37m|\u001B[m "
 
 # Unknown config item.
 unknown = 3
@@ -129,6 +142,14 @@ preview_ratio = 0.45
 
 # Unknown config item.
 unknown = 3
+
+
+################################################################################
+# Unknown settings
+################################################################################
+[UNKNOWN]
+
+unknown = 0.0
 
 
 # vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

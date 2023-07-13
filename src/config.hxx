@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ header file: config.hxx
-//
-// This file provides:
-//   - the global variable `config` which stores configuration values for NiShiKi.
-//   - the function `load_config` which reads config file and update `config` variable.
+/// C++ header file: config.hxx                                                                  ///
+///                                                                                              ///
+/// This file provides:                                                                          ///
+///   - the global variable `config` which stores configuration values for NiShiKi.              ///
+///   - the function `load_config` which reads config file and update `config` variable.         ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef CONFIG_HXX
@@ -13,6 +13,7 @@
 
 #include "edit_helper.hxx"
 #include "string_x.hxx"
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Data type declaration
@@ -29,7 +30,8 @@ typedef struct
     // [PROMPT] settings.
     std::string prompt1;
     std::string prompt2;
-    std::string prompt3;
+    std::string prompt3_ins;
+    std::string prompt3_nor;
     std::string prompt_comp;
 
     // [ALIAS] settings.
@@ -48,19 +50,31 @@ typedef struct
 }
 NishikiConfig;
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Prototype declaration
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 extern NishikiConfig config;
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Load config file written in TOML format.
-// The result will be stored in the global variable `config` that is declared in `config.cxx`.
-void load_config(std::string filepath) noexcept;
+void
+load_config(std::string filepath)
+noexcept;
+// [Abstract]
+//   Load config file written in TOML format.
+//   The result will be stored in the global variable `config` that is declared in `config.cxx`.
+//
+// [Args]
+//   filepath (const char*): [IN] Path to TOML file.
+//
+// [Returns]
+//   void
+
 
 #endif
 

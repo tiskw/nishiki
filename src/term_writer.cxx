@@ -120,7 +120,7 @@ const noexcept
 
         // Case 2: `rhs` is empty.
         else if (rhs.size() == 0)
-            return lhs.colorize() + StringX("\033[7m") + hist_comp.front() + StringX("\033[m" + config.hint_color) + hist_comp.substr(1) + StringX("\033[m");
+            return lhs.colorize() + StringX("\033[7m") + hist_comp.front() + StringX("\033[m\033[97m") + hist_comp.substr(1) + StringX("\033[m");
 
         // Case 3: others.
         else
@@ -131,8 +131,8 @@ const noexcept
     StringX eline = generate_editing_line(lhs, rhs, hist_comp);
 
     // Append Prompt before the editing line.
-    if      (mode == TextBuffer::Mode::INSERT) eline = StringX("\033[97m>>\033[m ") + eline;
-    else if (mode == TextBuffer::Mode::NORMAL) eline = StringX("\033[97m||\033[m ") + eline;
+    if      (mode == TextBuffer::Mode::INSERT) eline = StringX(config.prompt3_ins) + eline;
+    else if (mode == TextBuffer::Mode::NORMAL) eline = StringX(config.prompt3_nor) + eline;
 
     // Print header, prompts, editing line, and completion candidates.
     std::cout << "\033[" << config.area_hgt << "F" << std::endl;
@@ -187,7 +187,7 @@ noexcept
     //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
     //   load. This function-local function is sometimes used in the source code of NiShiKi.
     //
-    auto replace_info = [&info](const std::string& src)
+    constexpr auto replace_info = [](const std::string& src, const std::map<std::string, std::string>& info)
     {
         std::string result = src;
 
@@ -216,8 +216,8 @@ noexcept
     info["{git}"] = get_git_branch_info();
 
     // Replace all auxiliary information tag and create header prompt.
-    StringX prompt1 = StringX(replace_info(config.prompt1));
-    StringX prompt2 = StringX(replace_info(config.prompt2));
+    StringX prompt1 = StringX(replace_info(config.prompt1, info));
+    StringX prompt2 = StringX(replace_info(config.prompt2, info));
     size_t  len_ws  = MAX(0, this->wid - prompt1.width() - prompt2.width() - 1);
     this->prompt_head = prompt1 + CharX(" ") * len_ws + prompt2;
 
@@ -233,8 +233,8 @@ noexcept
         // Clip length of current directory path and replace.
         info["{cwd}"] = cwd.clip(len_cwd).string();
 
-        prompt1 = StringX(replace_info(config.prompt1));
-        prompt2 = StringX(replace_info(config.prompt2));
+        prompt1 = StringX(replace_info(config.prompt1, info));
+        prompt2 = StringX(replace_info(config.prompt2, info));
         len_ws  = MAX(0, this->wid - prompt1.width() - prompt2.width());
         this->prompt_head = prompt1 + CharX(" ") * len_ws + prompt2;
     }
