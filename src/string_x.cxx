@@ -1009,7 +1009,7 @@ const noexcept
 
         // Push the token to the returned vector.
         if (token.size() > 0)
-            result.emplace_back(token);
+            result.push_back(token);
     }
 
     return result;
@@ -1083,7 +1083,7 @@ noexcept
 {
     // Read one CharX from the pointer, and incremant the pointer with read bytes.
     for (const char* p = ptr; *p != '\0'; p += sx->back().size)
-        sx->push_back(CharX(p));
+        sx->emplace_back(p);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

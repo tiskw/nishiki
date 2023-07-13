@@ -61,7 +61,7 @@ const noexcept
 
     // Read the history file and memorize it.
     for (std::string line; getline(ifs, line); line.clear())
-        result.emplace_back(StringX(line));
+        result.emplace_back(line);
 
     return result;
 }
@@ -116,7 +116,7 @@ const noexcept
 
     // Read the history file and memorize it.
     for (std::string line; getline(ifs, line); line.clear())
-        histories.emplace_back(StringX(line).strip());
+        histories.push_back(StringX(line).strip());
 
     // Close the file.
     ifs.close();
@@ -135,7 +135,7 @@ const noexcept
     {
         if ((hist.size() > 0) and (not contains(hist_cache, hist)))
         {
-            histories_deduplicated.emplace_back(hist);
+            histories_deduplicated.push_back(hist);
             hist_cache.insert(hist);
         }
     }
@@ -170,7 +170,7 @@ noexcept
 
     // Update the cache.
     for (const auto& [lhs, rhs] : storage)
-        this->hist_cache.emplace_back(lhs + rhs);
+        this->hist_cache.push_back(lhs + rhs);
 }
 
 ///// FUNCTION /////

@@ -127,12 +127,12 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
             ////////////////////////////////////////////////////////////////////////////////////
 
             // Get the node of the completion pattern.
-            const toml::array* ptrn_node = entry.as_array()->at(0).as_array();
+            const toml::array* pattern_node = entry.as_array()->at(0).as_array();
 
             // Read pattern strings.
             std::vector<std::string> pattern;
-            for (const auto& ptrn_token : *ptrn_node)
-                pattern.emplace_back(ptrn_token.value_or(""));
+            for (const auto& ptrn_token : *pattern_node)
+                pattern.push_back(ptrn_token.value_or(""));
 
             ////////////////////////////////////////////////////////////////////////////////////
             // Read completion type
@@ -159,7 +159,7 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
             const char* opt_strptr = entry.as_array()->at(2).value_or("");
 
             // Register the triplet of completion pattern, completion type, and optional string.
-            config.completions.push_back(std::make_tuple(pattern, ctype, std::string(opt_strptr)));
+            config.completions.emplace_back(pattern, ctype, std::string(opt_strptr));
         }
     
     }
@@ -178,7 +178,7 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
             const char*        pattern_strptr = entry_items->at(0).value_or("");
             const char*        command_strptr = entry_items->at(1).value_or("");
 
-            config.previews.emplace_back(std::make_pair(pattern_strptr, command_strptr));
+            config.previews.emplace_back(pattern_strptr, command_strptr);
         }
     }
     else if ((section == "PREVIEW") and (value == "preview_delim")) config.preview_delim = node.value_or(config.preview_delim);
