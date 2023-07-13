@@ -39,7 +39,7 @@ PathX::PathX(const char* path) : std::filesystem::path(path)
 //   (std::vector<std::string>): List of names of the entries.
 //
 std::vector<std::string>
-PathX::listdir(void)
+PathX::listdir(uint32_t n_max_items)
 const noexcept
 {
     // Initilize returned vector.
@@ -64,6 +64,12 @@ const noexcept
 
         // Add to the returned vector.
         result.push_back(path_relative.string() + (entry.is_directory() ? "/" : ""));
+
+        // Stop directory search if exceeds the maximum number of items.
+        // Becase it taks too long time for seaching a big directory and
+        // it tend to prevent user's confortable command editing.
+        if (result.size() > n_max_items)
+            break;
     }
 
     // Define sorting key function.
