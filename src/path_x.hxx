@@ -31,7 +31,7 @@ class PathX : public std::filesystem::path
 
         // Returns a list of names of the entries in the given directory path.
         std::vector<std::string>
-        listdir(void)
+        listdir(uint32_t n_max_items = 128)
         const noexcept;
 };
 
