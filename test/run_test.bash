@@ -174,6 +174,6 @@ xdotool key Return
 sleep 0.1s
 
 # Exit NiSHiKi.
-# xdotool key ctrl+d
+xdotool key ctrl+d
 
 # vim: noexpandtab shiftwidth=4 tabstop=4 fdm=marker
