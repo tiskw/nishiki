@@ -65,7 +65,7 @@ noexcept
                 preview_lines[idx] = replace(preview_lines[idx], "\t", "    ");
 
                 // Append to result list.
-                result.emplace_back(StringX(preview_lines[idx]).clip(width));
+                result.push_back(StringX(preview_lines[idx]).clip(width));
             }
 
             // Exit function if one preview procedure finished.

@@ -45,7 +45,7 @@ FileType::FileType(void)
         std::string mime    = line.substr(0, index_colon);
         std::string pattern = line.substr(index_colon + 1, std::string::npos);
 
-        this->emplace_back(std::make_pair(mime, pattern));
+        this->emplace_back(mime, pattern);
     }
 }
 

@@ -158,11 +158,11 @@ noexcept
 
     // Get directory contents.
     for (const std::string& path : PathX(this->path).listdir())
-        this->emplace_back(path);
+        this->push_back(path);
 
     // Add marker if the current directory is empty.
     if (this->size() == 0)
-        this->emplace_back(DIRECTORY_NO_ITEM);
+        this->push_back(DIRECTORY_NO_ITEM);
 
     // Remember the current directory to the cache.
     this->cache = this->path;

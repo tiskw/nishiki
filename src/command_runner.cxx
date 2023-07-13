@@ -237,21 +237,17 @@ noexcept
     //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
     //   load. This function-local function is sometimes used in the source code of NiShiKi.
     //
-    constexpr auto print_error_message = [](const std::vector<std::string>& tokens, CommandRunner* self)
+    constexpr auto print_error_message = [](const std::vector<std::string>& tokens)
     {
         // Print error message.
         std::cout << "NiShiKi: parse error on NiShiKi-special command:" << std::endl;
 
+        // Print the number of tokens.
+        std::cout << "tokens.size() = " << tokens.size() << std::endl;
+
         // Print tokens for debuf purpose.
         for (uint32_t n = 0; n < tokens.size(); ++n)
-            std::cout << "[token " << n << "] " << tokens[n] << std::endl;
-
-        // Clear lhs/rhs buffer if `self` is specified.
-        if (self != nullptr)
-        {
-            self->lhs_next = StringX("");
-            self->rhs_next = StringX("");
-        }
+            std::cout << "tokens[" << n << "] " << tokens[n] << std::endl;
 
         return EXIT_FAILURE;
     };
@@ -269,7 +265,7 @@ noexcept
 
     // The number of splitted token should be four.
     if (tokens.size() != 4)
-        return print_error_message(tokens, nullptr);
+        return print_error_message(tokens);
 
     // Set next left/right hand side editing buffer.
     this->lhs_next = StringX(tokens[1]);
@@ -292,7 +288,7 @@ noexcept
         this->lhs_next += StringX(" ").join(choose_procs(), true);
 
     // Command 4: parse error
-    else return print_error_message(tokens, this);
+    else return print_error_message(tokens);
 
     return EXIT_SUCCESS;
 }

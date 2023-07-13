@@ -92,7 +92,7 @@ noexcept
     if ((this->storage.size() > 0) and (this->index < (this->storage.size() - 1)))
     {
         // Append the buffer to the last.
-        this->storage.emplace_back(this->storage[this->index]);
+        this->storage.push_back(this->storage[this->index]);
 
         // Delete the appended buffer.
         this->storage.erase(this->storage.begin() + this->index);
@@ -114,7 +114,7 @@ noexcept
     }
 
     // Create new buffer in the storage.
-    this->storage.emplace_back(std::make_pair(lhs, rhs));
+    this->storage.emplace_back(lhs, rhs);
 
     // Initialize storage index.
     this->index = this->storage.size() - 1;
@@ -149,7 +149,7 @@ noexcept
         // Special keys.
         case 0x08: this->lhs_ptr->pop(StringX::Pos::END); break;  // ^H (Backspace)
         case 0x7F: this->lhs_ptr->pop(StringX::Pos::END); break;  // ^? (Backspace)
-        case 0x09: this->lhs_ptr->push_back(CharX(" "));  break;  // ^I (Tab)
+        case 0x09: this->lhs_ptr->emplace_back(" ");      break;  // ^I (Tab)
 
         // Mode transition.
         case 0x1B: this->mode = TextBuffer::Mode::NORMAL; break;

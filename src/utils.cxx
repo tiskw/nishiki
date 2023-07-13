@@ -168,7 +168,7 @@ noexcept
     // Prepare output lines.
     std::vector<StringX> lines;
     for (uint16_t row = 0; row < height; ++row)
-        lines.emplace_back(StringX(""));
+        lines.emplace_back("");
 
     // Do nothing if no text is given.
     if (texts.size() == 0)
@@ -411,7 +411,7 @@ noexcept
 
     for (const std::string& path : split(std::string(std::getenv("PATH")), ":"))
         for (const auto& x : std::filesystem::directory_iterator(path))
-            result.push_back(StringX(x.path().filename().c_str()));
+            result.emplace_back(x.path().filename().c_str());
 
     // Sort the array of command names.
     std::sort(result.begin(), result.end());
