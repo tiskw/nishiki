@@ -1,10 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ source file: read_command.cxx
-//
-// This function defines the class `ReadCommand` that mamanges the user input session.
+/// C++ header file: read_command.hxx                                                            ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "read_command.hxx"
+
+#include <iostream>
 
 #include "config.hxx"
 #include "command_runner.hxx"
@@ -13,6 +13,7 @@
 #include "term_writer.hxx"
 #include "text_buffer.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // File local macros
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,48 +21,38 @@
 // Chack the given element is contained in the given map.
 #define contains(map, elem) (map.find(elem) != map.end())
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// ReadCommand: Constructors
+// ReadCommand: Constructors and destructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ReadCommand::ReadCommand(void)
-{
+{   // {{{
+
     // Append all histories to the editing buffer.
     for (const StringX& line : this->hist.read_history_file())
         this->buffer.create(StringX(""), line);
-}
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// ReadCommand: Destructors
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}   // }}}
 
 ReadCommand::~ReadCommand(void)
-{
+{   // {{{
+
     // Squash the history file.
     this->hist.normalize();
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // ReadCommand: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
-
-///// FUNCTION /////
-//
-// Read user input with rich interface.
-//
-// [Args]
-//   lhs (const StringX&): [IN] Default left hand side of user input.
-//   rhs (const StringX&): [IN] Default right hand side of user input.
-//
-// [Returns]
-//   (std::map<std::string, std::string>): Parsed command line arguments.
-//
 StringX
 ReadCommand::read(const StringX& lhs_ini, const StringX& rhs_ini)
 noexcept
-{
+{   // {{{
+
     TermReader reader = TermReader();
     TermWriter writer = TermWriter();
     EditHelper helper = EditHelper();
@@ -112,32 +103,19 @@ noexcept
             default: this->buffer.edit(cx); break;
         }
     }
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // ReadCommand: Private member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Returns encoded NiShiKi-internal command.
-// The returned values are delimiter-separated value of the followings:
-//
-//   1. command type ("int" or "ext")
-//   2. left-hand-side of the editing buffer
-//   3. right-hand-side of the editing buffer
-//   4. command contents
-//
-// [Args]
-//   command (const std::string&): Input command.
-//
-// [Returns]
-//   (StringX): Encoded NiShiKi-internal command.
-//
 StringX
 ReadCommand::create_nishiki_command(const std::string& command)
 const noexcept
-{
+{   // {{{
+
     // Sepertor of the NiShiKi-internal command.
     const StringX delim = StringX(NISHIKI_CMD_DELIM);
 
@@ -153,6 +131,8 @@ const noexcept
         std::cout << "\033[33mNiShiKi: Error while parsing NiShiKi-special command \033[m" << std::endl;
 
     return StringX("");
-}
+
+}   // }}}
+
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

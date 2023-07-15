@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ header file: term_reader.hxx
-//
-// This file defines the class `TermReader` that manages user input from terminal.
+/// C++ header file: term_reader.hxx                                                             ///
+///                                                                                              ///
+/// This file defines the class `TermReader` that manages user input from terminal.              ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TERM_READER_HXX
@@ -9,25 +9,23 @@
 
 #include <fstream>
 #include <termios.h>
+
 #include "string_x.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// TermReader: A class for reading characters from a terminal
+// Class definition
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class TermReader
 {
     public:
 
         ////////////////////////////////////////////////////////////////////////////////////////////
-        // Constructors
+        // Constructors and destructors
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        TermReader(void);
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
-        // Destructors
-        ////////////////////////////////////////////////////////////////////////////////////////////
-
+         TermReader(void);
         ~TermReader(void);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,6 +33,17 @@ class TermReader
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         CharX getch(void) noexcept;
+        // [Abstract]
+        //   Get valid UTF-8 character from STDIN and returns it. If the acquired character is
+        //   registered in the keybind, convert the character to a binded string (most of the
+        //   binded string will be added to the stack).
+        //
+        // [Args]
+        //   void
+        //
+        // [Returns]
+        //   (CharX): Captured character.
+
 
     private:
 
@@ -42,13 +51,16 @@ class TermReader
         // Member variables
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // File descriptor to read input characters.
         int fd;
+        // [Abstract]
+        //   File descriptor to read input characters.
 
-        // Copy of the original termios. This class changes the termios, and this member variable
-        // is used to save the original termios and restore when this class is deleted.
         struct termios term;
+        // [Abstract]
+        //   Copy of the original termios. This class changes the termios, and this member
+        //   variable is used to save the original termios and restore when this class is deleted.
 };
+
 
 #endif
 

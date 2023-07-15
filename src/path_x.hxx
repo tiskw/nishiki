@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ header file: path_x.hxx
-//
-// This file defines the class `PathX` that provides utility functions related to file path.
+/// C++ header file: path_x.hxx                                                                  ///
+///                                                                                              ///
+/// This file defines the class `PathX` that provides utility functions related to file path.    ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef PATH_X_HXX
@@ -11,38 +11,60 @@
 
 #include "string_x.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// PathX: A class for filepath manipulation
+// Class definitions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class PathX : public std::filesystem::path
 {
     public:
 
         ////////////////////////////////////////////////////////////////////////////////////////////
-        // Constructors
+        // Constructors and destructors
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         explicit PathX(const std::filesystem::path& path);
         explicit PathX(const char* path);
 
+
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Member functions
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Returns a list of names of the entries in the given directory path.
         std::vector<std::string>
         listdir(uint32_t n_max_items = 128)
         const noexcept;
+        // [Abstract]
+        //   Returns a list of names of the entries in the given directory path.
+        //   The list is sorted in ascending order.
+        //
+        // [Args]
+        //   void
+        //
+        // [Returns]
+        //   (std::vector<std::string>): List of names of the entries.
 };
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Other functions
+// Public functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Split the path to completion target and query.
 std::tuple<PathX, std::string>
 split_to_target_and_query(const std::vector<StringX>& tokens)
 noexcept;
+// [Abstract]
+//   Split the path to completion target and query.
+//
+// [Args]
+//   tokens (const std::vector<StringX>&): [IN] User input tokens.
+//
+// [Returns]
+//   (PathX)      : Completion target.
+//   (std::string): Completion query.
+//
+
 
 #endif
 

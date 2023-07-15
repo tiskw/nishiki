@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ source file: preview.cxx
-//
-// This file defines the function `preview` that returns preview result as a vector of string.
+/// C++ source file: preview.cxx                                                                 ///
+///                                                                                              ///
+/// This file defines the function `preview` that returns preview result as a vector of string.  ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "preview.hxx"
@@ -13,26 +13,16 @@
 #include "file_type.hxx"
 #include "utils.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Other functions
+// Public functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Returns preview contents of the given file.
-//
-// [Args]
-//   path   (const std::string&): [IN] Path to the target file.
-//   width  (int16_t)           : [IN] Width of preview window.
-//   height (int16_t)           : [IN] Height of preview window.
-//
-// [Returns]
-//   (std::vector<std::string>): Lines of preview contents.
-//
 std::vector<StringX>
 preview(const std::string& path, uint16_t width, uint16_t height)
 noexcept
-{
+{   // {{{
+
     // FileType instance is reusable, so defined as a static variable.
     static FileType filetype;
 
@@ -74,6 +64,8 @@ noexcept
     }
 
     return result;
-}
+
+}   // }}}
+
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

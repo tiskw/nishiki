@@ -1,7 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ header file: preview.hxx
-//
-// This file defines the function `preview` that returns preview result as a vector of string.
+/// C++ source file: preview.cxx                                                                 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef PREVIEW_HXX
@@ -9,14 +7,25 @@
 
 #include "string_x.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Other functions
+// Public functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Returns preview contents of the given file.
 std::vector<StringX>
 preview(const std::string& path, uint16_t width, uint16_t height)
 noexcept;
+// [Abstract]
+//   Returns preview contents of the given file.
+//
+// [Args]
+//   path   (const std::string&): [IN] Path to the target file.
+//   width  (int16_t)           : [IN] Width of preview window.
+//   height (int16_t)           : [IN] Height of preview window.
+//
+// [Returns]
+//   (std::vector<std::string>): Lines of preview contents.
+
 
 #endif
 

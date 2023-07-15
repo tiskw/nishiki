@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ header file: text_chooser.hxx
-//
-// This file defines the class `TextChooser` that provides NCurses interface for selecting
-// the given texts.
+/// C++ header file: text_chooser.hxx                                                            ///
+///                                                                                              ///
+/// This file defines the class `TextChooser` that provides NCurses interface for selecting      ///
+/// the given texts.                                                                             ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TEXT_CHOOSER_HXX
@@ -12,33 +12,45 @@
 
 #include "string_x.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Constants
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define PS_COMMAND ("ps aux")
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// ProcChooser: A class for choosing process ID
+// Class definition
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class TextChooser : public CursesScreen
 {
     public:
 
         ////////////////////////////////////////////////////////////////////////////////////////////
-        // Constructors
+        // Constructors and destructors
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         TextChooser(void);
+
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Member functions
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Start session and returns selecetd files.
         std::vector<StringX>
         start(const std::vector<std::string>& lines)
         noexcept;
+        // [Abstract]
+        //   Start session and returns selecetd files.
+        //
+        // [Args]
+        //   lines (const std::vector<std::string>&): [IN] Selection targets.
+        //
+        // [Returns]
+        //   (std::vector<StringX>): List of selected items.
+
 
     private:
 
@@ -46,77 +58,170 @@ class TextChooser : public CursesScreen
         // Private member variables
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Index of the current focused item.
         int32_t idx;
+        // [Abstract]
+        //   Index of the current focused item.
 
-        // Screen size.
         int32_t w, h;
+        // [Abstract]
+        //   Screen size.
 
-        // List of items where each item is composed by a pair of text and selected flag.
         std::vector<std::tuple<std::string, bool, uint32_t>> items;
+        // [Abstract]
+        //   List of items where each item is composed by a pair of text and selected flag.
 
-        // List of viewed items.
         std::vector<std::tuple<std::string, bool, uint32_t>*> views;
+        // [Abstract]
+        //   List of viewed items.
 
-        // Header string.
         std::string header;
+        // [Abstract]
+        //   Header string.
 
-        // True if in a grep mode.
         bool is_grep_mode;
+        // [Abstract]
+        //   True if in a grep mode.
 
-        // String to filter items.
         std::string grep_str;
+        // [Abstract]
+        //   String to filter items.
+
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Private member functions
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Compute index on viewed items.
         int32_t
         get_index_on_view(void)
         const noexcept;
+        // [Abstract]
+        //   Returns the index on viewed items.
+        //   If some grep string is set, the number of viewed items is not equivalent with the number of
+        //   original items, and this->idx is a index on the original list. This function returns a index
+        //   on the viewed list. For searching the viewed index, the interval reduction method is used
+        //   in this function.
+        //
+        // [Args]
+        //   void
+        //
+        // [Returns]
+        //   (int32_t): Index on the viewed list.
 
-        // Move cursor.
         void
         move_index(int32_t delta)
         noexcept;
+        // [Abstract]
+        //   Move cursor.
+        //
+        // [Args]
+        //   delta (int32_t): [IN] Amount of cursor movement.
+        //
+        // [Returns]
+        //   void
 
         // Redraw curses window.
         void
         redraw(void)
         noexcept;
+        // [Abstract]
+        //   Redraw curses window.
+        //
+        // [Args]
+        //   void
+        //
+        // [Returns]
+        //   void
 
-        // Returns selecetd files.
         std::vector<StringX>
         selected_procs(void)
         const noexcept;
+        // [Abstract]
+        //   Returns selecetd files.
+        //
+        // [Args]
+        //   void
+        //
+        // [Returns]
+        //   (std::vector<StringX>): List of selected process IDs.
 
-        // Toggle selected/unselected flag of the current item.
         void
         toggle_select(void)
         noexcept;
+        // [Abstract]
+        //   Toggle selected/unselected flag of the current item.
+        //
+        // [Args]
+        //   void
+        //
+        // [Returns]
+        //   void
 
-        // Update items.
         void
         update_viewed_items(void)
         noexcept;
+        // [Abstract]
+        //   Update items.
+        //
+        // [Args]
+        //   void
+        //
+        // [Returns]
+        //   void
 };
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Call hitsory chooser and returns choosed history(s).
-std::vector<StringX> choose_hists(void) noexcept;
+std::vector<StringX>
+choose_hists(void)
+noexcept;
+// [Abstract]
+//   Call history chooser and returns choosed file(s).
+//
+// [Args]
+//   void
+//
+// [Returns]
+//   (std::vector<StringX>): A list of selected histories.
 
-// Call history chooser and prints choosed history(s).
-void choose_hists_and_exit(void) noexcept;
+void
+choose_hists_and_exit(void)
+noexcept;
+// [Abstract]
+//   Call history chooser and prints choosed item(s).
+//
+// [Args]
+//   void
+//
+// [Returns]
+//   void
 
-// Call process chooser and returns choosed process ID(s).
-std::vector<StringX> choose_procs(void) noexcept;
+std::vector<StringX>
+choose_procs(void)
+noexcept;
+// [Abstract]
+//   Call process chooser and returns choosed process ID(s).
+//
+// [Args]
+//   void
+//
+// [Returns]
+//   (std::vector<StringX>): A list of selected process ID(s).
 
-// Call process chooser and prints choosed process ID(s).
-void choose_procs_and_exit(void) noexcept;
+void
+choose_procs_and_exit(void)
+noexcept;
+// [Abstract]
+//   Call process chooser and prints choosed process ID(s).
+//
+// [Args]
+//   void
+//
+// [Returns]
+//   void
+
 
 #endif
 

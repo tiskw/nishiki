@@ -1,8 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ source file: file_chooser.cxx
-//
-// This file defines the class `FileChooser` that provides NCurses interface for selecting files
-// and directories.
+/// C++ header file: file_chooser.hxx                                                            ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "file_chooser.hxx"
@@ -13,34 +10,29 @@
 #include "preview.hxx"
 #include "utils.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// CursesScreen: Constructors
+// FileChooser: Constructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 FileChooser::FileChooser() : index_cdir(0), index_prev(0), is_grep_mode(false)
-{
+{   // {{{
+
     // Get screen size.
     getmaxyx(stdscr, this->h, this->w);
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileChooser: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Start session and returns selecetd files.
-//
-// [Args]
-//   root (const StringX&): [IN] Initial directory of the file chooser.
-//
-// [Returns]
-//   (std::vector<StringX>): List of selected files.
-//
 std::vector<StringX>
 FileChooser::start(const StringX& root)
 noexcept
-{
+{   // {{{
+
     // Height of process information list window.
     const int32_t hgt_list = this->h - 4;
 
@@ -112,26 +104,19 @@ noexcept
             }
         }
     }
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Private member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Move to the selected directory.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   void
-//
 void
 FileChooser::chdir_next(void)
 noexcept
-{
+{   // {{{
+
     // Do nothing if the directory is empty.
     if ((this->cdir.size() == 1) && (this->cdir[0] == DIRECTORY_NO_ITEM))
         return;
@@ -151,67 +136,36 @@ noexcept
     // If the directory is actually changed, reset index.
     if (this->cdir.append(s))
         this->index_cdir = 0;
-}
 
-///// FUNCTION /////
-//
-// Move to the previous directory.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 FileChooser::chdir_prev(void)
 noexcept
-{
-    //
-    // this->cdir.move_to_parent();
+{   // {{{
+
+    // Get the previous path and set it to the current directory variable.
     this->cdir.set(std::filesystem::canonical(this->cdir.get().parent_path()));
 
-    //
+    // Update the current index.
     this->index_cdir = this->index_prev;
-}
 
-///// FUNCTION /////
-//
-// Move cursor.
-//
-// [Args]
-//   delta (const int32_t): [IN] Amount of cursor movement.
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 FileChooser::move_index_cdir(const int32_t delta)
 noexcept
-{
-    this->index_cdir = MAX(0, MIN((int32_t) this->index_cdir + delta, (int32_t) this->cdir.size() - 1));
-}
+{   // {{{
 
-///// FUNCTION /////
-//
-// Print list to window.
-//
-// [Args]
-//   x   (const int32_t)    : [IN] Left-top position of drawing area.
-//   y   (const int32_t)    : [IN] Left-top position of drawing area.
-//   w   (const int32_t)    : [IN] Width of drawing area.
-//   h   (const int32_t)    : [IN] Height of drawing area.
-//   dir (const Directorty&): [IN] List of items.
-//   idx (const int32_t)    : [IN] Index of forcused item.
-//   sel (const bool)       : [IN] Show selected/unselected marker if true.
-//
-// [Returns]
-//   void
-//
+    this->index_cdir = MAX(0, MIN((int32_t) this->index_cdir + delta, (int32_t) this->cdir.size() - 1));
+
+}   // }}}
+
 void
 FileChooser::print_dir_list(const int32_t x, const int32_t y, const int32_t w, const int32_t h, const Directory& dir, const int32_t idx, const bool sel)
 const noexcept
-{
+{   // {{{
+
     // Compute delta of the index.
     const int32_t idx_delta = idx - (idx % h);
 
@@ -241,26 +195,14 @@ const noexcept
         if ((row + idx_delta) == idx)
             wattroff(stdscr, A_REVERSE);
     }
-}
 
-///// FUNCTION /////
-//
-// Print preview window.
-//
-// [Args]
-//   x    (const int32_t)     : [IN] Left-top position of drawing area.
-//   y    (const int32_t)     : [IN] Left-top position of drawing area.
-//   w    (const int32_t)     : [IN] Width of drawing area.
-//   h    (const int32_t)     : [IN] Height of drawing area.
-//   path (const std::string&): [IN] Path to the current file.
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 FileChooser::print_preview(const int32_t x, const int32_t y, const int32_t w, const int32_t h, const std::string& path)
 const noexcept
-{
+{   // {{{
+
     ///// FUNCTION-LOCAL FUNCTION /////
     //
     // Set curses color.
@@ -327,64 +269,14 @@ const noexcept
             }
         }
     }
-}
 
-///// FUNCTION /////
-//
-// Update directory contents.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   void
-//
-void
-FileChooser::update(void)
-noexcept
-{
-    // Set previous directory.
-    this->prev.set(this->cdir.get().parent_path());
+}   // }}}
 
-    // Update directory contents.
-    const bool updated_cdir = this->cdir.update();
-    const bool updated_prev = this->prev.update();
-
-    // Append '/' at the end of directory name if not exists.
-    std::string name = this->cdir.get().filename().string();
-    if (name.back() != '/')
-        name.push_back('/');
-
-    // Find appropriate location of the focus index of previous directory.
-    if (updated_prev)
-    {
-        for (uint32_t n = 0; n < this->prev.size(); ++n)
-            if (this->prev[n] == name)
-                { this->index_prev = n; break; }
-    }
-
-    // Clean and initialize selected vector.
-    if (updated_cdir)
-    {
-        this->selected.clear();
-        this->selected.resize(this->cdir.size(), false);
-    }
-}
-
-///// FUNCTION /////
-//
-// Redraw curses window.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   void
-//
 void
 FileChooser::redraw(void)
 const noexcept
-{
+{   // {{{
+
     // Get screen size.
     int32_t w, h;
     getmaxyx(stdscr, h, w);
@@ -447,22 +339,14 @@ const noexcept
 
     // Refresh entire window.
     wrefresh(stdscr);
-}
 
-///// FUNCTION /////
-//
-// Returns selecetd files.
-//
-// [Args]
-//   path (std::filesystem::path): [IN] Root of relative path.
-//
-// [Returns]
-//   (std::vector<StringX>): A vector of selected items.
-//
+}   // }}}
+
 std::vector<StringX>
 FileChooser::selected_files(std::filesystem::path root)
 const noexcept
-{
+{   // {{{
+
     // Initialize returned value.
     std::vector<StringX> result;
 
@@ -476,22 +360,14 @@ const noexcept
         result.emplace_back(this->cdir.get_relative(this->index_cdir, root));
 
     return result;
-}
 
-///// FUNCTION /////
-//
-// Toggle selected/unselected flag of the current item.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 FileChooser::toggle_select(void)
 noexcept
-{
+{   // {{{
+
     // Compute target index.
     int32_t index = this->index_cdir % this->cdir.size();
 
@@ -500,47 +376,68 @@ noexcept
 
     // Move cursor.
     this->move_index_cdir(+1);
-}
+
+}   // }}}
+
+void
+FileChooser::update(void)
+noexcept
+{   // {{{
+
+    // Set previous directory.
+    this->prev.set(this->cdir.get().parent_path());
+
+    // Update directory contents.
+    const bool updated_cdir = this->cdir.update();
+    const bool updated_prev = this->prev.update();
+
+    // Append '/' at the end of directory name if not exists.
+    std::string name = this->cdir.get().filename().string();
+    if (name.back() != '/')
+        name.push_back('/');
+
+    // Find appropriate location of the focus index of previous directory.
+    if (updated_prev)
+    {
+        for (uint32_t n = 0; n < this->prev.size(); ++n)
+            if (this->prev[n] == name)
+                { this->index_prev = n; break; }
+    }
+
+    // Clean and initialize selected vector.
+    if (updated_cdir)
+    {
+        this->selected.clear();
+        this->selected.resize(this->cdir.size(), false);
+    }
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Call file chooser and returns choosed file(s).
-//
-// [Args]
-//   root (const StringX&): [IN] Path of the starting directory.
-//
-// [Returns]
-//   (std::vector<StringX>): A list of choosed file paths.
-//
 std::vector<StringX>
 choose_files(const StringX& root)
 noexcept
-{
-    return FileChooser().start(root);
-}
+{   // {{{
 
-///// FUNCTION /////
-//
-// Call file chooser and prints choosed file(s).
-//
-// [Args]
-//   root (const StringX&): [IN] Path of the starting directory.
-//
-// [Returns]
-//   void
-//
+    return FileChooser().start(root);
+
+}   // }}}
+
 void
 choose_files_and_exit(const StringX& root)
 noexcept
-{
+{   // {{{
+
     for (const StringX& sx : choose_files(root))
         std::cout << sx << std::endl;
 
     exit(EXIT_SUCCESS);
-}
+
+}   // }}}
+
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

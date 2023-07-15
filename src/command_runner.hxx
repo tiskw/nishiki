@@ -20,14 +20,15 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// CommandRunner: A class to run command
+// Class definition
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class CommandRunner
 {
     public:
 
         ////////////////////////////////////////////////////////////////////////////////////////////
-        // Constructors
+        // Constructors and descructors
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         CommandRunner(void);
@@ -38,6 +39,17 @@ class CommandRunner
 
         const StringX& get_next_lhs(void) const noexcept;
         const StringX& get_next_rhs(void) const noexcept;
+        // [Abstract]
+        //   This class contains a pair of string, left/right hand side of editing buffer, that
+        //   should be used as a initial buffer of the next user editing area. These getter
+        //   functions return these strings.
+        //
+        // [Args]
+        //   void
+        //
+        // [Returns]
+        //   (const StringX&): Left or right hand side of editing buffer that should be used
+        //                     to the initial buffer of the next user editing area.
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Member functions
