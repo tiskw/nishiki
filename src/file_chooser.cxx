@@ -357,7 +357,17 @@ const noexcept
 
     // Returns current item if nothing is selected.
     if (result.size() == 0)
-        result.emplace_back(this->cdir.get_relative(this->index_cdir, root));
+    {
+        // Get current path as a string.
+        std::string s = this->cdir.get_relative(this->index_cdir, root);
+
+        // If the string contains whitespace, then enclose it by single quote.
+        if (s.find_first_not_of(" \t") != std::string::npos)
+            s = '\'' + s + '\'';
+
+        // Add to the result list.
+        result.emplace_back(s);
+    }
 
     return result;
 

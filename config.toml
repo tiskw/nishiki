@@ -110,8 +110,8 @@ previews = [
     ["application/x-sh", "timeout 0.1s highlight --force -O ansi {path}"],
 
     # Media file: display media infomation.
-    ["image/.*", "file {path} | sed 's/, /\n/g'"],
-    ["video/.*", "file {path} | sed 's/, /\n/g'"],
+    ["image/.*", "file {path} | sed 's/, /\\n/g'"],
+    ["video/.*", "file {path} | sed 's/, /\\n/g'"],
 
     # Archive file: list archive contents.
     [".*/x-7z-compressed", "timeout 0.1s 7z l    {path}"],
