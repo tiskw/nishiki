@@ -1,7 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ source file: path_x.cxx
-//
-// This file defines the class `PathX` that provides utility functions related to file path.
+/// C++ header file: path_x.hxx                                                                  ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "path_x.hxx"
@@ -13,8 +11,9 @@
 
 #include "utils.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// PathX: Constructors
+// PathX: Constructors and destructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 PathX::PathX(const std::filesystem::path& path) : std::filesystem::path(path)
@@ -23,25 +22,16 @@ PathX::PathX(const std::filesystem::path& path) : std::filesystem::path(path)
 PathX::PathX(const char* path) : std::filesystem::path(path)
 { /* Do nothing */ }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PathX: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Returns a list of names of the entries in the given directory path.
-// The list is sorted in ascending order.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   (std::vector<std::string>): List of names of the entries.
-//
 std::vector<std::string>
 PathX::listdir(uint32_t n_max_items)
 const noexcept
-{
+{   // {{{
+
     // Initilize returned vector.
     std::vector<std::string> result;
 
@@ -89,27 +79,19 @@ const noexcept
     std::sort(result.begin(), result.end(), sort_key_func);
 
     return result;
-};
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Other functions
+// Public functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Split the path to completion target and query.
-//
-// [Args]
-//   tokens (const std::vector<StringX>&): [IN] User input tokens.
-//
-// [Returns]
-//   (PathX)      : Completion target.
-//   (std::string): Completion query.
-//
 std::tuple<PathX, std::string>
 split_to_target_and_query(const std::vector<StringX>& tokens)
 noexcept
-{
+{   // {{{
+
     // Initialize the target path.
     PathX basepath = PathX("");
 
@@ -119,6 +101,8 @@ noexcept
 
     // Split the target token to parent path and file name.
     return std::make_tuple(PathX(basepath.parent_path()), basepath.filename());
-}
+
+}   // }}}
+
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

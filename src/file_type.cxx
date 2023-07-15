@@ -1,7 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ source file: file_type.cxx
-//
-// This file defines the class `FileType` that can judge mime type of the given file.
+/// C++ header file: file_type.hxx                                                               ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "file_type.hxx"
@@ -11,12 +9,14 @@
 
 #include <glob.hpp>
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileType: Constructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 FileType::FileType(void)
-{
+{   // {{{
+
     // This class determines mime type from suffix of a file using `/usr/share/mime/globs`
     // in which matching of suffixes and mime types are written. In the constructor of FileType,
     // the file `/usr/share/mime/globs` will be parsed and the matching information is stored
@@ -47,26 +47,19 @@ FileType::FileType(void)
 
         this->emplace_back(mime, pattern);
     }
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileType: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Returns mime type of the given file.
-//
-// [Args]
-//   path (const std::string&): [IN] Path to a file.
-//
-// [Returns]
-//   (std::string): Mime type information.
-//
 std::string
 FileType::mime(const std::string& path)
 const noexcept
-{
+{   // {{{
+
     // Do nothing if the path is not a file.
     if (std::filesystem::is_directory(path))
         return "inode/directory";
@@ -85,6 +78,8 @@ const noexcept
 
     // Returns empty string if no matched item found.
     return "text/plain";
-}
+
+}   // }}}
+
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

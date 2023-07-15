@@ -1,47 +1,38 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ source file: text_chooser.cxx
-//
-// This file defines the class `TextChooser` that provides NCurses interface for selecting
-// the given texts.
+/// C++ header file: text_chooser.hxx                                                            ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "text_chooser.hxx"
 
 #include <iostream>
 #include <tuple>
-
 #include <curses.h>
 
 #include "utils.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// TextChooser: Constructors
+// TextChooser: Constructors and destructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TextChooser::TextChooser(void) : idx(0), header(""), is_grep_mode(false)
-{
+{   // {{{
+
     // Get screen size.
     getmaxyx(stdscr, this->h, this->w);
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // TextChooser: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Start session and returns selecetd files.
-//
-// [Args]
-//   lines (const std::vector<std::string>&): [IN] Selection targets.
-//
-// [Returns]
-//   (std::vector<StringX>): List of selected items.
-//
 std::vector<StringX>
 TextChooser::start(const std::vector<std::string>& lines)
 noexcept
-{
+{   // {{{
+
     // Height of process information list window.
     const int32_t hgt_list = this->h - 4;
 
@@ -112,30 +103,19 @@ noexcept
     }
 
     return result;
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Private member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Returns the index on viewed items.
-// If some grep string is set, the number of viewed items is not equivalent with the number of
-// original items, and this->idx is a index on the original list. This function returns a index
-// on the viewed list. For searching the viewed index, the interval reduction method is used
-// in this function.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   (int32_t): Index on the viewed list.
-//
 int32_t
 TextChooser::get_index_on_view(void)
 const noexcept
-{
+{   // {{{
+
     // Do nothing if the viewed list is empty, or containing only one.
     if (this->views.size() == 0)
         return 0;
@@ -163,22 +143,14 @@ const noexcept
     }
 
     return range.first;
-}
 
-///// FUNCTION /////
-//
-// Move cursor.
-//
-// [Args]
-//   delta (int32_t): [IN] Amount of cursor movement.
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 TextChooser::move_index(int32_t delta)
 noexcept
-{
+{   // {{{
+
     // Compute index on the viewed list.
     int32_t idx_view = this->get_index_on_view();
 
@@ -187,22 +159,14 @@ noexcept
 
     // Map the viewed index to the original index.
     this->idx = std::get<2>(*this->views[idx_view]);
-}
 
-///// FUNCTION /////
-//
-// Redraw curses window.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 TextChooser::redraw(void)
 noexcept
-{
+{   // {{{
+
     // Define position and size of drawing area.
     const int32_t x = 1, y = 3;
 
@@ -261,22 +225,14 @@ noexcept
 
     // Refresh entire window.
     wrefresh(stdscr);
-}
+
+}   // }}}
  
-///// FUNCTION /////
-//
-// Returns selecetd files.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   (std::vector<StringX>): List of selected process IDs.
-//
 std::vector<StringX>
 TextChooser::selected_procs(void)
 const noexcept
-{
+{   // {{{
+
     ///// FUNCTION-LOCAL FUNCTION /////
     //
     // Finds process ID on a process information line and returns it.
@@ -315,22 +271,14 @@ const noexcept
         result.emplace_back(get_proc_id(std::get<0>(this->items[this->idx])));
 
     return result;
-}
 
-///// FUNCTION /////
-//
-// Toggle selected/unselected flag of the current item.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 TextChooser::toggle_select(void)
 noexcept
-{
+{   // {{{
+
     // Compute target index.
     int32_t index = this->idx % this->items.size();
 
@@ -339,22 +287,14 @@ noexcept
 
     // Move cursor.
     this->move_index(+1);
-}
 
-///// FUNCTION /////
-//
-// Call file chooser and prints choosed file(s).
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 TextChooser::update_viewed_items(void)
 noexcept
-{
+{   // {{{
+
     if (this->is_grep_mode)
     {
         this->views.clear();
@@ -363,94 +303,65 @@ noexcept
             if (std::get<0>(item).find(this->grep_str) != std::string::npos)
                 this->views.push_back(&item);
     }
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Other functions
+// Public functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Call history chooser and returns choosed file(s).
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   (std::vector<StringX>): A list of selected histories.
-//
 std::vector<StringX>
 choose_hists(void)
 noexcept
-{
+{   // {{{
+
     // Get histories.
     std::vector<std::string> hists;
 
     // Start the text chooser.
     return TextChooser().start(hists);
-}
 
-///// FUNCTION /////
-//
-// Call history chooser and prints choosed item(s).
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 choose_hists_and_exit(void)
 noexcept
-{
+{   // {{{
+
     // Call history chooser and print selected histories.
     for (const StringX& sx : choose_hists())
         std::cout << sx << std::endl;
 
     exit(EXIT_SUCCESS);
-}
 
-///// FUNCTION /////
-//
-// Call process chooser and returns choosed item(s).
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   (std::vector<StringX>): A list of selected process ID(s).
-//
+}   // }}}
+
 std::vector<StringX>
 choose_procs(void)
 noexcept
-{
+{   // {{{
+
     // Call process command.
     std::vector<std::string> lines = split(run_command(PS_COMMAND), "\n");
 
     // Start the text chooser.
     return TextChooser().start(lines);
-}
 
-///// FUNCTION /////
-//
-// Call process chooser and prints choosed item(s).
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 choose_procs_and_exit(void)
 noexcept
-{
+{   // {{{
+
     // Call process chooser and print selected process ID(s).
     for (const StringX& sx : choose_procs())
         std::cout << sx << std::endl;
 
     exit(EXIT_SUCCESS);
-}
+
+}   // }}}
+
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

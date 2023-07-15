@@ -1,7 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ source file: string_x.cxx
-//
-// Extended string class and it's iterator class.
+/// C++ header file: string_x.hxx                                                                ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "string_x.hxx"
@@ -12,12 +10,14 @@
 
 #include "utils.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // File local macros
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Chack the given element is contained in the given set.
 #define contains(set, elem) (set.find(elem) != set.end())
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CharX: Constructors
@@ -32,68 +32,44 @@ CharX::CharX(const char* ptr, bool raw) : value(0), size(0), width(0)
 CharX::CharX(std::istream& sin, bool raw) : value(0), size(0), width(0)
 { CharX::construct_from_string_stream(this, sin, raw); }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CharX: Operators
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Comparison operator.
-//
-// [Args]
-//   cx (const CharX&): [IN] comparison target (right hand side).
-//
-// [Returns]
-//   (bool): True if the variable `cx` is greater than myself.
-//
 bool
 CharX::operator<(const CharX& cx)
 const noexcept
-{
-    return (this->value < cx.value);
-}
+{   // {{{
 
-///// FUNCTION /////
-//
-// Multiple operator.
-//
-// [Args]
-//   n_repeat (uint16_t): [IN] Number of repeats.
-//
-// [Returns]
-//   (StringX): Repeated string.
-//
+    return (this->value < cx.value);
+
+}   // }}}
+
 StringX
 CharX::operator*(uint16_t n_repeat)
 const noexcept
-{
+{   // {{{
+
     StringX result;
 
     for (uint16_t n = 0; n < n_repeat; ++n)
         result += *this;
 
     return result;
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CharX: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Returns SGR (Select Graphic Rendition) parameters of ANSI escape sequence.
-// Note that this function assumed that the current character is ANSI escape sequence.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   (std::pair<int16_t, int16_t>): A pair of foreground and background color index.
-//
 std::pair<int16_t, int16_t>
 CharX::ansi_color(void)
 const noexcept
-{
+{   // {{{
+
     ///// FUNCTION-LOCAL FUNCTION /////
     //
     // Parse CharX value to a pair of color indices.
@@ -140,130 +116,79 @@ const noexcept
     std::pair<int8_t, uint8_t> result_bg = parse_to_int(this->value, result_fg.second);
 
     return std::make_pair(result_fg.first, result_bg.first);
-}
 
-///// FUNCTION /////
-//
-// Convert to printable std::string.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   (std::string): String expression of CharX.
-//
+}   // }}}
+
 std::string
 CharX::printable(void)
 const noexcept
-{
+{   // {{{
+
     if (this->value <= 0x1F) return std::string("^") + (char) (this->value + '@');
     else                     return this->string();
-}
 
-///// FUNCTION /////
-//
-// Convert to std::string.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   (std::string): String expression of CharX.
-//
+}   // }}}
+
 std::string
 CharX::string(void)
 const noexcept
-{
+{   // {{{
+
     std::string result;
 
     for (uint16_t n = 0; n < this->size; ++n)
         result += (char) ((this->value >> (8 * n)) & 0xFF);
 
     return result;
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CharX: Class static member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Returns number of bytes of UTF8 character from the first byte of the character.
-//
-// [Args]
-//   ch (char): [IN] First byte of UTF8 character.
-//
-// [Returns]
-//   (uint8_t): Number of bytes of UTF8 character.
-//
 uint8_t
 CharX::get_utf8_byte_size(char ch)
 noexcept
-{
+{   // {{{
+
     if      ((ch & 0x80) == 0x00) return (uint8_t) 1;
     else if ((ch & 0xE0) == 0xC0) return (uint8_t) 2;
     else if ((ch & 0xF0) == 0xE0) return (uint8_t) 3;
     else if ((ch & 0xF8) == 0xF0) return (uint8_t) 4;
     else                          return (uint8_t) 1;
-}
 
-///// FUNCTION /////
-//
-// Returns width of the given UTF8 character.
-//
-// [Args]
-//   ch (uint64_t): [IN] Value of UTF8 character.
-//
-// [Returns]
-//   (uint8_t): Width of UTF8 character.
-//
+}   // }}}
+
 uint8_t
 CharX::get_utf8_width(uint64_t val)
 noexcept
-{
+{   // {{{
+
     if      (                      (val <= 0x0000FF)) return (uint8_t) 1;
     else if ((0xEFBDB1 <= val) and (val <= 0xEFBE9F)) return (uint8_t) 1;
     else                                              return (uint8_t) 2;
-}
 
-///// FUNCTION /////
-//
-// Constructor from char pointer.
-//
-// [Args]
-//   self (CharX*)     : [OUT] Myself (target of the constructor).
-//   ptr  (const char*): [IN ] Input stream of the source.
-//   raw  (bool)       : [IN ] Do not parse ANSI escape sequence if true.
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 CharX::construct_from_char_pointer(CharX* cx, const char* ptr, bool raw)
 noexcept
-{
+{   // {{{
+
     // Convert char pointer to a string stream.
     std::stringstream ss(ptr);
 
     construct_from_string_stream(cx, ss, raw);
-}
 
-///// FUNCTION /////
-//
-// Constructor from input stream.
-//
-// [Args]
-//   self (CharX*)       : [OUT] Myself (target of the constructor).
-//   sin  (std::istream&): [IN ] Input stream of the source.
-//   raw  (bool)         : [IN ] Do not parse ANSI escape sequence if true.
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 CharX::construct_from_string_stream(CharX* cx, std::istream& sin, bool raw)
 noexcept
-{
+{   // {{{
+
     // Read the first byte.
     uint8_t c_first = sin.get();
 
@@ -271,24 +196,14 @@ noexcept
     else if (raw              ) CharX::construct_normal_char(cx, c_first, sin);
     else if (c_first == '\x1b') CharX::construct_ansi_escseq(cx, c_first, sin);
     else                        CharX::construct_normal_char(cx, c_first, sin);
-}
 
-///// FUNCTION /////
-//
-// Constructor from input stream for ANSI escape sequences.
-//
-// [Args]
-//   self    (CharX*)     : [OUT] Myself (target of the constructor).
-//   c_first (uint8_t)    : [IN ] First character of the input stream.
-//   sin     (const char*): [IN ] Input stream of the source (`c_first` is not contained).
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 CharX::construct_ansi_escseq(CharX* self, uint8_t c_first, std::istream& sin)
 noexcept
-{
+{   // {{{
+
     // Initialize the value using the first byte of the input stream.
     self->value = (uint64_t) c_first;
 
@@ -305,24 +220,14 @@ noexcept
         if (('a' <= c) and (c <= 'z'))
             return;
     }
-}
 
-///// FUNCTION /////
-//
-// Constructor from input stream for normal characters.
-//
-// [Args]
-//   self    (CharX*)     : [OUT] Myself (target of the constructor).
-//   c_first (uint8_t)    : [IN ] First character of the input stream.
-//   sin     (const char*): [IN ] Input stream of the source (`c_first` is not contained).
-//
-// [Returns]
-//   void
-//
+}   // }}}
+
 void
 CharX::construct_normal_char(CharX* self, uint8_t c_first, std::istream& sin)
 noexcept
-{
+{   // {{{
+
     // Ciompute the byte size of the character.
     self->size = CharX::get_utf8_byte_size(c_first);
 
@@ -335,7 +240,9 @@ noexcept
 
     // Compute the width of the character.
     self->width = CharX::get_utf8_width(self->value);
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // StringX: Constructors
@@ -353,45 +260,29 @@ StringX::StringX(const char* ptr) : std::deque<CharX>()
 StringX::StringX(const std::string& str) : StringX(str.c_str())
 { /* Do nothing */ }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // StringX: Operators
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Addition operator with CharX.
-//
-// [Args]
-//   cx (CharX): [IN] A character to be added.
-//
-// [Returns]
-//   (StringX): Added string.
-//
 StringX
 StringX::operator+(const CharX& cx)
 const noexcept
-{
+{   // {{{
+
     StringX src = StringX(*this);
 
     src.push_back(cx);
 
     return src;
-}
 
-///// FUNCTION /////
-//
-// Addition operator with StringX.
-//
-// [Args]
-//   sx (StringX): [IN] A string to be added.
-//
-// [Returns]
-//   (StringX): Added string.
-//
+}   // }}}
+
 StringX
 StringX::operator+(const StringX& sx)
 const noexcept
-{
+{   // {{{
+
     // Create a copy of string.
     StringX src = StringX(*this);
 
@@ -399,22 +290,14 @@ const noexcept
     std::copy(sx.cbegin(), sx.cend(), std::back_inserter(src));
 
     return src;
-}
 
-///// FUNCTION /////
-//
-// Assignment operation.
-//
-// [Args]
-//   sx (const StringX&): [IN] A string to be assigned.
-//
-// [Returns]
-//   (StringX): Myself.
-//
+}   // }}}
+
 StringX&
 StringX::operator=(const StringX& sx)
 noexcept
-{
+{   // {{{
+
     // Clear current contents.
     this->clear();
 
@@ -423,153 +306,90 @@ noexcept
 
     // Returns myself for convenience.
     return *this;
-}
 
-///// FUNCTION /////
-//
-// Addition assignment operator with CharX.
-//
-// [Args]
-//   cx (const CharX&): [IN] A character to be added.
-//
-// [Returns]
-//   (StringX&): Myself.
-//
+}   // }}}
+
 StringX&
 StringX::operator+=(const CharX& cx)
 noexcept
-{
+{   // {{{
+
     // Append the given character.
     this->push_back(cx);
 
     // Returns myself for convenience.
     return *this;
-}
 
-///// FUNCTION /////
-//
-// Addition assignment operator with StringX.
-//
-// [Args]
-//   str (const StringX&): [IN] A string to be added.
-//
-// [Returns]
-//   (StringX&): Myself.
-//
+}   // }}}
+
 StringX&
 StringX::operator+=(const StringX& str)
 noexcept
-{
+{   // {{{
+
     // Append the given string at the end.
     std::copy(str.cbegin(), str.cend(), std::back_inserter(*this));
 
     // Returns myself for convenience.
     return *this;
-}
 
-///// FUNCTION /////
-//
-// Equality operator.
-//
-// [Args]
-//   str (const StringX&): [IN] A string to be compared.
-//
-// [Returns]
-//   (bool): True if `*this` is equal to `str`.
-//
+}   // }}}
+
 bool
 StringX::operator==(const StringX& str)
 const noexcept
-{
-    return (consistent_comparison(*this, str) == 0);
-}
+{   // {{{
 
-///// FUNCTION /////
-//
-// Inequality operator.
-//
-// [Args]
-//   str (const StringX&): [IN] A string to be compared.
-//
-// [Returns]
-//   (bool): True if `*this` is not equal to `str`.
-//
+    return (consistent_comparison(*this, str) == 0);
+
+}   // }}}
+
 bool
 StringX::operator!=(const StringX& str)
 const noexcept
-{
-    return (consistent_comparison(*this, str) != 0);
-}
+{   // {{{
 
-///// FUNCTION /////
-//
-// Less-than operator.
-//
-// [Args]
-//   str (const StringX&): [IN] A string to be compared.
-//
-// [Returns]
-//   (bool): True if `*this` is less than `str`.
-//
+    return (consistent_comparison(*this, str) != 0);
+
+}   // }}}
+
 bool
 StringX::operator<(const StringX& str)
 const noexcept
-{
-    return (consistent_comparison(*this, str) < 0);
-}
+{   // {{{
 
-///// FUNCTION /////
-//
-// Greater-than operator.
-//
-// [Args]
-//   str (const StringX&): [IN] A string to be compared.
-//
-// [Returns]
-//   (bool): True if `*this` is greater than `str`.
-//
+    return (consistent_comparison(*this, str) < 0);
+
+}   // }}}
+
 bool
 StringX::operator>(const StringX& str)
 const noexcept
-{
+{   // {{{
+
     return (consistent_comparison(*this, str) > 0);
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // StringX: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Append string at the end.
-//
-// [Args]
-//   str (const StringX& str): [IN] String to be appended.
-//
-// [Returns]
-//   void
-//
 void
 StringX::append(const StringX& str)
 noexcept
-{
-    *this += str;
-}
+{   // {{{
 
-///// FUNCTION /////
-//
-// Clip the string to the specified width.
-//
-// [Args]
-//   length (uint16_t): [IN] The string will be clipped to this width.
-//
-// [Returns]
-//   (StringX): Clipped string.
-//
+    *this += str;
+
+}   // }}}
+
 StringX
 StringX::clip(uint16_t length)
 const noexcept
-{
+{   // {{{
+
     StringX result;
 
     uint16_t total = 0;
@@ -588,22 +408,14 @@ const noexcept
     }
 
     return result;
-}
 
-///// FUNCTION /////
-//
-// Colorize the string in Shell syntax.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   (StringX): Colorized string.
-//
+}   // }}}
+
 StringX
 StringX::colorize(void)
 const noexcept
-{
+{   // {{{
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // File local constants
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -684,61 +496,37 @@ const noexcept
         colorized += colorize_token(token);
 
     return colorized;
-}
 
-///// FUNCTION /////
-//
-// Returns if myself is ended with the given character.
-//
-// [Args]
-//   c (const char): [IN] A character to be compared.
-//
-// [Returns]
-//   (bool): True if myself is ended with `c`.
-//
+}   // }}}
+
 bool
 StringX::endswith(const char c)
 const noexcept
-{
-    return ((this->size() > 0) and (this->back().value == (uint64_t) c));
-}
+{   // {{{
 
-///// FUNCTION /////
-//
-// Join the given strings where the delimiter of the joining is myself.
-//
-// [Args]
-//   strs (const std::vector<StringX>&): [IN] List of strings to be joined.
-//
-// [Returns]
-//   (StringX): Joined string.
-//
+    return ((this->size() > 0) and (this->back().value == (uint64_t) c));
+
+}   // }}}
+
 StringX
 StringX::join(const std::vector<StringX>& strs, const bool delim_end)
 const noexcept
-{
+{   // {{{
+
     StringX result;
 
     for (uint32_t i = 0; i < strs.size(); ++i)
         result += (delim_end or (i != (strs.size() - 1))) ? (strs[i] + *this) : strs[i];
 
     return result;
-}
 
-///// FUNCTION /////
-//
-// Pop a character from the string and returns the popped character.
-//
-// [Args]
-//   pos (const StringX::Pos): [IN] Position to be popped.
-//
-// [Returns]
-//   (CharX): The popped character.
-//
+}   // }}}
+
 CharX
 StringX::pop(const StringX::Pos pos)
 noexcept
-{
+{   // {{{
+
     CharX cx;
 
     if      (this->size() == 0         ) { cx = CharX(0, 0, 0);                    }
@@ -747,22 +535,14 @@ noexcept
     else                                 { cx = CharX(0, 0, 0);                    }
 
     return cx;
-}
 
-///// FUNCTION /////
-//
-// Returns true if myself is started from the given string.
-//
-// [Args]
-//   str (const StringX&): [IN] A string to be compared.
-//
-// [Returns]
-//   (bool): True if `*this` starts with `str`.
-//
+}   // }}}
+
 bool
 StringX::startswith(const StringX& str)
 const noexcept
-{
+{   // {{{
+
     // The pattern string never match with the target string
     // if the length of pattern string is longer than the target string.
     if (this->size() < str.size()) return false;
@@ -772,22 +552,14 @@ const noexcept
             return false;
 
     return true;
-}
 
-///// FUNCTION /////
-//
-// Strip white-spaces.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   (StringX): Stripped string.
-//
+}   // }}}
+
 StringX
 StringX::strip(void)
 const noexcept
-{
+{   // {{{
+
     // Initialize the returned value as a copy of myself.
     StringX result = StringX(*this);
 
@@ -800,22 +572,14 @@ const noexcept
         result.pop_back();
 
     return result;
-};
 
-///// FUNCTION /////
-//
-// Convert StringX to std::string.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   (std::string): Converted string.
-//
+}   // }}}
+
 std::string
 StringX::string(void)
 const noexcept
-{
+{   // {{{
+
     std::string result;
 
     for (CharX cx : *this)
@@ -823,23 +587,14 @@ const noexcept
             result += (char) ((cx.value >> (8 * n)) & 0xFF);
 
     return result;
-}
 
-///// FUNCTION /////
-//
-// Returns sub-string.
-//
-// [Args]
-//   pos (uint32_t): Position of the first character to include.
-//   n   (uint32_t): Length of the sub-string
-//
-// [Returns]
-//   (StringX): Sub-string.
-//
+}   // }}}
+
 StringX
 StringX::substr(uint32_t pos, uint32_t n)
 const noexcept
-{
+{   // {{{
+
     // Starting position should be smaller than the string length.
     pos = MIN(pos, this->size());
 
@@ -855,48 +610,14 @@ const noexcept
         result += *iter;
 
     return result;
-}
 
-///// FUNCTION /////
-//
-// Split myself to tokens. For example, a string
-//
-//     echo 'this is a pen' | grep 'pen'
-//
-// will be tokenized to
-//
-//     echo / 'this is a pen' / | / grep / 'pen'
-//
-// where / is the seperator of the tokens.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   (std::vector<StringX>): Array of tokens.
-//
-// [Example]
-//   >> // Define target string.
-//   >> StringX str = StringX("echo 'this is a pen' | grep 'pen'")
-//   >>
-//   >> // Tokenize.
-//   >> std::vector<StringX> tokens = str.tokenize()
-//   >>
-//   >> // Check tokenization result.
-//   >> assert(tokens[0] == StringX("echo"));
-//   >> assert(tokens[1] == StringX(" "));
-//   >> assert(tokens[2] == StringX("'this is a pen'"));
-//   >> assert(tokens[3] == StringX(" "));
-//   >> assert(tokens[4] == StringX("|"));
-//   >> assert(tokens[5] == StringX(" "));
-//   >> assert(tokens[6] == StringX("grep"));
-//   >> assert(tokens[7] == StringX(" "));
-//   >> assert(tokens[8] == StringX("'pen'"));
-//
+}   // }}}
+
 std::vector<StringX>
 StringX::tokenize(void)
 const noexcept
-{
+{   // {{{
+
     ///// FUNCTION-LOCAL FUNCTION /////
     //
     // Get string token that is quoted by single/double quote.
@@ -1013,22 +734,14 @@ const noexcept
     }
 
     return result;
-}
 
-///// FUNCTION /////
-//
-// Remove quote if quoted.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   (StringX): A string where quote is stripped.
-//
+}   // }}}
+
 StringX
 StringX::unquote(void)
 const noexcept
-{
+{   // {{{
+
     // Do nothing if empty string.
     if (this->size() < 2) return StringX(*this);
 
@@ -1038,117 +751,75 @@ const noexcept
         return this->substr(1, this->size() - 2);
 
     return StringX(*this);
-}
 
-///// FUNCTION /////
-//
-// Returns width of the string.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   (uint16_t): Total width of the string.
-//
+}   // }}}
+
 uint16_t
 StringX::width(void)
 const noexcept
-{
+{   // {{{
+
     // Accumurate width of each character.
     uint16_t result = 0;
     for (CharX cx : *this)
         result += cx.width;
 
     return result;
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // StringX: Class static member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Construct StringX from char pointer.
-//
-// [Args]
-//   sx  (StringX*)   : Construction target.
-//   ptr (const char*): Source of a string.
-//
-// [Returns]
-//   void
-//
 void
 StringX::construct_from_char_pointer(StringX* sx, const char* ptr)
 noexcept
-{
+{   // {{{
+
     // Read one CharX from the pointer, and incremant the pointer with read bytes.
     for (const char* p = ptr; *p != '\0'; p += sx->back().size)
         sx->emplace_back(p);
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Write the given character to the output stream.
-//
-// [Args]
-//   stream (std::ostream&): [IN] The output stream to which the characters will be written.
-//   cx     (const CharX&) : [IN] The character to be written.
-//
-// [Returns]
-//   (std::ostream&): The output stream.
-//
 std::ostream&
 operator<<(std::ostream& stream, const CharX& cx)
 noexcept
-{
+{   // {{{
+
     // Output the given character to the stream.
     for (uint16_t n = 0; n < cx.size; ++n)
         stream << (char) ((cx.value >> (8 * n)) & 0xFF);
 
     return stream;
-}
 
-///// FUNCTION /////
-//
-// Write the given string to the output stream.
-//
-// [Args]
-//   stream (std::ostream&) : [IN] The output stream to which the characters will be written.
-//   cx     (const StringX&): [IN] The character to be written.
-//
-// [Returns]
-//   (std::ostream&): The output stream.
-//
+}   // }}}
+
 std::ostream&
 operator<<(std::ostream& stream, const StringX& str)
 noexcept
-{
+{   // {{{
+
     // Output the given string to the stream.
     for (CharX cx : str)
         stream << cx;
 
     return stream;
-}
 
-///// FUNCTION /////
-//
-// Consistent comparison operator (it likes <=> operator in C++20).
-//
-// [Args]
-//   s1 (const StringX&): [IN] Comparison target 1.
-//   s2 (const StringX&): [IN] Comparison target 2.
-//
-// [Returns]
-//   (int8_t): Returns 0 if s1 == s2, +1 if s1 < s2, and -1 if s1 > s2.
-//
+}   // }}}
+
 int8_t
 consistent_comparison(const StringX& s1, const StringX& s2)
 noexcept
-{
+{   // {{{
+
     int8_t res  = -128;
     size_t idx1 = 0;
     size_t idx2 = 0;
@@ -1219,6 +890,8 @@ noexcept
     }
 
     return res;
-}
+
+}   // }}}
+
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

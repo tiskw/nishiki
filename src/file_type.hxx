@@ -1,38 +1,49 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ header file: file_type.hxx
-//
-// This file defines the class `FileType` that can judge mime type of the given file.
+/// C++ header file: file_type.hxx                                                               ///
+///                                                                                              ///
+/// This file defines the class `FileType` that can judge mime type of the given file.           ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef FILE_TYPE_HXX
 #define FILE_TYPE_HXX
 
-#include <vector>
 #include <string>
 #include <utility>
+#include <vector>
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// FileType: A class for getting file type
+// Class definition
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class FileType : public std::vector<std::pair<std::string, std::string>>
 {
     public:
 
         ////////////////////////////////////////////////////////////////////////////////////////////
-        // Constructors
+        // Constructors and destructors
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         FileType(void);
+
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Member functions
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Returns mime type of the given file.
         std::string
         mime(const std::string& path)
         const noexcept;
+        // [Abstract]
+        //   Returns mime type of the given file.
+        //
+        // [Args]
+        //   path (const std::string&): [IN] Path to a file.
+        //
+        // [Returns]
+        //   (std::string): Mime type information.
 };
+
 
 #endif
 

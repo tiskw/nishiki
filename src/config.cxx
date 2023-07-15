@@ -22,12 +22,12 @@ NishikiConfig config;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// File-local functions
+// Definition of static functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
 set_config(const toml::table& table, const toml::key& section, const toml::key& value)
-noexcept
+noexcept;
 // [Abstract]
 //   Read one config item to the global variable `config`.
 //
@@ -38,6 +38,104 @@ noexcept
 //
 // [Returns]
 //   void
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Public functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void
+load_config(std::string filepath)
+noexcept
+{   // {{{
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Set default values
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // The [GENERAL] settings.
+    config.area_hgt      = 6u;
+    config.column_margin = 3u;
+    config.histhint_pre  = "";
+    config.histhint_post = "";
+
+    // The [PROMPT] settings.
+    config.prompt1     = "[{user}@{host}]-[{cwd}]";
+    config.prompt2     = "{git}";
+    config.prompt3_ins = ">> ";
+    config.prompt3_nor = "|| ";
+    config.prompt_comp = "| ";
+
+    // The [ALIAS] settings.
+    config.aliases.clear();
+
+    // The [KEYBIND] settings.
+    config.keybind.clear();
+
+    // The [COMPLETION] settings.
+    config.completions.clear();
+
+    // The [PREVIEW] settings.
+    config.previews.clear();
+    config.preview_delim = " | ";
+    config.preview_ratio = 0.45;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Read confg file
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Compute the filepath to the config file if "auto" is specified.
+    //
+    // Priority rule of the loading target is:
+    //   1. ./config.toml
+    //   2. ~/.config/nishiki/config.toml
+    //   3. ~/.local/nishiki/config.toml
+    //
+    if (filepath == "auto")
+    {
+        std::filesystem::path home  = std::filesystem::path(getenv("HOME"));
+        std::filesystem::path path1 = std::filesystem::path(".") / "config.toml";
+        std::filesystem::path path2 = home / ".config" / "nishiki" / "config.toml";
+
+        if      (std::filesystem::exists(path1)) { filepath = std::filesystem::canonical(path1).string(); }
+        else if (std::filesystem::exists(path2)) { filepath = std::filesystem::canonical(path2).string(); }
+        else                                     { filepath = "config.toml";                              }
+    }
+
+    // Read specified TOML file.
+    toml::parse_result result = toml::parse_file(filepath);
+    if (not result)
+    {
+        std::cout << "\033[33mNiShiKi: Error occured while parsing config file: " << filepath << "\033[m\n";
+        std::cout << "\033[33mNiShiKi: " << result.error() << "\033[m" << std::endl;
+        return;
+    }
+
+    // Steal the table from the result.
+    toml::table table = std::move(result).table();
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Parse config contents
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    for (const auto& node_section : table)
+    {
+        // If the node is a table then read the values contained in the table.
+        if (node_section.second.is_table())
+            for (auto node_value : *node_section.second.as_table())
+                set_config(table, node_section.first, node_value.first);
+    }
+
+}   // }}}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Static functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void
+set_config(const toml::table& table, const toml::key& section, const toml::key& value)
+noexcept
 {   // {{{
 
     ///// FUNCTION-LOCAL FUNCTION /////
@@ -191,95 +289,6 @@ noexcept
     ////////////////////////////////////////////////////////////////////////////////////////////////
     
     else show_error_message(section, value);
-
-}   // }}}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Functions
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void
-load_config(std::string filepath)
-noexcept
-{   // {{{
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // Set default values
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // The [GENERAL] settings.
-    config.area_hgt      = 6u;
-    config.column_margin = 3u;
-    config.histhint_pre  = "";
-    config.histhint_post = "";
-
-    // The [PROMPT] settings.
-    config.prompt1     = "[{user}@{host}]-[{cwd}]";
-    config.prompt2     = "{git}";
-    config.prompt3_ins = ">> ";
-    config.prompt3_nor = "|| ";
-    config.prompt_comp = "| ";
-
-    // The [ALIAS] settings.
-    config.aliases.clear();
-
-    // The [KEYBIND] settings.
-    config.keybind.clear();
-
-    // The [COMPLETION] settings.
-    config.completions.clear();
-
-    // The [PREVIEW] settings.
-    config.previews.clear();
-    config.preview_delim = " | ";
-    config.preview_ratio = 0.45;
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // Read confg file
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // Compute the filepath to the config file if "auto" is specified.
-    //
-    // Priority rule of the loading target is:
-    //   1. ./config.toml
-    //   2. ~/.config/nishiki/config.toml
-    //   3. ~/.local/nishiki/config.toml
-    //
-    if (filepath == "auto")
-    {
-        std::filesystem::path home  = std::filesystem::path(getenv("HOME"));
-        std::filesystem::path path1 = std::filesystem::path(".") / "config.toml";
-        std::filesystem::path path2 = home / ".config" / "nishiki" / "config.toml";
-
-        if      (std::filesystem::exists(path1)) { filepath = std::filesystem::canonical(path1).string(); }
-        else if (std::filesystem::exists(path2)) { filepath = std::filesystem::canonical(path2).string(); }
-        else                                     { filepath = "config.toml";                              }
-    }
-
-    // Read specified TOML file.
-    toml::parse_result result = toml::parse_file(filepath);
-    if (not result)
-    {
-        std::cout << "\033[33mNiShiKi: Error occured while parsing config file: " << filepath << "\033[m\n";
-        std::cout << "\033[33mNiShiKi: " << result.error() << "\033[m" << std::endl;
-        return;
-    }
-
-    // Steal the table from the result.
-    toml::table table = std::move(result).table();
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // Parse config contents
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-
-    for (const auto& node_section : table)
-    {
-        // If the node is a table then read the values contained in the table.
-        if (node_section.second.is_table())
-            for (auto node_value : *node_section.second.as_table())
-                set_config(table, node_section.first, node_value.first);
-    }
 
 }   // }}}
 

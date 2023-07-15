@@ -1,7 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ source file: term_writer.cxx
-//
-// This file defines the class `TermWriter` that manages output to terminal.
+/// C++ header file: term_writer.hxx                                                             ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "term_writer.hxx"
@@ -13,19 +11,14 @@
 #include "config.hxx"
 #include "utils.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// TermWriter: Constructors
+// TermWriter: Constructors and destructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Default constructor.
-//
-// [Args]
-//   void
-//
 TermWriter::TermWriter(void)
-{
+{   // {{{
+
     // Get terminal size.
     struct winsize ws;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
@@ -41,21 +34,12 @@ TermWriter::TermWriter(void)
     // Move the cursor to the bottom of the drawing area.
     for (uint16_t n = 0; n < config.area_hgt; ++n)
         std::cout << std::endl;
-}
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// TermWriter: Destructors
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}   // }}}
 
-///// FUNCTION /////
-//
-// Destructor.
-//
-// [Args]
-//   void
-//
 TermWriter::~TermWriter(void)
-{
+{   // {{{
+
     // Clear drawing area.
     std::cout << "\033[0J";
 
@@ -64,36 +48,19 @@ TermWriter::~TermWriter(void)
 
     // Erase drawing area.
     std::cout << "\033[" << config.area_hgt << "F" << "\033[0J" << std::endl;
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // TermWriter: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Write the given contents to the terminal.
-// Layout of the contents is the following.
-//
-//     [PROMPT1         ][PROMPT2]
-//     [PROMPT3] [USER INPUT     ]
-//     [USER INPUT               ]
-//     [COMPLETION               ]
-//
-// [Args]
-//   lhs       (const StringX&)             : [IN] Left hand side of the cursor of the edit string.
-//   rhs       (const StringX&)             : [IN] Right hand side of the cursor of the edit string.
-//   mode      (TextBuffer::Mode)           : [IN] Current editing mode.
-//   clines    (const std::vector<StringX>&): [IN] Completion lines to be shown in the terminal.
-//   hist_comp (const StringX&)             : [IN] History completion.
-//
-// [Returns]
-//   void
-//
 void
 TermWriter::write(const StringX& lhs, const StringX& rhs, TextBuffer::Mode mode, const std::vector<StringX>& clines, const StringX& hist_comp)
 const noexcept
-{
+{   // {{{
+
     ///// FUNCTION-LOCAL FUNCTION /////
     //
     // Computes and returns editing line.
@@ -148,26 +115,19 @@ const noexcept
         if (i == (clines.size() - 1)) std::cout << std::flush;
         else                          std::cout << std::endl;
     }
-}
+
+}   // }}}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // TermWriter: Private member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Update auxiliary information.
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   void
-//
 void
 TermWriter::update(void)
 noexcept
-{
+{   // {{{
+
     // A container to store auxiliary information.
     std::map<std::string, std::string> info;
 
@@ -238,6 +198,8 @@ noexcept
         len_ws  = MAX(0, this->wid - prompt1.width() - prompt2.width());
         this->prompt_head = prompt1 + CharX(" ") * len_ws + prompt2;
     }
-}
+
+}   // }}}
+
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

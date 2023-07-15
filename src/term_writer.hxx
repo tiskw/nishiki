@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ header file: term_writer.hxx
-//
-// This file defines the class `TermWriter` that manages output to terminal.
+/// C++ header file: term_writer.hxx                                                             ///
+///                                                                                              ///
+/// This file defines the class `TermWriter` that manages output to terminal.                    ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TERM_WRITER_HXX
@@ -13,33 +13,49 @@
 #include "string_x.hxx"
 #include "text_buffer.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// TermWriter: A class for writing contents to terminal
+// Class definition
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class TermWriter
 {
     public:
 
         ////////////////////////////////////////////////////////////////////////////////////////////
-        // Constructors
+        // Constructors and descructors
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        TermWriter(void);
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
-        // Descructors
-        ////////////////////////////////////////////////////////////////////////////////////////////
-
+         TermWriter(void);
         ~TermWriter(void);
+
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Member functions
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Write the given contents to the terminal.
         void
         write(const StringX& lhs, const StringX& rhs, TextBuffer::Mode mode, const std::vector<StringX>& clines, const StringX& hist_comp)
         const noexcept;
+        // [Abstract]
+        //   Write the given contents to the terminal.
+        //   Layout of the contents is the following.
+        //
+        //     [PROMPT1         ][PROMPT2]
+        //     [PROMPT3] [USER INPUT     ]
+        //     [USER INPUT               ]
+        //     [COMPLETION               ]
+        //
+        // [Args]
+        //   lhs       (const StringX&)             : [IN] Left hand side of the cursor of the edit string.
+        //   rhs       (const StringX&)             : [IN] Right hand side of the cursor of the edit string.
+        //   mode      (TextBuffer::Mode)           : [IN] Current editing mode.
+        //   clines    (const std::vector<StringX>&): [IN] Completion lines to be shown in the terminal.
+        //   hist_comp (const StringX&)             : [IN] History completion.
+        //
+        // [Returns]
+        //   void
+
 
     private:
 
@@ -47,22 +63,31 @@ class TermWriter
         // Member variables
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Terminal size.
-        unsigned short wid;
-        unsigned short hgt;
+        unsigned short wid, hgt;
+        // [Abstract]
+        //   Terminal size.
 
-        // Header line of the prompt.
         StringX prompt_head;
+        // [Abstract]
+        //   Header line of the prompt.
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Private member functions
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Update auxiliary information.
         void
         update(void)
         noexcept;
+        // [Abstract]
+        //   Update auxiliary information.
+        //
+        // [Args]
+        //   void
+        //
+        // [Returns]
+        //   void
 };
+
 
 #endif
 

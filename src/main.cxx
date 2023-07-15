@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// C++ source file: main.cxx
-//
-// Entry point of NiShiKi.
+/// C++ source file: main.cxx                                                                    ///
+///                                                                                              ///
+/// Entry point of NiShiKi.                                                                      ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -17,13 +17,15 @@
 #include "utils.hxx"
 #include "version.hxx"
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// File local functions
+// Definition of static functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///// FUNCTION /////
-//
-// Parse command line arguments.
+static std::map<std::string, std::string>
+parse_args(const int32_t argc, const char* argv[]);
+// [Abstract]
+//   Parse command line arguments.
 //
 // [Args]
 //   argc (const int32_t): [IN]  Number of the command line arguments.
@@ -31,10 +33,28 @@
 //
 // [Returns]
 //   (std::map<std::string, std::string>): Parsed command line arguments.
+
+int32_t
+main(const int32_t argc, const char* argv[]);
+// [Abstract]
+//   Entry point of NiShiKi.
 //
+// [Args]
+//   argc (const int32_t): [IN]  Number of the command line arguments.
+//   argv (const char*[]): [IN]  Contents of the command arguments.
+//
+// [Returns]
+//   (int32_t): EXIT_SUCCESS if Nishiki successfully finished otherwise EXIT_FAILURE.
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Static functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 static std::map<std::string, std::string>
 parse_args(const int32_t argc, const char* argv[])
-{
+{   // {{{
+
     // Create parser instance.
     cxxopts::Options options("nishiki", "NiShiKi - a simple shell wrapper\n");
 
@@ -82,26 +102,13 @@ parse_args(const int32_t argc, const char* argv[])
     }
 
     return args;
-}
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Main function
-////////////////////////////////////////////////////////////////////////////////////////////////////
+}   // }}}
 
-///// FUNCTION /////
-//
-// Entry point of NiShiKi.
-//
-// [Args]
-//   argc (const int32_t): [IN]  Number of the command line arguments.
-//   argv (const char*[]): [IN]  Contents of the command arguments.
-//
-// [Returns]
-//   (int32_t): EXIT_SUCCESS if Nishiki successfully finished otherwise EXIT_FAILURE.
-//
 int32_t
 main(const int32_t argc, const char* argv[])
-{
+{   // {{{
+
     // Parse command line arguments.
     auto args = parse_args(argc, argv);
 
@@ -145,6 +152,8 @@ main(const int32_t argc, const char* argv[])
     std::cout << "See you!" << std::endl;
 
     return EXIT_SUCCESS;
-}
+
+}   // }}}
+
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker
