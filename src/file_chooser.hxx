@@ -157,6 +157,7 @@ class FileChooser : public CursesScreen
         const noexcept;
         // [Abstract]
         //   Returns selecetd files.
+        //   Tokens that has whitespace will be quoted by single quote.
         //
         // [Args]
         //   path (std::filesystem::path): [IN] Root of relative path.
