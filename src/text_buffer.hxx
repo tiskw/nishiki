@@ -43,7 +43,18 @@ class TextBuffer
         // Getter and setter functions
         ////////////////////////////////////////////////////////////////////////
 
-        Mode
+        const StringX& get_lhs(void) const noexcept;
+        const StringX& get_rhs(void) const noexcept;
+        // [Abstract]
+        //   Returns left/right hand side of the text buffer.
+        //
+        // [Args]
+        //   void
+        //
+        // [Returns]
+        //   (const StringX&): Left/right hand side of the text buffer.
+
+        TextBuffer::Mode
         get_mode(void)
         const noexcept;
         // [Abstract]
@@ -67,17 +78,6 @@ class TextBuffer
         // [Returns]
         //   (const std::vector<std::pair<StringX, StringX>>&): Text buffers.
 
-        const StringX& get_lhs(void) const noexcept;
-        const StringX& get_rhs(void) const noexcept;
-        // [Abstract]
-        //   Returns left/right hand side of the text buffer.
-        //
-        // [Args]
-        //   void
-        //
-        // [Returns]
-        //   (const StringX&): Left/right hand side of the text buffer.
-
         void set_lhs(const StringX& text) noexcept;
         void set_rhs(const StringX& text) noexcept;
         // [Abstract]
@@ -89,6 +89,17 @@ class TextBuffer
         // [Returns]
         //   void
 
+        void
+        set_mode(TextBuffer::Mode)
+        noexcept;
+        // [Abstract]
+        //   Set editing mode.
+        //
+        // [Args]
+        //   (TextBuffer::Mode): Editing mode.
+        //
+        // [Returns]
+        //   void
 
         ////////////////////////////////////////////////////////////////////////
         // Member functions

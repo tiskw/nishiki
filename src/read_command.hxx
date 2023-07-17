@@ -58,29 +58,6 @@ class ReadCommand
         HistoryManager hist;
         // [Abstract]
         //   History manager instance.
-
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
-        // Private member functions
-        ////////////////////////////////////////////////////////////////////////////////////////////
-
-        StringX
-        create_nishiki_command(const std::string& command_keybind)
-        const noexcept;
-        // [Abstract]
-        //   Returns encoded NiShiKi-internal command.
-        //   The returned values are delimiter-separated value of the followings:
-        //
-        //     1. command type ("int" or "ext")
-        //     2. left-hand-side of the editing buffer
-        //     3. right-hand-side of the editing buffer
-        //     4. command contents
-        //
-        // [Args]
-        //   command (const std::string&): [IN] Input command.
-        //
-        // [Returns]
-        //   (StringX): Encoded NiShiKi-internal command.
 };
 
 

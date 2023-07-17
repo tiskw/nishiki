@@ -53,12 +53,46 @@ ReadCommand::read(const StringX& lhs_ini, const StringX& rhs_ini)
 noexcept
 {   // {{{
 
+    constexpr auto create_nishiki_command = [](const std::string& command, const StringX& lhs, const StringX& rhs)
+    // [Abstract]
+    //   Returns encoded NiShiKi-internal command.
+    //   The returned values are delimiter-separated value of the followings:
+    //
+    //     1. command type ("int" or "ext")
+    //     2. left-hand-side of the editing buffer
+    //     3. right-hand-side of the editing buffer
+    //     4. command contents
+    //
+    // [Args]
+    //   command (const std::string&): [IN] Input command.
+    //
+    // [Returns]
+    //   (StringX): Encoded NiShiKi-internal command.
+    {
+        // Sepertor of the NiShiKi-internal command.
+        const StringX delim = StringX(NISHIKI_CMD_DELIM);
+
+        // Returns encoded NiShiKi-inernal command.
+        if ((command.length() > 3) && ((command.substr(0, 4) == "!int") || (command.substr(0, 4) == "!ext")))
+            return (delim + StringX(command.substr(1, 3)) + delim + lhs + delim + rhs
+                  + delim + StringX(command.substr(4, std::string::npos)).strip());
+
+        // Parse error.
+        else
+            std::cout << "\033[33mNiShiKi: Error while parsing NiShiKi-special command \033[m" << std::endl;
+
+        return StringX("");
+    };
+
     TermReader reader = TermReader();
     TermWriter writer = TermWriter();
     EditHelper helper = EditHelper();
 
     // Create new buffer.
     this->buffer.create(lhs_ini, rhs_ini);
+
+    // Set editing mode to INSERT mode.
+    this->buffer.set_mode(TextBuffer::Mode::INSERT);
 
     // Update cache for history completions.
     // This function should be called for every time when starting editing because
@@ -80,7 +114,7 @@ noexcept
         // Check if the given key is registered in the keybinds.
         // If true, then returns the NiShiKi-internal command.
         if (contains(config.keybind, cx.printable()))
-            return this->create_nishiki_command(config.keybind[cx.printable()]);
+            return create_nishiki_command(config.keybind[cx.printable()], lhs, rhs);
 
         // Process input character.
         switch (cx.value)
@@ -110,29 +144,5 @@ noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // ReadCommand: Private member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-StringX
-ReadCommand::create_nishiki_command(const std::string& command)
-const noexcept
-{   // {{{
-
-    // Sepertor of the NiShiKi-internal command.
-    const StringX delim = StringX(NISHIKI_CMD_DELIM);
-
-    // Returns encoded NiShiKi-inernal command.
-    if ((command.length() > 3) && ((command.substr(0, 4) == "!int") || (command.substr(0, 4) == "!ext")))
-        return (delim + StringX(command.substr(1, 3))
-              + delim + this->buffer.get_lhs()
-              + delim + this->buffer.get_rhs()
-              + delim + StringX(command.substr(4, std::string::npos)).strip());
-
-    // Parse error.
-    else
-        std::cout << "\033[33mNiShiKi: Error while parsing NiShiKi-special command \033[m" << std::endl;
-
-    return StringX("");
-
-}   // }}}
-
 
 // vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

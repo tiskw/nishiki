@@ -361,12 +361,19 @@ const noexcept
         // Get current path as a string.
         std::string s = this->cdir.get_relative(this->index_cdir, root);
 
-        // If the string contains whitespace, then enclose it by single quote.
-        if (s.find_first_not_of(" \t") != std::string::npos)
-            s = '\'' + s + '\'';
-
         // Add to the result list.
         result.emplace_back(s);
+    }
+
+    // If the string contains whitespace, then enclose it by single quote.
+    for (uint32_t i = 0; i < result.size(); ++i)
+    {
+        // Convert StringX to std::string, because the current StringX doesn't have search function.
+        std::string str = result[i].string();
+
+        // Enclose it by single quote if contains whitespace.
+        if (str.find_first_not_of(" \t") != std::string::npos)
+            result[i] = StringX("\'" + str + "\'");
     }
 
     return result;
