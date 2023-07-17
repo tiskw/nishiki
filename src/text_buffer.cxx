@@ -19,21 +19,19 @@ TextBuffer::TextBuffer(const TextBuffer::Mode mode) : lhs_ptr(nullptr), rhs_ptr(
 // TextBuffer: Getter and setter functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TextBuffer::Mode
-TextBuffer::get_mode(void)
-const noexcept
-{ return this->mode; };
-
-const std::vector<std::pair<StringX, StringX>>&
-TextBuffer::get_storage(void)
-const noexcept
-{ return this->storage; };
-
 const StringX& TextBuffer::get_lhs(void) const noexcept { return *this->lhs_ptr; }
 const StringX& TextBuffer::get_rhs(void) const noexcept { return *this->rhs_ptr; }
 
+TextBuffer::Mode TextBuffer::get_mode(void) const noexcept { return this->mode; };
+
+const std::vector<std::pair<StringX, StringX>>&
+TextBuffer::get_storage(void) const noexcept
+{ return this->storage; };
+
 void TextBuffer::set_lhs(const StringX& lhs) noexcept { *this->lhs_ptr = lhs; };
 void TextBuffer::set_rhs(const StringX& rhs) noexcept { *this->rhs_ptr = rhs; };
+
+void TextBuffer::set_mode(TextBuffer::Mode mode)  noexcept { this->mode = mode; };
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
