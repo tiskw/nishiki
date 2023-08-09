@@ -63,6 +63,7 @@ grep = "grep --color=auto"
 [KEYBIND]
 
 "^F" = "!int filechooser"
+"^U" = "!int histchooser"
 "^P" = "!int procchooser"
 "^V" = "!ext xclip -o"
 

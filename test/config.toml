@@ -31,7 +31,7 @@ unknown = 3
 # <- prompt1 ---------------> <------------ propmt2 ->
 # <- prompt3 -> <- user input ----------------------->
 #
-prompt1 = "\u001B[97m[\u001B[32m{user}@{host}\u001B[97m]-[\u001B[33m{date}\u001B[97m]-[\u001B[34m{time}\u001B[97m]-[\u001B[35m{cwd}\u001B[97m]\u001B[m w/ veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeery long prompt"
+prompt1 = "\u001B[97m[\u001B[32m{user}@{host}\u001B[97m]-[\u001B[33m{date}\u001B[97m]-[\u001B[34m{time}\u001B[97m]-[\u001B[35m{cwd}\u001B[97m]\u001B[m w/ veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeery long prompt"
 prompt2 = "{git}"
 
 # Prompt3 has two values, for INSERT mode and NORMAL mode.
@@ -72,9 +72,10 @@ unknown = 3
 [KEYBIND]
 
 "^F" = "!int filechooser"
+"^U" = "!int histchooser"
 "^P" = "!int procchooser"
 "^V" = "!ext xclip -o"
-"^Z" = "!ext echo 'keybind for test'"
+"^Y" = "!ext echo 'keybind for test'"
 
 # Unknown config item.
 unknown = 3
