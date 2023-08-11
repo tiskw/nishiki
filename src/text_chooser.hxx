@@ -40,13 +40,14 @@ class TextChooser : public CursesScreen
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         std::vector<StringX>
-        start(const std::vector<std::string>& lines)
+        start(const std::vector<std::string>& lines, int target_index)
         noexcept;
         // [Abstract]
         //   Start session and returns selecetd files.
         //
         // [Args]
-        //   lines (const std::vector<std::string>&): [IN] Selection targets.
+        //   lines        (const std::vector<std::string>&): [IN] Selection targets.
+        //   target_index (int)                            : [IN] Index of the target value.
         //
         // [Returns]
         //   (std::vector<StringX>): List of selected items.
@@ -133,16 +134,16 @@ class TextChooser : public CursesScreen
         //   void
 
         std::vector<StringX>
-        selected_procs(void)
+        selected_values(int target_index)
         const noexcept;
         // [Abstract]
-        //   Returns selecetd files.
+        //   Returns selecetd values.
         //
         // [Args]
-        //   void
+        //   target_index (int): [IN] Index of the target value.
         //
         // [Returns]
-        //   (std::vector<StringX>): List of selected process IDs.
+        //   (std::vector<StringX>): List of selected values.
 
         void
         toggle_select(void)

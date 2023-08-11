@@ -173,11 +173,11 @@ noexcept
         std::cout << "NiShiKi: parse error on NiShiKi-special command:" << std::endl;
 
         // Print the number of tokens.
-        std::cout << "tokens.size() = " << tokens.size() << std::endl;
+        std::cout << "  - tokens.size() = " << tokens.size() << std::endl;
 
         // Print tokens for debuf purpose.
         for (uint32_t n = 0; n < tokens.size(); ++n)
-            std::cout << "tokens[" << n << "] " << tokens[n] << std::endl;
+            std::cout << "  - tokens[" << n << "] " << tokens[n] << std::endl;
 
         return EXIT_FAILURE;
     };
@@ -197,28 +197,27 @@ noexcept
     if (tokens.size() != 4)
         return print_error_message(tokens);
 
-    // Set next left/right hand side editing buffer.
-    this->lhs_next = StringX(tokens[1]);
-    this->rhs_next = StringX(tokens[2]);
-
     // Command 0: external command.
     if (tokens[0] == "ext")
-        this->lhs_next += StringX(run_command(strip(tokens[3])));
+        this->lhs_next = StringX(tokens[1]) + StringX(run_command(strip(tokens[3])));
 
     // Command 1: filechooser
     else if ((tokens[0] == "int") && (tokens[3] == "filechooser"))
-        this->lhs_next += StringX(" ").join(choose_files(StringX(".")), true);
+        this->lhs_next = StringX(tokens[1]) + StringX(" ").join(choose_files(StringX(".")), true);
 
     // Command 2: histchooser
     else if ((tokens[0] == "int") && (tokens[3] == "histchooser"))
-        this->lhs_next += StringX(" ").join(choose_hists(), true);
+        this->lhs_next = StringX(tokens[1]) + StringX(" ").join(choose_hists(), true);
 
     // Command 3: procchooser
     else if ((tokens[0] == "int") && (tokens[3] == "procchooser"))
-        this->lhs_next += StringX(" ").join(choose_procs(), true);
+        this->lhs_next = StringX(tokens[1]) + StringX(" ").join(choose_procs(), true);
 
     // Command 4: parse error
     else return print_error_message(tokens);
+
+    // Set next right hand side editing buffer.
+    this->rhs_next = StringX(tokens[2]);
 
     return EXIT_SUCCESS;
 

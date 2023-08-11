@@ -8,7 +8,15 @@
 #include <tuple>
 #include <curses.h>
 
+#include "history_manager.hxx"
 #include "utils.hxx"
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// FileChooser: Macros
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define KEY_CTRL(x)  ((x) & 0x1F)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -29,7 +37,7 @@ TextChooser::TextChooser(void) : idx(0), header(""), is_grep_mode(false)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<StringX>
-TextChooser::start(const std::vector<std::string>& lines)
+TextChooser::start(const std::vector<std::string>& lines, int target_index)
 noexcept
 {   // {{{
 
@@ -77,9 +85,10 @@ noexcept
             // Keybind on grep mode.
             switch (key)
             {
-                case 0x08: this->grep_str.pop_back();    break;
-                case '\n': this->is_grep_mode = false;   break;
-                default  : this->grep_str += (char) key; break;
+                case '\n'         : this->is_grep_mode = false;   break;
+                case KEY_BACKSPACE: this->grep_str.pop_back();    break;
+                case KEY_CTRL('h'): this->grep_str.pop_back();    break;
+                default           : this->grep_str += (char) key; break;
             }
         }
         else
@@ -97,7 +106,7 @@ noexcept
 
                 // Keybinds to exit the file chooser process.
                 case 'q' : return std::vector<StringX>();
-                case '\n': return this->selected_procs();
+                case '\n': return this->selected_values(target_index);
             }
         }
     }
@@ -229,7 +238,7 @@ noexcept
 }   // }}}
  
 std::vector<StringX>
-TextChooser::selected_procs(void)
+TextChooser::selected_values(int target_index)
 const noexcept
 {   // {{{
 
@@ -249,14 +258,15 @@ const noexcept
     //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
     //   load. This function-local function is sometimes used in the source code of NiShiKi.
     //
-    constexpr auto get_proc_id = [](const std::string& item) noexcept
+    constexpr auto get_value = [](const std::string& item, int target_index) noexcept
     {
         //
         std::vector<std::string> tokens = split(item);
 
         //
-        if (tokens.size() > 1) { return tokens[1];       }
-        else                   { return std::string(""); }
+        if      (target_index < 0                       ) { return item;                 }
+        else if (tokens.size() > (uint32_t) target_index) { return tokens[target_index]; }
+        else                                              { return std::string("");      }
     };
 
     // Initialize the output list.
@@ -264,11 +274,11 @@ const noexcept
 
     // Get process ID of all selected processes.
     for (const auto& [text, is_selected, idx_org] : this->items)
-        if (is_selected) { result.emplace_back(get_proc_id(text)); }
+        if (is_selected) { result.emplace_back(get_value(text, target_index)); }
 
     // Returns current item if nothing is selected.
     if (result.size() == 0)
-        result.emplace_back(get_proc_id(std::get<0>(this->items[this->idx])));
+        result.emplace_back(get_value(std::get<0>(this->items[this->idx]), target_index));
 
     return result;
 
@@ -316,11 +326,18 @@ choose_hists(void)
 noexcept
 {   // {{{
 
-    // Get histories.
+    // Instanciate history manager class to read history file.
+    HistoryManager hist;
+
+    // Initialize history container.
     std::vector<std::string> hists;
 
+    // Get histories.
+    for (const StringX& line : hist.read_history_file())
+        hists.emplace_back(line.string());
+
     // Start the text chooser.
-    return TextChooser().start(hists);
+    return TextChooser().start(hists, -1);
 
 }   // }}}
 
@@ -332,6 +349,9 @@ noexcept
     // Call history chooser and print selected histories.
     for (const StringX& sx : choose_hists())
         std::cout << sx << std::endl;
+
+    // Show terminal cursor forcibly.
+    fputs("\033[?25h", stdout);
 
     exit(EXIT_SUCCESS);
 
@@ -346,7 +366,7 @@ noexcept
     std::vector<std::string> lines = split(run_command(PS_COMMAND), "\n");
 
     // Start the text chooser.
-    return TextChooser().start(lines);
+    return TextChooser().start(lines, 1);
 
 }   // }}}
 
@@ -358,6 +378,9 @@ noexcept
     // Call process chooser and print selected process ID(s).
     for (const StringX& sx : choose_procs())
         std::cout << sx << std::endl;
+
+    // Show terminal cursor forcibly.
+    fputs("\033[?25h", stdout);
 
     exit(EXIT_SUCCESS);
 

@@ -12,6 +12,13 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// FileChooser: Macros
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define KEY_CTRL(x)  ((x) & 0x1F)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileChooser: Constructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -61,9 +68,10 @@ noexcept
             // Keybind on grep mode.
             switch (key)
             {
-                case '\n': this->is_grep_mode = false;   break;
-                case  127: this->grep_str.pop_back();    break;
-                default  : this->grep_str += (char) key; break;
+                case '\n'         : this->is_grep_mode = false;   break;
+                case KEY_BACKSPACE: this->grep_str.pop_back();    break;
+                case KEY_CTRL('h'): this->grep_str.pop_back();    break;
+                default           : this->grep_str += (char) key; break;
             }
 
             // If still in the grep mode.
@@ -451,6 +459,9 @@ noexcept
 
     for (const StringX& sx : choose_files(root))
         std::cout << sx << std::endl;
+
+    // Show terminal cursor forcibly.
+    fputs("\033[?25h", stdout);
 
     exit(EXIT_SUCCESS);
 

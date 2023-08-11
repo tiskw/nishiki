@@ -74,7 +74,7 @@ parse_args(const int32_t argc, const char* argv[])
     }
     catch (const std::exception& err)
     {
-        printf("\033[33mNiShiKi: Error: %s L.%d: parse_args(): %s\033[m", __FILE__, __LINE__, err.what());
+        std::cout << "\033[33mNiShiKi: Error: parse_args(): " << err.what() << "\033[m" << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -112,6 +112,9 @@ main(const int32_t argc, const char* argv[])
     // Parse command line arguments.
     auto args = parse_args(argc, argv);
 
+    // Load config file.
+    load_config(args["config"]);
+
     // Call plugin and exit if --plugin option is specified.
     if      (args["plugin"] == "filechooser") choose_files_and_exit(StringX("."));
     else if (args["plugin"] == "histchooser") choose_hists_and_exit();
@@ -121,9 +124,6 @@ main(const int32_t argc, const char* argv[])
     std::cout << "Welcome to ";
     std::cout << "\033[31mN \033[35mI \033[32mS \033[33mH \033[35mI \033[36mK \033[35mI\033[m !!";
     std::cout << std::endl;
-
-    // Load config file.
-    load_config(args["config"]);
 
     // Create ReadCommand instance which reads user input with rich interface.
     ReadCommand readcmd;

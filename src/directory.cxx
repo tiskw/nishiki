@@ -85,13 +85,13 @@ const noexcept
     // Check the file property and returns color index.
     //   0: Black, 1: Red,     2: Green, 3: Yellow,
     //   4: Blue,  5: Magenta, 6: Cyan,  7: White,
-    if      (std::filesystem::is_regular_file(path))   return 0;
-    else if (std::filesystem::is_block_file(path))     return 3;
+    if      (std::filesystem::is_block_file(path))     return 3;
     else if (std::filesystem::is_character_file(path)) return 3;
     else if (std::filesystem::is_directory(path))      return 4;
     else if (std::filesystem::is_fifo(path))           return 3;
     else if (std::filesystem::is_socket(path))         return 3;
     else if (std::filesystem::is_symlink(path))        return 6;
+    else if (std::filesystem::is_regular_file(path))   return 0;
     else                                               return 0;
 
 }   // }}}

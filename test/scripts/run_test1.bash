@@ -45,15 +45,20 @@ fi
 # Run test commands.
 ####################################################################################################
 
+mkdir -p dummy
+
 # Basic commands.
 xdotool type 'echo "NiShiKi"'
+xdotool key Return
+sleep 0.2s
+xdotool type 'ls /dev'
 xdotool key Return
 sleep 0.2s
 
 # Delete characters.
 xdotool type 'echo "NiShiKi"'
 xdotool key ctrl+h
-xdotool key Backspace
+xdotool key BackSpace
 sleep 0.2s
 
 # Normal mode.
@@ -117,12 +122,52 @@ xdotool type 'alias'
 xdotool key Return
 sleep 0.2s
 
-# Test file chooser 1/2.
+# Test file chooser 1/3.
 xdotool type 'ls '
 xdotool key ctrl+f
 xdotool type 'jjjjjjjjkkkkkkkkhl-l'
-xdotool type 'G0  '
-xdotool type '/LIC'
+xdotool type 'Gl0  '
+xdotool type '/LICENSE'
+xdotool key BackSpace
+xdotool key ctrl+h
+xdotool key Return
+xdotool key Return
+sleep 0.2s
+xdotool key Return
+sleep 0.2s
+
+# Test file chooser 2/3.
+xdotool type 'ls '
+xdotool key ctrl+f
+xdotool type 'hhhhhhhhhhhhhhhhhhhh0'
+xdotool type '/lib'
+xdotool key Return
+xdotool type 'lG'
+xdotool type 'q'
+sleep 0.2s
+xdotool key Return
+
+# Test file chooser 3/3.
+xdotool type 'cd test/dummy'
+xdotool key Return
+sleep 0.2s
+xdotool key ctrl+f
+sleep 0.2s
+xdotool type 'q'
+sleep 0.2s
+xdotool key Return
+sleep 0.2s
+xdotool type 'cd ../..'
+xdotool key Return
+sleep 0.2s
+
+# Test hist chooser.
+xdotool type 'echo '
+xdotool key ctrl+u
+xdotool type 'jjjjjjjjkkkkkkkkhl'
+xdotool type '/README.md'
+xdotool key BackSpace
+xdotool key ctrl+h
 xdotool key Return
 xdotool key Return
 sleep 0.2s
@@ -135,7 +180,7 @@ xdotool key ctrl+p
 xdotool type 'jjjjjjjjkkkkkkkkhl'
 xdotool type '/chrome'
 xdotool key ctrl+h
-xdotool key Backspace
+xdotool key BackSpace
 xdotool type 'me'
 xdotool key Return
 xdotool key ctrl+f
@@ -150,6 +195,12 @@ xdotool type 'ps '
 xdotool key ctrl+p
 xdotool type '   '
 xdotool key Return
+sleep 0.2s
+xdotool key Return
+sleep 0.2s
+
+# Test external command.
+xdotool key ctrl+y
 sleep 0.2s
 xdotool key Return
 sleep 0.2s
@@ -175,5 +226,7 @@ sleep 0.1s
 
 # Exit NiSHiKi.
 xdotool key ctrl+d
+
+rmdir dummy
 
 # vim: noexpandtab shiftwidth=4 tabstop=4 fdm=marker
