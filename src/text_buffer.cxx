@@ -83,8 +83,8 @@ noexcept
             this->storage.pop_back();
 
         // Strip the editing buffer.
-        if (item.second.size() > 0) item.second = item.second.strip();
-        else                        item.first  = item.first.strip();
+        item.first  = item.first.strip(true, false);
+        item.second = item.second.strip(false, true);
     }
 
     // Create new buffer in the storage.
@@ -139,8 +139,8 @@ noexcept
     switch (cx.value)
     {
         // Move cursor.
-        case 'l': this->move_cursor(+1); break;
-        case 'h': this->move_cursor(-1); break;
+        case 'l': this->move_cursor(+1);                     break;
+        case 'h': this->move_cursor(-1);                     break;
         case '$': this->move_cursor( this->rhs_ptr->size()); break;
         case '0': this->move_cursor(-this->lhs_ptr->size()); break;
 

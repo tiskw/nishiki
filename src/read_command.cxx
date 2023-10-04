@@ -120,21 +120,27 @@ noexcept
         switch (cx.value)
         {
             // Exit function if Ctrl-D is pressed.
-            case 0x04: return StringX("^D");
+            case 0x04:
+                return StringX("^D");
 
             // Execute completion if Ctrl-I (= horizontal tab) is pressed.
-            case 0x09: this->buffer.set_lhs(helper.complete(lhs)); break;
+            case 0x09:
+                this->buffer.set_lhs(helper.complete(lhs));
+                break;
 
             // History completion if Ctrl-N is pressed.
-            case 0x0E: this->buffer.set_lhs(lhs + this->hist.complete(lhs) + CharX(" ")); break;
+            case 0x0E:
+                this->buffer.set_lhs(lhs + this->hist.complete(lhs) + CharX(" "));
+                break;
 
             // Exit function if ENTER is pressed.
             case '\n':
-            case '\r': this->hist.append(lhs + rhs);
-                       return (lhs + rhs);
+            case '\r':
+                this->hist.append(lhs + rhs);
+                return (lhs + rhs);
 
             // Otherwise update editing buffer.
-            default: this->buffer.edit(cx); break;
+            default: this->buffer.edit(cx);
         }
     }
 

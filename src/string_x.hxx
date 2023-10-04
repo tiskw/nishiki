@@ -431,13 +431,14 @@ class StringX : public std::deque<CharX>
         //   (bool): True if `*this` starts with `str`.
 
         StringX
-        strip(void)
+        strip(bool left = true, bool right = true)
         const noexcept;
         // [Abstract]
         //   Strip white-spaces.
         //
         // [Args]
-        //   void
+        //   left  (bool): Strip from left if true.
+        //   right (bool): Strip from right if true.
         //
         // [Returns]
         //   (StringX): Stripped string.

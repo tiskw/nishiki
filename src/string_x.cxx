@@ -556,7 +556,7 @@ const noexcept
 }   // }}}
 
 StringX
-StringX::strip(void)
+StringX::strip(bool left, bool right)
 const noexcept
 {   // {{{
 
@@ -564,11 +564,11 @@ const noexcept
     StringX result = StringX(*this);
 
     // Strip white-spaces from front.
-    while (result.size() > 0 and ((result.front().value == 0x09) or (result.front().value == 0x20)))
+    while (left and result.size() > 0 and ((result.front().value == 0x09) or (result.front().value == 0x20)))
         result.pop_front();
 
     // Strip white-spaces from back.
-    while (result.size() > 0 and ((result.back().value == 0x09) or (result.back().value == 0x20)))
+    while (right and result.size() > 0 and ((result.back().value == 0x09) or (result.back().value == 0x20)))
         result.pop_back();
 
     return result;
