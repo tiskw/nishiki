@@ -56,6 +56,8 @@ noexcept
     // The [GENERAL] settings.
     config.area_hgt      = 6u;
     config.column_margin = 3u;
+    config.datetime_pre  = "";
+    config.datetime_post = "";
     config.histhint_pre  = "";
     config.histhint_post = "";
 
@@ -172,6 +174,8 @@ noexcept
 
     if      ((section == "GENERAL") and (value == "area_hgt"     )) config.area_hgt      = node.value_or(config.area_hgt);
     else if ((section == "GENERAL") and (value == "column_margin")) config.column_margin = node.value_or(config.column_margin);
+    else if ((section == "GENERAL") and (value == "datetime_pre" )) config.datetime_pre  = node.value_or(config.datetime_pre);
+    else if ((section == "GENERAL") and (value == "datetime_post")) config.datetime_post = node.value_or(config.datetime_post);
     else if ((section == "GENERAL") and (value == "histhint_pre" )) config.histhint_pre  = node.value_or(config.histhint_pre);
     else if ((section == "GENERAL") and (value == "histhint_post")) config.histhint_post = node.value_or(config.histhint_post);
     else if ((section == "GENERAL")                               ) show_error_message(section, value);

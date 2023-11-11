@@ -24,6 +24,8 @@ typedef struct
     // [GENERAL] settings.
     uint16_t    area_hgt;
     uint16_t    column_margin;
+    std::string datetime_pre;
+    std::string datetime_post;
     std::string histhint_pre;
     std::string histhint_post;
 

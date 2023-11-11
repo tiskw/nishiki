@@ -142,7 +142,8 @@ main(const int32_t argc, const char* argv[])
             break;
 
         // Print command.
-        std::cout << "\033[37m[" << get_date() << " " << get_time() << "]\033[m " << input.colorize() << std::endl;
+        std::cout << config.datetime_pre << "[" << get_date() << " " << get_time() << "]" << config.datetime_post;
+        std::cout << " " << input.colorize() << std::endl;
 
         // Run command.
         runner.run(input);

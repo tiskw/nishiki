@@ -12,6 +12,11 @@ area_hgt = 12
 # Length of mergin in the column display.
 column_margin = 3
 
+# Prefix and postfix of the time stamp.
+# For example, you can set ANSI color code to colorize the time stamp.
+datetime_pre  = "\u001B[37m"
+datetime_post = "\u001B[m"
+
 # Prefix and postfix of the history hint.
 # For example, you can set ANSI color code to colorize history hint.
 histhint_pre  = "\u001B[37m"
