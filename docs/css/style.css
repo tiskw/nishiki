@@ -1,0 +1,70 @@
+/* * * * * * * * * * * * * * * * * * * * * *\
+ * Text settings
+\* * * * * * * * * * * * * * * * * * * * * */
+
+body {
+    font-size: 1.6rem;
+    color: #333;
+    font-weight: normal;
+    letter-spacing: normal;
+}
+
+p {
+    margin: 0.5rem;
+}
+
+h1 {
+    font-size: 3.2rem;
+    font-weight: bold;
+    color: #111;
+}
+
+h2 {
+    font-size: 2.4rem;
+    font-weight: bold;
+    color: #111;
+}
+
+h3 {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #111;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * *\
+ * Customize Skeleton Template
+\* * * * * * * * * * * * * * * * * * * * * */
+
+.row {
+    margin-bottom: 3.0rem;
+}
+
+hr {
+    margin: 1.0rem;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * *\
+ * Teaser
+\* * * * * * * * * * * * * * * * * * * * * */
+
+div.teaser {
+    margin-top: 10%;
+    margin-bottom: 5%;
+    text-align: center;
+}
+
+img.teaser {
+    width: 75%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * *\
+ * Footer
+\* * * * * * * * * * * * * * * * * * * * * */
+
+footer.footer {
+    margin: 2.0rem auto;
+    text-align: center;
+}
+

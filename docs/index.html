@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+
+    <!-- Basic Page Needs -->
+    <meta charset="utf-8">
+    <title>Your page title here :)</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Mobile Specific Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- FONT -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Noto+Sans&family=Raleway&family=Roboto&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head><body>
+
+    <div class="container">
+
+        <!-- -->
+        <div class="row teaser">
+            <img class="teaser" src="images/icon.svg">
+        </div>
+
+        <h1>What's NiShiKi?</h1>
+        <div class="row">
+            <p>NiShiKi is a simple shell wrapper for UNIX-like OS. It has real-time completion <!--
+            -->functions to assist user command editing, and all completions are customizable <!--
+            -->by a user-defined config file. Also, you can extend NiShiKi by writing <!--
+            -->an external plugin software in your favorite language.</p>
+            <p>Note that NiShiKi is NOT a shell, just a shell wrapper to make command editing <!--
+            -->works easier. Input commands are processed by your background shell.</p>
+        </div>
+
+        <h1>Features</h1>
+        <div class="row">
+            <div class="four columns">
+                <h2>Simple</h2>
+                <p>NiShiKi is provided as C++ source code that can be compiled easily by common <!--
+                -->build tools (e.g. GCC and Make), and the source code of NiShiKi is <!--
+                -->designed not to exceed 3,000 effective rows excluding comment lines, <!--
+                -->empty lines, and the configuration file.</p>
+            </div>
+            <div class="four columns">
+                <h2>Extensible</h2>
+                <p>Many of NiShiKi's behaviors, such as prompts, aliases, completions, <!--
+                -->and keybinds, can be customized through configuration files. <!--
+                -->Also users can constomize keybinds by writing an external software <!--
+                -->in any language you like, and register the software as NiShiKi's keybind.</p>
+            </div>
+            <div class="four columns"><h2>Fast</h2>
+                <p>NiShiKi is written in C++ and carefully designed to be fast enough <!--
+                -->to support the user's command editing work on one CPU. NiShiKi is <!--
+                -->just a shell wrapper, therefore it’s like putting the cart before <!--
+                -->the horse that NiShiKi occupied many CPUs and a software called from <!--
+                -->NiShiKi cannot use enough computational resources.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>Copyright (C) 2017-<span id="thisYear"></span> Tetsuya Ishikawa</span>
+        </footer>
+
+        <!-- Load javascripts -->
+        <script src="js/jquery-3.7.1.slim.min.js"></script>
+        <script src="js/script.js"></script>
+
+    </div>
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+</html>

@@ -1,0 +1,17 @@
+/version.hxx
+
+/build/*
+
+/test/unittest
+/test/nishiki-test
+/test/*.o
+/test/*.gcda
+/test/*.gcno
+/test/lcov.info
+/test/lcov/*
+
+!/test/lcov/.gitkeep
+
+/external/cxxopts.hpp
+/external/glob.hpp
+/external/toml.hpp
