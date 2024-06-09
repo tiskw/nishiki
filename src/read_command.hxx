@@ -1,0 +1,61 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/// C++ header file: read_command.hxx                                                            ///
+///                                                                                              ///
+/// This function defines the class `ReadCommand` that mamanges the user input session.          ///
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifndef READ_COMMAND_HXX
+#define READ_COMMAND_HXX
+
+// Include the headers of custom modules.
+#include "history_manager.hxx"
+#include "string_x.hxx"
+#include "text_buffer.hxx"
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ReadCommand: A class to read user input with rich interface
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class ReadCommand
+{
+    public:
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        // Constructors and destructors
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+         ReadCommand(void);
+        ~ReadCommand(void);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        // Member functions
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        StringX
+        read(const StringX& lhs_ini, const StringX& rhs_ini)
+        noexcept;
+        // [Abstract]
+        //   Read user input with rich interface.
+        //
+        // [Args]
+        //   lhs (const StringX&): [IN] Default left hand side of user input.
+        //   rhs (const StringX&): [IN] Default right hand side of user input.
+        //
+        // [Returns]
+        //   (std::map<std::string, std::string>): Parsed command line arguments.
+
+    private:
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        // Private member variables
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        TextBuffer buffer;
+        // Text buffer instance.
+
+        HistoryManager hist;
+        // History manager instance.
+};
+
+#endif
+
+// vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

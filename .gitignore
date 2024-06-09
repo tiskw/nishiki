@@ -1,0 +1,14 @@
+/version.hxx
+
+/build/*
+
+/tests/build
+/tests/external
+/tests/lcov
+/tests/lcov.info
+/tests/src
+/tests/version.hxx
+
+/external/cxxopts.hpp
+/external/glob.hpp
+/external/toml.hpp

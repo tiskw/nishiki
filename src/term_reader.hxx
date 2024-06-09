@@ -1,0 +1,64 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/// C++ header file: term_reader.hxx                                                             ///
+///                                                                                              ///
+/// This file defines the class `TermReader` that manages user input from terminal.              ///
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifndef TERM_READER_HXX
+#define TERM_READER_HXX
+
+// Include the headers of STL.
+#include <fstream>
+#include <termios.h>
+
+// Include the headers of custom modules.
+#include "string_x.hxx"
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Class definition
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class TermReader
+{
+    public:
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        // Constructors and destructors
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+         TermReader(void);
+        ~TermReader(void);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        // Member functions
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        CharX getch(void) noexcept;
+        // [Abstract]
+        //   Get valid UTF-8 character from STDIN and returns it. If the acquired character is
+        //   registered in the keybind, convert the character to a binded string (most of the
+        //   binded string will be added to the stack).
+        //
+        // [Args]
+        //   void
+        //
+        // [Returns]
+        //   (CharX): Captured character.
+
+    private:
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        // Member variables
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        int fd;
+        // File descriptor to read input characters.
+
+        struct termios term;
+        // Copy of the original termios. This class changes the termios, and this member
+        // variable is used to save the original termios and restore when this class is deleted.
+};
+
+#endif
+
+// vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker

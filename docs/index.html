@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+
+    <!-- Basic Page Needs -->
+    <meta charset="utf-8">
+    <meta name="description" content="User's guide of NiShiKi">
+    <meta name="author" content="Tetsuya Ishikawa">
+    <meta name="keywords" content="nishiki,shell,c++">
+
+    <!-- Mobile Specific Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- FONT -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Noto+Sans&family=Raleway&family=Roboto&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <!-- Reference: http://getskeleton.com/ -->
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/prism.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="images/favicon.png">
+
+    <!-- Page title -->
+    <title>NiShiKi - User's Guide</title>
+
+</head><body>
+
+    <div class="container">
+
+        <!-- Teaser -->
+        <div class="row teaser">
+            <img class="teaser" src="images/icon.svg">
+        </div>
+
+        <h1>What's NiShiKi?</h1>
+        <div class="row">
+            <p>NiShiKi is a simple shell wrapper for UNIX-like OS. It has real-time completion <!--
+            -->functions to assist user command editing, and all completions are customizable <!--
+            -->by a user-defined config file. Also, you can extend NiShiKi by writing <!--
+            -->an external plugin software in your favorite language.</p>
+            <p>Note that NiShiKi is NOT a shell, just a shell wrapper to make command editing <!--
+            -->works easier. Input commands are processed by your background shell.</p>
+        </div>
+
+        <div class="row"><div class="center">
+            <img src="images/nishiki_demo.webp" style="width:90%; max-width:787px;">
+        </div></div>
+
+        <h1>Features</h1>
+        <div class="row">
+            <div class="four columns">
+                <h2>Simple</h2>
+                <p>NiShiKi is provided as C++ source code that can be compiled easily by common <!--
+                -->build tools (e.g. GCC and Make), and the source code of NiShiKi is <!--
+                -->designed not to exceed 3,000 effective rows excluding comment lines, <!--
+                -->empty lines, and the configuration file.</p>
+            </div>
+            <div class="four columns">
+                <h2>Extensible</h2>
+                <p>Many of NiShiKi's behaviors, such as prompts, aliases, completions, <!--
+                -->and keybinds, can be customized through configuration files. <!--
+                -->Also users can constomize keybinds by writing an external software <!--
+                -->in any language you like, and register the software as NiShiKi's keybind.</p>
+            </div>
+            <div class="four columns"><h2>Fast</h2>
+                <p>NiShiKi is written in C++ and carefully designed to be fast enough <!--
+                -->to support the user's command editing work on one CPU. NiShiKi is <!--
+                -->just a shell wrapper, therefore it’s like putting the cart before <!--
+                -->the horse that NiShiKi occupied many CPUs and a software called from <!--
+                -->NiShiKi cannot use enough computational resources.</p>
+            </div>
+        </div>
+
+        <h1 id="getting-started">Getting Started</h1>
+
+        <h2>Installation</h2>
+        <div class="row">
+            <p>You can build NiShiKi using either of Clang (clang++) or GCC (g++). <!--
+            -->See the following instructions for more details.</p>
+        </div>
+
+        <h3>Step 1: Compile NiShiKi</h3>
+        <div class="row">
+            <div class="code"><pre><code class="language-bash">
+            # Install g++ and related tools.
+            sudo apt install build-essential g++ libncurses-dev
+
+            # Build NiShiKi.
+            make
+            </code></pre></div>
+            <p>If you prefer Clang over GCC, try the following commands instead.</p>
+            <div class="code"><pre><code class="language-bash">
+            # Install clang++ and related tools.
+            sudo apt install build-essential clang libc++-dev libc++abi-dev libncurses-dev
+
+            # Build NiShiKi.
+            make clang
+            </code></pre></div>
+        </div>
+
+        <h3>Step 2: Copy NiShiKi binary and config file</h3>
+        <div class="row">
+            <div class="code"><pre><code class="language-bash">
+            # Move NiShiKi binary to somewhere in $PATH.
+            mv build/nishiki SOMEWHERE_IN_PATH
+
+            # Make NiShiKi config directory and copy config file.
+            mkdir -p ~/.config/nishiki
+            cp config.toml ~/.config/nishiki
+            </code></pre></div>
+        </div>
+
+        <h3>Step 3: Try NiShiKi!</h3>
+        <div class="row">
+            <div class="code"><pre><code class="language-bash">
+            # Launch NiShiKi!
+            nishiki
+            </code></pre></div>
+        </div>
+
+        <h2 id="usage">Usage</h2>
+        <div class="row">
+            <p>Usage of NiShiKi is almost the same as the other shell, just type command and hit enter key. <!--
+            -->The followings are examples of NiShiKi's functions.</p>
+            <p><strong>Command completion:</strong> <!--
+            -->Launch nishiki in the root directory of the NiShiKi's <!--
+            -->GitHub repository that you've cloned, and please type <code>git diff README.md</code>. <!--
+            -->You can enjoy various types of command completions provided by nishiki while typing the words. <!--
+            -->A list of completion candidates is shown under your editing line, <!--
+            -->and if the number of candidates is only one, you can complete it by typing the TAB key. <!--
+            -->For example, <code>git d&lbrack;TAB&rbrack;</code> results in <code>git diff</code> and also, <!--
+            --><code>git diff R&lbrack;TAB&rbrack;</code> results in <code>git diff README.md</code>.</p>
+            <p><strong>History completion:</strong> <!--
+            -->If you want to type a command which was typed in the past, <!--
+            -->you don't need to type everything. For trying this functionality, <!--
+            -->type <code>ls | grep AAA</code> and run it at first. <!--
+            -->Then, please type <code>ls</code>. You might find that the rest of the previous command <!--
+            --><code> | grep AAA</code> will be displayed lightly in the editing area. <!--
+            -->You can complete the rest of the previous command by typing <code>Ctrl-N</code>.</p>
+            <p><strong>File selection:</strong> <!--
+            -->Please type <code>ls&lbrack;space&rbrack;</code> and hit <code>Ctrl-F</code>. <!--
+            -->Now the file selection view should be visible on your terminal. <!--
+            -->You can move the cursor by <code>j</code> and <code>k</code>, <!--
+            -->move to previous/next directory by <code>h</code> and <code>l</code>, <!--
+            -->and select items by <code>&lbrack;space&rbrack;</code>. The selected items are marked as <code>*</code>. <!--
+            -->Please hit <code>&lbrack;enter&rbrack;</code> after selecting items, <!--
+            -->or just hit <code>&lbrack;enter&rbrack;</code> on the item you want to select without selections. <!--
+            -->Then your terminal back to command editing window, and the items you've selected were added to the editing line.</p>
+            <p><strong>Process ID selection:</strong> <!--
+            -->Please type <code>ps --pid&lbrack;space&rbrack;</code> and hit <code>Ctrl-P</code>. <!--
+            -->Now the process ID selection view should be visible on your terminal. <!--
+            -->You can move the cursor by <code>j</code> and <code>k</code>. <!--
+            -->In the process ID selection window, please type <code>/chrome&lbrack;enter&rbrack;</code>. <!--
+            -->Now only chrome related process IDs are visible (if you are using Google Chrome now!). <!--
+            -->Please hit <code>&lbrack;enter&rbrack;</code> one of the process ID. <!--
+            -->Then you will be back on the command editing window, <!--
+            -->and the selected process ID was inserted at the end of the cursor on the editing line.</p>
+            <p><strong>History selection:</strong> <!--
+            -->It's very close to the file selection and process ID selection, so I will not explain much. <!--
+            -->Please hit <code>Ctrl-H</code>!
+        </p></div>
+
+        <h1>What's Comes Next?</h1>
+        <div class="row"><ul>
+            <li><a href="./customize_your_nishiki.html">Customize your NiShiKi</a></li>
+            <li><a href="./use_plugins.html">Use plugins</a></li>
+            <li><a href="./frequently_asked_questions.html">Frequently asked questions</a></li>
+        </ul></div>
+
+        <h1>For Developers</h1>
+        <div class="row"><ul>
+            <li><a href="./test_and_coverage.html">Test and coverage</a></li>
+        </ul></div>
+
+        <hr>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>Copyright (C) 2024-<span id="thisYear"></span> Tetsuya Ishikawa</span>
+        </footer>
+
+        <!-- Load javascripts -->
+        <script src="js/jquery-3.7.1.slim.min.js"></script>
+        <script src="js/prism.js"></script>
+        <script src="js/script.js"></script>
+
+    </div>
+
+</body></html>
