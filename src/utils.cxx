@@ -326,22 +326,28 @@ noexcept
 
     std::vector<StringX> result;
 
+    // Split PATH by ':'.
+    std::vector<std::string> target_paths = split(std::string(std::getenv("PATH")), ":");
+
+    // Remove duplicated taregt path.
+    target_paths.erase(std::unique(target_paths.begin(), target_paths.end()), target_paths.end());
+
     // Search all directories in PATH and get all executable files.
-    for (const std::string& path : split(std::string(std::getenv("PATH")), ":"))
+    for (const std::string& path : target_paths)
     {
         // Skip if the path is not a directory.
         if (not std::filesystem::is_directory(path))
             continue;
 
         // Appand all files in the directory.
-        for (const std::filesystem::directory_entry& x : std::filesystem::directory_iterator(path))
+        for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(path))
         {
             // Skip if the path is not a regular file or symbolic link.
-            if (not (std::filesystem::is_regular_file(path) or std::filesystem::is_symlink(path)))
+            if (not (entry.is_regular_file() or entry.is_symlink()))
                 continue;
 
             // Get command name.
-            StringX cmd = StringX(x.path().filename().c_str());
+            StringX cmd = StringX(entry.path().filename().c_str());
 
             // Add the command name.
             result.emplace_back(cmd);
