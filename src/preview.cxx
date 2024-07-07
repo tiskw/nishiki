@@ -1,7 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// C++ source file: preview.cxx                                                                 ///
-///                                                                                              ///
-/// This file defines the function `preview` that returns preview result as a vector of string.  ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Include the primary header.

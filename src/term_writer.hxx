@@ -9,8 +9,6 @@
 
 // Include the headers of STL.
 #include <cstdint>
-#include <map>
-#include <string>
 
 // Include the headers of custom modules.
 #include "string_x.hxx"

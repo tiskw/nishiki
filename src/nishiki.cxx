@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/// C++ source file: nishiki.cxx                                                                    ///
+/// C++ source file: nishiki.cxx                                                                 ///
 ///                                                                                              ///
 /// Entry point of NiShiKi.                                                                      ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,25 +66,13 @@ parse_args(const int32_t argc, const char* argv[])
     // Initialize output variable.
     std::map<std::string, std::string> args;
 
-    // Option: -c, --config
+    // Option: -c,--config and -p,--plugin.
     args["config"] = result["config"].as<std::string>();
-
-    // Option: -p, --plugin
     args["plugin"] = result["plugin"].as<std::string>();
 
-    // Option: -h, --help
-    if (result.count("help"))
-    {
-      std::cout << options.help() << std::endl;
-      exit(EXIT_SUCCESS);
-    }
-
-    // Option: -v, --version
-    if (result.count("version"))
-    {
-      std::cout << VERSION << std::endl;
-      exit(EXIT_SUCCESS);
-    }
+    // Option: -h,--help and -v,--version.
+    if (result.count("help")   ) { std::cout << options.help() << std::endl; exit(EXIT_SUCCESS); }
+    if (result.count("version")) { std::cout << VERSION        << std::endl; exit(EXIT_SUCCESS); }
 
     return args;
 

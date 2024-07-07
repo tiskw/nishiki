@@ -1,12 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/// C++ header file: file_type.hxx                                                               ///
+/// C++ source file: file_type.cxx                                                               ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Include the primary header.
 #include "file_type.hxx"
 
 // Include the headers of STL.
-#include <filesystem>
 #include <fstream>
 
 // Include the header of the glob library.
