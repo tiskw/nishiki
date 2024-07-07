@@ -1,15 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/// C++ header file: path_x.hxx                                                                  ///
+/// C++ source file: path_x.cxx                                                                  ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Include the primary header.
 #include "path_x.hxx"
 
 // Include the headers of STL.
-#include <algorithm>
 #include <cstring>
-#include <iostream>
-#include <map>
 
 // Include the headers of custom modules.
 #include "utils.hxx"

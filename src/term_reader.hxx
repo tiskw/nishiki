@@ -8,7 +8,6 @@
 #define TERM_READER_HXX
 
 // Include the headers of STL.
-#include <fstream>
 #include <termios.h>
 
 // Include the headers of custom modules.

@@ -40,7 +40,7 @@ class TextChooser : public CursesScreen
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         std::vector<StringX>
-        start(const std::vector<std::string>& lines, int target_index)
+        start(const std::vector<std::string>& lines, int32_t target_index)
         noexcept;
         // [Abstract]
         //   Start session and returns selecetd files.
@@ -124,13 +124,13 @@ class TextChooser : public CursesScreen
         //   void
 
         std::vector<StringX>
-        selected_values(int target_index)
+        selected_values(int32_t target_index)
         const noexcept;
         // [Abstract]
         //   Returns selecetd values.
         //
         // [Args]
-        //   target_index (int): [IN] Index of the target value.
+        //   target_index (int32_t): [IN] Index of the target value.
         //
         // [Returns]
         //   (std::vector<StringX>): List of selected values.

@@ -28,13 +28,10 @@ CursesScreen::CursesScreen(void)
     use_default_colors();
 
     // Initialize colors using NCurses default color index.
-    //   - COLOR_RED     1
-    //   - COLOR_GREEN   2
-    //   - COLOR_YELLOW  3
-    //   - COLOR_BLUE    4
-    //   - COLOR_MAGENTA 5
-    //   - COLOR_CYAN    6
-    //   - COLOR_WHITE   7
+    //   * COLOR_RED     1    * COLOR_MAGENTA 5
+    //   * COLOR_GREEN   2    * COLOR_CYAN    6
+    //   * COLOR_YELLOW  3    * COLOR_WHITE   7
+    //   * COLOR_BLUE    4
     for (int32_t color_index = 1; color_index < 8; ++color_index)
         init_pair(color_index, color_index, -1);
 

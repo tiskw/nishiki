@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/// C++ header file: file_chooser.hxx                                                            ///
+/// C++ source file: file_chooser.cxx                                                            ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Include the primary header.
@@ -229,19 +229,16 @@ const noexcept
     //
     constexpr auto set_color = [](const int16_t color_code) noexcept
     {
-        switch (color_code)
-        {
-            case  0: wattrset(stdscr, COLOR_PAIR(0)); break;
-            case 30: wattrset(stdscr, COLOR_PAIR(0)); break;
-            case 31: wattrset(stdscr, COLOR_PAIR(1)); break;
-            case 32: wattrset(stdscr, COLOR_PAIR(2)); break;
-            case 33: wattrset(stdscr, COLOR_PAIR(3)); break;
-            case 34: wattrset(stdscr, COLOR_PAIR(4)); break;
-            case 35: wattrset(stdscr, COLOR_PAIR(5)); break;
-            case 36: wattrset(stdscr, COLOR_PAIR(6)); break;
-            case 37: wattrset(stdscr, COLOR_PAIR(7)); break;
-            default: wattrset(stdscr, A_NORMAL);      break;
-        }
+        // Case 1: color_code is zero.
+        if (color_code == 0)
+            wattrset(stdscr, COLOR_PAIR(0));
+
+        // Case 2: color_code is in the range [30, 37].
+        else if ((30 <= color_code) and (color_code <= 37))
+            wattrset(stdscr, COLOR_PAIR(color_code - 30));
+
+        // Otherwise.
+        else wattrset(stdscr, A_NORMAL);
     };
  
     // Get preview results as a vector of string.

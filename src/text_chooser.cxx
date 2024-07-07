@@ -1,14 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/// C++ header file: text_chooser.hxx                                                            ///
+/// C++ source file: text_chooser.cxx                                                            ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Include the primary header.
 #include "text_chooser.hxx"
 
 // Include the headers of STL.
-#include <algorithm>
 #include <iostream>
-#include <tuple>
+
+// Include NCurses.
 #include <curses.h>
 
 // Include the headers of custom modules.
@@ -19,7 +19,7 @@
 // FileChooser: Macros
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define KEY_CTRL(x)  ((x) & 0x1F)
+#define KEY_CTRL(x) ((x) & 0x1F)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // TextChooser: Constructors and destructors
@@ -38,7 +38,7 @@ TextChooser::TextChooser(void) : idx(0), header(""), is_grep_mode(false)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<StringX>
-TextChooser::start(const std::vector<std::string>& lines, int target_index)
+TextChooser::start(const std::vector<std::string>& lines, int32_t target_index)
 noexcept
 {   // {{{
 
@@ -239,7 +239,7 @@ noexcept
 }   // }}}
  
 std::vector<StringX>
-TextChooser::selected_values(int target_index)
+TextChooser::selected_values(int32_t target_index)
 const noexcept
 {   // {{{
 
@@ -260,12 +260,12 @@ const noexcept
     //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
     //   load. This function-local function is sometimes used in the source code of NiShiKi.
     //
-    constexpr auto get_value = [](const std::string& item, int target_index) noexcept
+    constexpr auto get_value = [](const std::string& item, int32_t target_index) noexcept
     {
-        //
+        // Split the given line of "ps aux" by whiltespace.
         std::vector<std::string> tokens = split(item);
 
-        //
+        // Returns all items if the target index is negative, otherwise returns the corresponding item.
         if      (target_index < 0                       ) { return item;                 }
         else if (tokens.size() > (uint32_t) target_index) { return tokens[target_index]; }
         else                                              { return std::string("");      }
@@ -281,7 +281,8 @@ const noexcept
         const std::string text        = std::get<0>(item);
         const bool        is_selected = std::get<1>(item);
 
-        if (is_selected) { result.emplace_back(get_value(text, target_index)); }
+        if (is_selected)
+            result.emplace_back(get_value(text, target_index));
     }
 
     // Returns current item if nothing is selected.
@@ -313,14 +314,15 @@ TextChooser::update_viewed_items(void)
 noexcept
 {   // {{{
 
-    if (this->is_grep_mode)
-    {
-        this->views.clear();
+    // Do nothing if not in the grep mode.
+    if (not this->is_grep_mode)
+        return;
+    
+    this->views.clear();
 
-        for (auto& item : this->items)
-            if (std::get<0>(item).find(this->grep_str) != std::string::npos)
-                this->views.push_back(&item);
-    }
+    for (auto& item : this->items)
+        if (std::get<0>(item).find(this->grep_str) != std::string::npos)
+            this->views.push_back(&item);
 
 }   // }}}
 

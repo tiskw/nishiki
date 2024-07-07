@@ -123,7 +123,7 @@ const noexcept
     // If the target token is not a directory path, then show error message.
     if (not std::filesystem::is_directory(target))
     {
-        std::cout << "\033[33mNiShiKi: cd: no such file or directory: " << target << "\033[m\n" << std::endl;
+        std::cout << "\033[33mNiShiKi: cd: not directory: " << target << "\033[m\n" << std::endl;
         return EXIT_FAILURE;
     }
 

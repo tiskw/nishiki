@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/// C++ header file: term_reader.hxx                                                             ///
+/// C++ source file: term_reader.cxx                                                             ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Include the primary header.
@@ -8,7 +8,6 @@
 // Include the headers of STL.
 #include <csignal>
 #include <iostream>
-#include <unistd.h>
 
 // Include the headers of custom modules.
 #include "config.hxx"
@@ -45,11 +44,11 @@ TermReader::TermReader(void) : fd(STDIN_FILENO)
     struct termios term_cpy = this->term;
 
     // Change termios setting to cbreak mode.
-    term_cpy.c_lflag     &= ~(ICANON | ECHO);
-    term_cpy.c_lflag     |= ISIG;
-    term_cpy.c_iflag     &= ~ICRNL;
-    term_cpy.c_cc[VMIN]   = 1;
-    term_cpy.c_cc[VTIME]  = 0;
+    term_cpy.c_lflag    &= ~(ICANON | ECHO);
+    term_cpy.c_lflag    |= ISIG;
+    term_cpy.c_iflag    &= ~ICRNL;
+    term_cpy.c_cc[VMIN]  = 1;
+    term_cpy.c_cc[VTIME] = 0;
 
     // Set the cbreak termios to STDIN.
     tcsetattr(this->fd, TCSAFLUSH, &term_cpy);
