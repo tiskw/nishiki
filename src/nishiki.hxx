@@ -15,7 +15,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int32_t
-nishiki_main(const int32_t argc, const char* argv[]);
+main(const int32_t argc, const char* argv[]);
 // [Abstract]
 //   Entry point of NiShiKi.
 //

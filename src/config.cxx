@@ -25,8 +25,7 @@ NishikiConfig config;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 static void
-set_config(const toml::table& table, const toml::key& section, const toml::key& value)
-noexcept
+set_config(const toml::table& table, const toml::key& section, const toml::key& value) noexcept
 // Read one config item to the global variable `config`.
 //
 // [Args]
@@ -34,30 +33,15 @@ noexcept
 //   section (const toml::key&)  : [IN] Section name.
 //   value   (const toml::key&)  : [IN] Value name.
 //
-// [Returns]
-//   void
-//
 {   // {{{
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto show_error_message = [](const toml::key& section, const toml::key& value) noexcept -> void
     // [Abstract]
     //   Show error message and quit this software.
     //
     // [Args]
     //   section (const toml::key&): [IN] Section name.
     //   value   (const toml::key&): [IN] Value name.
-    //
-    // [Returns]
-    //   void
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto show_error_message = [](const toml::key& section, const toml::key& value)
     {
         std::cout << "\033[33m";
         std::cout << "NiShiKi: Error occured while parsing config file\n";
@@ -133,7 +117,7 @@ noexcept
             const toml::array* pattern_node = entry.as_array()->at(0).as_array();
 
             // Read pattern strings.
-            constexpr auto get_value = [](const toml::node& token) { return token.value_or(""); };
+            constexpr auto get_value = [](const toml::node& token) noexcept -> std::string { return token.value_or(""); };
             std::vector<std::string> pattern;
             std::transform(pattern_node->begin(), pattern_node->end(), std::back_inserter(pattern), get_value);
 
@@ -201,8 +185,7 @@ noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-load_config(std::string filepath)
-noexcept
+load_config(std::string filepath) noexcept
 {   // {{{
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

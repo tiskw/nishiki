@@ -26,8 +26,7 @@ PathX::PathX(const char* path) : std::filesystem::path(path)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<std::string>
-PathX::listdir(uint32_t n_max_items)
-const noexcept
+PathX::listdir(uint32_t n_max_items) const noexcept
 {   // {{{
 
     // Initilize returned vector.
@@ -37,7 +36,7 @@ const noexcept
     PathX target = (strlen(this->c_str()) > 0) ? *this : PathX("./");
 
     // Replace "~" to home directory.
-    std::string target_str = replace(target.string(), "~", getenv("HOME"));
+    const std::string target_str = replace(target.string(), "~", getenv("HOME"));
     target = PathX(target_str.c_str());
 
     // Returns empty vector if the target directory does not exist.
@@ -48,7 +47,7 @@ const noexcept
     for (const auto& entry : std::filesystem::directory_iterator(target))
     {
         // Get relative path.
-        auto path_relative = entry.path().lexically_relative(target);
+        const auto path_relative = entry.path().lexically_relative(target);
 
         // Add to the returned vector.
         result.push_back(path_relative.string() + (entry.is_directory() ? "/" : ""));
@@ -62,10 +61,10 @@ const noexcept
 
     // Define sorting key function.
     // The sorting rule is the same as `ls --group-directories-first` command.
-    constexpr auto sort_key_func = [](const std::string& s1, const std::string& s2) -> bool
+    constexpr auto sort_key_func = [](const std::string& s1, const std::string& s2) noexcept -> bool
     {
-        bool is_dir1 = (s1.size() > 0) and (s1.back() == '/');
-        bool is_dir2 = (s2.size() > 0) and (s2.back() == '/');
+        const bool is_dir1 = (s1.size() > 0) and (s1.back() == '/');
+        const bool is_dir2 = (s2.size() > 0) and (s2.back() == '/');
 
         if      (is_dir1 and is_dir2) return (s1 < s2);
         else if (is_dir1            ) return true;
@@ -85,8 +84,7 @@ const noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::tuple<PathX, std::string>
-split_to_target_and_query(const std::vector<StringX>& tokens)
-noexcept
+split_to_target_and_query(const std::vector<StringX>& tokens) noexcept
 {   // {{{
 
     // Initialize the target path.

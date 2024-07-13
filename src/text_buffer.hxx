@@ -48,89 +48,62 @@ class TextBuffer
         // [Abstract]
         //   Returns left/right hand side of the text buffer.
         //
-        // [Args]
-        //   void
-        //
         // [Returns]
         //   (const StringX&): Left/right hand side of the text buffer.
 
         TextBuffer::Mode
-        get_mode(void)
-        const noexcept;
+        get_mode(void) const noexcept;
         // [Abstract]
         //   Returns current editing mode.
-        //
-        // [Args]
-        //   void
         //
         // [Returns]
         //   (TextBuffer::Mode): Current editing mode.
 
         const std::vector<std::pair<StringX, StringX>>&
-        get_storage(void)
-        const noexcept;
+        get_storage(void) const noexcept;
         // [Abstract]
         //   Returns all text buffers.
-        //
-        // [Args]
-        //   void
         //
         // [Returns]
         //   (const std::vector<std::pair<StringX, StringX>>&): Text buffers.
 
         void
-        set(const StringX& lhs, const StringX& rhs)
-        noexcept;
+        set(const StringX& lhs, const StringX& rhs) noexcept;
         // [Abstract]
         //   Set left/right hand side of the text buffer.
         //
         // [Args]
         //   lhs (const StringX&): Left-hand-side text to be set.
         //   rhs (const StringX&): Right-hand-side text to be set.
-        //
-        // [Returns]
-        //   void
 
         void
-        set_mode(TextBuffer::Mode)
-        noexcept;
+        set_mode(TextBuffer::Mode) noexcept;
         // [Abstract]
         //   Set editing mode.
         //
         // [Args]
         //   (TextBuffer::Mode): Editing mode.
-        //
-        // [Returns]
-        //   void
 
         ////////////////////////////////////////////////////////////////////////
         // Member functions
         ////////////////////////////////////////////////////////////////////////
 
         void
-        edit(const CharX& cx)
-        noexcept;
+        edit(const CharX& cx) noexcept;
         // [Abstract]
         //   Edit buffer.
         //
         // [Args]
         //   cx (CharX): [IN] Input charactor.
-        //
-        // [Returns]
-        //   void
 
         void
-        create(const StringX& lhs, const StringX& rhs)
-        noexcept;
+        create(const StringX& lhs, const StringX& rhs) noexcept;
         // [Abstract]
         //   Create new editing buffer.
         //
         // [Args]
         //   lhs (const StringX&): [IN] Initial left hand side of cursor.
         //   rhs (const StringX&): [IN] Initial right hand side of cursor.
-        //
-        // [Returns]
-        //   void
 
     private:
 
@@ -156,53 +129,37 @@ class TextBuffer
         ////////////////////////////////////////////////////////////////////////
 
         void
-        edit_insert(const CharX& cx)
-        noexcept;
+        edit_insert(const CharX& cx) noexcept;
         // [Abstract]
         //   Edit buffer (insert mode).
         //
         // [Args]
         //   cx (const CharX): [IN] Input character.
-        //
-        // [Returns]
-        //   void
 
         // Edit function (normal mode).
         void
-        edit_normal(const CharX& cx)
-        noexcept;
+        edit_normal(const CharX& cx) noexcept;
         // [Abstract]
         //   Edit buffer (normal mode).
         //
         // [Args]
         //   cx (const CharX): [IN] Input character.
-        //
-        // [Returns]
-        //   void
 
         void
-        move_cursor(int16_t delta)
-        noexcept;
+        move_cursor(int16_t delta) noexcept;
         // [Abstract]
         //   Move cursor.
         //
         // [Args]
         //   delta (int16_t): [IN] Amount of cursor move.
-        //
-        // [Returns]
-        //   void
 
         void
-        change_buffer(int16_t delta)
-        noexcept;
+        change_buffer(int16_t delta) noexcept;
         // [Abstract]
         //   Change buffer.
         //
         // [Args]
         //   delta (int16_t): [IN] Amount of cursor move.
-        //
-        // [Returns]
-        //   void
 };
 
 #endif

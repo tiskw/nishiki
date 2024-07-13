@@ -36,11 +36,11 @@ FileType::FileType(void)
             continue;
 
         // Find the location of colon because each line of the file is a "colon-seperated" value.
-        std::string::size_type index_colon = line.find_first_of(':');
+        const std::string::size_type index_colon = line.find_first_of(':');
 
         // Parse line to mime type and pattern string.
-        std::string mime    = line.substr(0, index_colon);
-        std::string pattern = line.substr(index_colon + 1, std::string::npos);
+        const std::string mime    = line.substr(0, index_colon);
+        const std::string pattern = line.substr(index_colon + 1, std::string::npos);
 
         this->emplace_back(mime, pattern);
     }
@@ -52,8 +52,7 @@ FileType::FileType(void)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::string
-FileType::mime(const std::string& path)
-const noexcept
+FileType::mime(const std::string& path) const noexcept
 {   // {{{
 
     // Do nothing if the path is not a file.

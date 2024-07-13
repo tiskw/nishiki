@@ -34,8 +34,7 @@ class TermWriter
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         void
-        write(const StringX& lhs, const StringX& rhs, TextBuffer::Mode mode, const std::vector<StringX>& clines, const StringX& hist_comp)
-        const noexcept;
+        write(const StringX& lhs, const StringX& rhs, TextBuffer::Mode mode, const std::vector<StringX>& clines, const StringX& hist_comp) const noexcept;
         // [Abstract]
         //   Write the given contents to the terminal.
         //   Layout of the contents is the following.
@@ -51,9 +50,6 @@ class TermWriter
         //   mode      (TextBuffer::Mode)           : [IN] Current editing mode.
         //   clines    (const std::vector<StringX>&): [IN] Completion lines to be shown in the terminal.
         //   hist_comp (const StringX&)             : [IN] History completion.
-        //
-        // [Returns]
-        //   void
 
     private:
 
@@ -72,16 +68,9 @@ class TermWriter
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         void
-        update(void)
-        noexcept;
+        update(void) noexcept;
         // [Abstract]
         //   Update auxiliary information.
-        //
-        // [Args]
-        //   void
-        //
-        // [Returns]
-        //   void
 };
 
 #endif

@@ -40,8 +40,7 @@ class TextChooser : public CursesScreen
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         std::vector<StringX>
-        start(const std::vector<std::string>& lines, int32_t target_index)
-        noexcept;
+        start(const std::vector<std::string>& lines, int32_t target_index) noexcept;
         // [Abstract]
         //   Start session and returns selecetd files.
         //
@@ -84,48 +83,32 @@ class TextChooser : public CursesScreen
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         int32_t
-        get_index_on_view(void)
-        const noexcept;
+        get_index_on_view(void) const noexcept;
         // [Abstract]
         //   Returns the index on viewed items. If some grep string is set, the number of viewed
         //   items is not equivalent with the number of original items, and this->idx is a index
         //   on the original list. This function returns a index on the viewed list. For searching
         //   the viewed index, the interval reduction method is used in this function.
         //
-        // [Args]
-        //   void
-        //
         // [Returns]
         //   (int32_t): Index on the viewed list.
 
         void
-        move_index(int32_t delta)
-        noexcept;
+        move_index(int32_t delta) noexcept;
         // [Abstract]
         //   Move cursor.
         //
         // [Args]
         //   delta (int32_t): [IN] Amount of cursor movement.
-        //
-        // [Returns]
-        //   void
 
         // Redraw curses window.
         void
-        redraw(void)
-        noexcept;
+        redraw(void) noexcept;
         // [Abstract]
         //   Redraw curses window.
-        //
-        // [Args]
-        //   void
-        //
-        // [Returns]
-        //   void
 
         std::vector<StringX>
-        selected_values(int32_t target_index)
-        const noexcept;
+        selected_values(int32_t target_index) const noexcept;
         // [Abstract]
         //   Returns selecetd values.
         //
@@ -136,28 +119,14 @@ class TextChooser : public CursesScreen
         //   (std::vector<StringX>): List of selected values.
 
         void
-        toggle_select(void)
-        noexcept;
+        toggle_select(void) noexcept;
         // [Abstract]
         //   Toggle selected/unselected flag of the current item.
-        //
-        // [Args]
-        //   void
-        //
-        // [Returns]
-        //   void
 
         void
-        update_viewed_items(void)
-        noexcept;
+        update_viewed_items(void) noexcept;
         // [Abstract]
         //   Update items.
-        //
-        // [Args]
-        //   void
-        //
-        // [Returns]
-        //   void
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -165,49 +134,30 @@ class TextChooser : public CursesScreen
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<StringX>
-choose_hists(void)
-noexcept;
+choose_hists(void) noexcept;
 // [Abstract]
 //   Call history chooser and returns choosed file(s).
-//
-// [Args]
-//   void
 //
 // [Returns]
 //   (std::vector<StringX>): A list of selected histories.
 
 void
-choose_hists_and_exit(void)
-noexcept;
+choose_hists_and_exit(void) noexcept;
 // [Abstract]
 //   Call history chooser and prints choosed item(s).
-//
-// [Args]
-//   void
-//
-// [Returns]
-//   void
 
 std::vector<StringX>
-choose_procs(void)
-noexcept;
+choose_procs(void) noexcept;
 // [Abstract]
 //   Call process chooser and returns choosed process ID(s).
-//
-// [Args]
-//   void
 //
 // [Returns]
 //   (std::vector<StringX>): A list of selected process ID(s).
 
 void
-choose_procs_and_exit(void)
-noexcept;
+choose_procs_and_exit(void) noexcept;
 // [Abstract]
 //   Call process chooser and prints choosed process ID(s).
-//
-// [Args]
-//   void
 //
 // [Returns]
 //   void

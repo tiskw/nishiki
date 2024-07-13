@@ -40,8 +40,7 @@ const StringX& CommandRunner::get_next_rhs(void) const noexcept { return this->r
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int32_t
-CommandRunner::run(const StringX& input)
-noexcept
+CommandRunner::run(const StringX& input) noexcept
 {   // {{{
 
     // Clear next editing buffer.
@@ -82,8 +81,7 @@ noexcept
         return this->command_nishiki(command);
 
     // Process other commands: call external command.
-    else
-        return this->command_exec(command);
+    else return this->command_exec(command);
 
 }; // }}}
 
@@ -92,8 +90,7 @@ noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int32_t
-CommandRunner::command_alias(void)
-const noexcept
+CommandRunner::command_alias(void) const noexcept
 {   // {{{
 
     // Print all aliases.
@@ -105,8 +102,7 @@ const noexcept
 }   // }}}
 
 int32_t
-CommandRunner::command_cd(const std::vector<StringX>& tokens)
-const noexcept
+CommandRunner::command_cd(const std::vector<StringX>& tokens) const noexcept
 {   // {{{
 
     // A variable to store a path to move.
@@ -135,8 +131,7 @@ const noexcept
 }   // }}}
 
 int32_t
-CommandRunner::command_exec(const std::string& command)
-const noexcept
+CommandRunner::command_exec(const std::string& command) const noexcept
 {   // {{{
 
     return system(command.c_str());
@@ -144,12 +139,10 @@ const noexcept
 }   // }}}
 
 int32_t
-CommandRunner::command_nishiki(const std::string& command)
-noexcept
+CommandRunner::command_nishiki(const std::string& command) noexcept
 {   // {{{
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto print_error_message = [](const std::vector<std::string>& tokens) noexcept -> uint32_t
     // [Abstract]
     //   Print error message and contents of splitted tokens.
     //   This function will be called when parse error occurred.
@@ -160,14 +153,6 @@ noexcept
     //
     // [Returns]
     //   (int32_t): Failure exit code (EXIT_FAILURE).
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto print_error_message = [](const std::vector<std::string>& tokens) noexcept
     {
         // Print error message.
         std::cout << "NiShiKi: parse error on NiShiKi-special command:" << std::endl;
@@ -182,24 +167,16 @@ noexcept
         return EXIT_FAILURE;
     };
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto run_external_command = [](const std::vector<std::string>& tokens, const bool ret_cmd_out = true) noexcept -> std::string
     // [Abstract]
+    //   Run the specified external command and returns the command output as a string.
     //
     // [Args]
-    //   tokens      (const std::vector<std::string>): [IN] Tokenized user input.
-    //   ret_cmd_out (const bool)                    : [IN] True if returns command output.
+    //   tokens      (const std::vector<std::string>&): [IN] Tokenized user input.
+    //   ret_cmd_out (const bool)                     : [IN] True if returns command output.
     //
     // [Returns]
-    //   (int32_t): Failure exit code (EXIT_FAILURE).
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto run_external_command = [](const std::vector<std::string>& tokens, const bool ret_cmd_out = true) noexcept
+    //   (std::string): Command output.
     {
         // Create command string.
         std::string cmd = tokens[3];
@@ -211,7 +188,7 @@ noexcept
             return run_command(strip(cmd));
 
         // Otherwise, run the command but returns an empty string.
-        int32_t res = system(strip(cmd).c_str());
+        const int32_t res = system(strip(cmd).c_str());
         if (res != 0)
             std::cout << "NiShiKi: command returned non-zero value: '" << strip(cmd) << "'" << std::endl;
 
@@ -256,21 +233,20 @@ noexcept
         if (!contains(tokens[0], 'r')) this->rhs_next.clear();
     }
 
-    // Command 1: filechooser
+    // Command 2-1: internal command - filechooser.
     else if ((tokens[0] == "int") and (tokens[3] == "filechooser"))
         this->lhs_next = StringX(tokens[1]) + StringX(" ").join(choose_files(), true);
 
-    // Command 2: histchooser
+    // Command 2-2: internal command - histchooser.
     else if ((tokens[0] == "int") and (tokens[3] == "histchooser"))
         this->lhs_next = StringX(tokens[1]) + StringX(" ").join(choose_hists(), true);
 
-    // Command 3: procchooser
+    // Command 2-3: internal command - procchooser.
     else if ((tokens[0] == "int") and (tokens[3] == "procchooser"))
         this->lhs_next = StringX(tokens[1]) + StringX(" ").join(choose_procs(), true);
 
     // Command 4: parse error
-    else
-        return print_error_message(tokens);
+    else return print_error_message(tokens);
 
     // Delete extra whitespaces from the bottom of lhs_next if rhs_next starts with white space,
     // in order to avoid the double whitespaces after filename completion.

@@ -44,12 +44,10 @@ EditHelper::EditHelper(void)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<StringX>
-EditHelper::candidate(const StringX& lhs)
-noexcept
+EditHelper::candidate(const StringX& lhs) noexcept
 {   // {{{
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto match = [](const std::vector<std::string>& patterns, const std::vector<std::string>& tokens) noexcept -> bool
     // [Abstract]
     //   Return True if the given tokens matched with the given patterns.
     //   The arguments `tokens` is a list of strings, and the argument `patterns`
@@ -64,14 +62,6 @@ noexcept
     //
     // [Returns]
     //   (bool): True is the given tokens matched with the given patterns.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto match = [](const std::vector<std::string>& patterns, const std::vector<std::string>& tokens) noexcept
     {
         // Initialize token index.
         size_t index_token = 0;
@@ -110,8 +100,7 @@ noexcept
         return (index_token == tokens.size());
     };
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto get_target = [match](const std::vector<std::string>& tokens) noexcept -> auto
     // [Abstract]
     //   Returns a pair of target completion type and it's optional string.
     //
@@ -121,14 +110,6 @@ noexcept
     // [Returns]
     //   comp_type (EditHelper::CompType): Target completion type.
     //   option    (std::string)         : Optional string of the target completion.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto get_target = [match](const std::vector<std::string>& tokens) noexcept
     {
         for (const auto& [patterns, comp_type, option] : config.completions)
             if (match(patterns, tokens))
@@ -154,7 +135,7 @@ noexcept
         tokens_str.push_back("");
 
     // Get completion type and it's optional string.
-    auto [comp_type, option] = get_target(tokens_str);
+    const auto& [comp_type, option] = get_target(tokens_str);
 
     // Compute lines of completion candidates that will be displayed to users.
     switch (comp_type)
@@ -180,8 +161,7 @@ noexcept
 }   // }}}
 
 StringX
-EditHelper::complete(const StringX& lhs)
-const noexcept
+EditHelper::complete(const StringX& lhs) const noexcept
 {   // {{{
 
     // Split the given text (left hand side of the cursor) to tokens.
@@ -191,7 +171,7 @@ const noexcept
     if (tokens.size() == 0) return lhs;
 
     // Get number of completion candidates.
-    size_t num_cands = this->cands.size();
+    const size_t num_cands = this->cands.size();
 
     // Do nothing if no candidate given.
     if (num_cands == 0) return lhs;
@@ -217,7 +197,7 @@ const noexcept
     else
     {
         // Create an array of completion strings.
-        constexpr auto get_first = [](const std::pair<StringX, StringX>& pair) { return pair.first; };
+        constexpr auto get_first = [](const std::pair<StringX, StringX>& pair) noexcept -> StringX { return pair.first; };
         std::vector<StringX> keys = transform<std::pair<StringX, StringX>, StringX>(this->cands, get_first);
 
         return lhs_without_last_token + get_common_substring(keys);
@@ -230,8 +210,7 @@ const noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-EditHelper::cands_command(const std::vector<StringX>& tokens, const std::string& option)
-noexcept
+EditHelper::cands_command(const std::vector<StringX>& tokens, const std::string& option) noexcept
 {   // {{{
 
     // The `option` should be empty string.
@@ -248,12 +227,10 @@ noexcept
 }   // }}}
 
 void
-EditHelper::cands_filepath(const std::vector<StringX>& tokens, const std::string& option)
-noexcept
+EditHelper::cands_filepath(const std::vector<StringX>& tokens, const std::string& option) noexcept
 {   // {{{
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto colorize_token = [](const std::string& token) noexcept -> std::string
     // [Abstract]
     //   Colorize the given token.
     //
@@ -262,14 +239,6 @@ noexcept
     //
     // [Returns]
     //   (std::string): Colorized token.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto colorize_token = [](const std::string& token) noexcept
     {
         if (token.size() > 0 and token.back() == '/') return "\033[34m" + token + "\033[m";
         else                                          return token;
@@ -305,8 +274,7 @@ noexcept
 }   // }}}
 
 void
-EditHelper::cands_option(const std::vector<StringX>& tokens, const std::string& option)
-noexcept
+EditHelper::cands_option(const std::vector<StringX>& tokens, const std::string& option) noexcept
 {   // {{{
 
     // Cache of the command options.
@@ -360,19 +328,17 @@ noexcept
     const StringX token = (tokens.size() > 0) ? tokens.back().strip() : StringX("");
 
     // Add matched options.
-    for (auto [opt, desc] : opt_cache[command])
+    for (const auto& [opt, desc] : opt_cache[command])
         if (opt.startswith(token))
             this->cands.emplace_back(opt, desc);
 
 }   // }}}
 
 void
-EditHelper::cands_preview(const std::vector<StringX>& tokens, const std::string& option)
-noexcept
+EditHelper::cands_preview(const std::vector<StringX>& tokens, const std::string& option) noexcept
 {   // {{{
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto get_last_nonwhitespace_token = [](const std::vector<StringX>& tokens) noexcept -> StringX
     // [Abstract]
     //   Returns last non-whitespace token.
     //
@@ -381,16 +347,6 @@ noexcept
     //
     // [Returns]
     //   (StringX): Non-whitespace token.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto
-    get_last_nonwhitespace_token = [](const std::vector<StringX>& tokens)
-    noexcept
     {
         // Search tokens from the tail.
         for (size_t idx = tokens.size() - 1; idx > 0; --idx)
@@ -409,10 +365,10 @@ noexcept
         return;
 
     // Get the target file path that is a last non-white-space token.
-    StringX path = get_last_nonwhitespace_token(tokens);
+    const StringX path = get_last_nonwhitespace_token(tokens);
 
     // Compute width of the preview window.
-    uint16_t w = this->wid - int(this->wid * config.preview_ratio) - preview_delim.size();
+    const uint16_t w = this->wid - int(this->wid * config.preview_ratio) - preview_delim.size();
 
     // Get preview result.
     std::vector<StringX> preview_lines = preview(path.string(), w, this->hgt);
@@ -437,8 +393,7 @@ noexcept
 }   // }}}
 
 void
-EditHelper::cands_shell(const std::vector<StringX>& tokens, const std::string& option)
-noexcept
+EditHelper::cands_shell(const std::vector<StringX>& tokens, const std::string& option) noexcept
 {   // {{{
 
     // Get the target token.
@@ -463,8 +418,7 @@ noexcept
 }   // }}}
 
 void
-EditHelper::cands_subcmd(const std::vector<StringX>& tokens, const std::string& option)
-noexcept
+EditHelper::cands_subcmd(const std::vector<StringX>& tokens, const std::string& option) noexcept
 {   // {{{
 
     // Get the target token.
@@ -504,10 +458,10 @@ noexcept
                 token2 += elems[idx];
 
             // Get width of separator.
-            uint16_t width_seperator = (elems.size() > 1) ? elems[1].size() : 0;
+            const uint16_t width_seperator = (elems.size() > 1) ? elems[1].size() : 0;
 
             // Create separator between completion candidate and description.
-            StringX separator = StringX(" ") + CharX(".") * width_seperator + StringX(" ");
+            const StringX separator = StringX(" ") + CharX(".") * width_seperator + StringX(" ");
 
             this->cands.emplace_back(elems[0], token1 + separator + token2);
         }
@@ -516,12 +470,11 @@ noexcept
 }   // }}}
 
 void
-EditHelper::lines_from_cands(const std::vector<std::pair<StringX, StringX>>& cands)
-noexcept
+EditHelper::lines_from_cands(const std::vector<std::pair<StringX, StringX>>& cands) noexcept
 {   // {{{
 
     // Get descriptions of the completion candidates.
-    constexpr auto get_second = [](const std::pair<StringX, StringX>& pair) { return pair.second; };
+    constexpr auto get_second = [](const std::pair<StringX, StringX>& pair) noexcept -> StringX { return pair.second; };
     std::vector<StringX> texts = transform<std::pair<StringX, StringX>, StringX>(cands, get_second);
 
     // Format descriptions in a column style.

@@ -46,9 +46,6 @@ class CommandRunner
         //   should be used as a initial buffer of the next user editing area. These getter functions
         //   return these strings.
         //
-        // [Args]
-        //   void
-        //
         // [Returns]
         //   (const StringX&): Left or right hand side of editing buffer that should be used
         //                     to the initial buffer of the next user editing area.
@@ -58,8 +55,7 @@ class CommandRunner
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         int32_t
-        run(const StringX& input)
-        noexcept;
+        run(const StringX& input) noexcept;
         // [Abstract]
         //   Run the given command. New strings for the next editing buffer will be set to
         //   `this->lhs_next` and `this->rhs_next`. This function can accept both shell command and
@@ -87,21 +83,16 @@ class CommandRunner
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         int32_t
-        command_alias(void)
-        const noexcept;
+        command_alias(void) const noexcept;
         // [Abstract]
         //   Callback function of "alias" command.
         //   This function prints all aliases values to STDOUT.
-        //
-        // [Args]
-        //   void
         //
         // [Returns]
         //   (int32_t): EXIT_SUCCESS if succeeded otherwise EXIT_FAILURE.
 
         int32_t
-        command_cd(const std::vector<StringX>& tokens)
-        const noexcept;
+        command_cd(const std::vector<StringX>& tokens) const noexcept;
         // [Abstract]
         //   Callback function of "cd" command.
         //   This function changes current directory.
@@ -113,8 +104,7 @@ class CommandRunner
         //   (int32_t): EXIT_SUCCESS if succeeded otherwise EXIT_FAILURE.
 
         int32_t
-        command_exec(const std::string& command)
-        const noexcept;
+        command_exec(const std::string& command) const noexcept;
         // [Abstract]
         //   Callback function of the other command.
         //   This function executes the given command using the backend shell.
@@ -126,8 +116,7 @@ class CommandRunner
         //   (int32_t): Return value of the called external command.
 
         int32_t
-        command_nishiki(const std::string& command)
-        noexcept;
+        command_nishiki(const std::string& command) noexcept;
         // [Abstract]
         //   Callback function of the NiShiKi-special command.
         //   This funtion parse NiShiKi-special command and run it.

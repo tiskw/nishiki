@@ -38,9 +38,6 @@ class TermReader
         //   registered in the keybind, convert the character to a binded string (most of the
         //   binded string will be added to the stack).
         //
-        // [Args]
-        //   void
-        //
         // [Returns]
         //   (CharX): Captured character.
 

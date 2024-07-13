@@ -18,11 +18,20 @@
 #include "command_runner.hxx"
 #include "config.hxx"
 #include "file_chooser.hxx"
+#include "history_manager.hxx"
 #include "text_chooser.hxx"
-#include "read_command.hxx"
+#include "term_reader.hxx"
+#include "term_writer.hxx"
 #include "string_x.hxx"
 #include "utils.hxx"
 #include "version.hxx"
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// File local macros
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Chack the given element is contained in the given map.
+#define contains(map, elem) (map.find(elem) != map.end())
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Static functions
@@ -30,7 +39,8 @@
 
 static std::map<std::string, std::string>
 parse_args(const int32_t argc, const char* argv[])
-// Parse command line arguments.
+// [Abstract]
+//   Parse command line arguments.
 //
 // [Args]
 //   argc (const int32_t): The number of strings pointed to by argv.
@@ -78,12 +88,119 @@ parse_args(const int32_t argc, const char* argv[])
 
 }   // }}}
 
+static StringX
+readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner) noexcept
+// [Abstract]
+//   Read user input with rich interface.
+//
+// [Args]
+//   buffer (TextBuffer&)         : Text buffer.
+//   hist   (HistoryManager&)     : History manager.
+//   runner (const CommandRunner&): Command runner.
+//
+// [Returns]
+//   (std::map<std::string, std::string>): Parsed command line arguments.
+//
+{   // {{{
+
+    TermReader reader = TermReader();
+    TermWriter writer = TermWriter();
+    EditHelper helper = EditHelper();
+
+    // Create new buffer.
+    buffer.create(runner.get_next_lhs(), runner.get_next_rhs());
+
+    // Set editing mode to INSERT mode.
+    buffer.set_mode(TextBuffer::Mode::INSERT);
+
+    // Update cache for history completions.
+    // This function should be called for every time when starting editing because
+    // previous editing result should be contained in the history cache.
+    hist.set_completion_cache(buffer.get_storage());
+
+    while (true)
+    {
+        // Get editing buffer.
+        const StringX& lhs = buffer.get_lhs();
+        const StringX& rhs = buffer.get_rhs();
+
+        // Re-draw terminal.
+        writer.write(lhs, rhs, buffer.get_mode(), helper.candidate(lhs), hist.complete(lhs));
+
+        // Get user input.
+<<<<<<< HEAD
+        const CharX cx = reader.getch();
+=======
+        CharX cx = reader.getch();
+>>>>>>> 60b8fb8 (Update: refactoring)
+
+        // Check if the given key is registered in the keybinds.
+        // If true, then returns the NiShiKi-internal command.
+        if (contains(config.keybind, cx.printable()))
+        {
+<<<<<<< HEAD
+            // Get command corresponds to the keybind.
+=======
+            //
+>>>>>>> 60b8fb8 (Update: refactoring)
+            const std::string command = config.keybind[cx.printable()];
+
+            // Sepertor of the NiShiKi-internal command.
+            const StringX delim = StringX(NISHIKI_CMD_DELIM);
+
+            // Find the index of the first whitespace.
+            const std::string::size_type i = command.find(' ');
+
+            // Returns encoded NiShiKi-inernal command.
+            if ((i != std::string::npos) and ((command.substr(0, i) == "!int") or (startswith(command.substr(0, i), "!ext"))))
+            {
+                const StringX cmd_type = StringX(command.substr(1, i-1));
+                const StringX cmd_cont = StringX(command.substr(i, std::string::npos)).strip();
+
+                return (delim + cmd_type + delim + lhs + delim + rhs + delim + cmd_cont);
+            }
+
+            // Parse error.
+            std::cout << "\033[33mNiShiKi: Error while parsing NiShiKi-special command \033[m" << std::endl;
+            return StringX("");
+        }
+
+        // Process input character.
+        switch (cx.value)
+        {
+            // Exit function if Ctrl-D is pressed.
+            case 0x04:
+                return StringX("^D");
+
+            // Execute completion if Ctrl-I (= horizontal tab) is pressed.
+            case 0x09:
+                buffer.set(helper.complete(lhs), rhs);
+                break;
+
+            // History completion if Ctrl-N is pressed.
+            case 0x0E:
+                buffer.set(lhs + hist.complete(lhs) + CharX(" "), rhs);
+                break;
+
+            // Exit function if ENTER is pressed.
+            case '\n':
+            case '\r':
+                hist.append(lhs + rhs);
+                return (lhs + rhs);
+
+            // Otherwise update editing buffer.
+            default: buffer.edit(cx);
+        }
+    }
+
+}   // }}}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main function
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int32_t
-nishiki_main(const int32_t argc, const char* argv[])
+main(const int32_t argc, const char* argv[])
 {   // {{{
 
     // Parse command line arguments.
@@ -102,17 +219,24 @@ nishiki_main(const int32_t argc, const char* argv[])
     std::cout << "\033[31mN \033[35mI \033[32mS \033[33mH \033[35mI \033[36mK \033[35mI\033[m !!";
     std::cout << std::endl;
 
-    // Create ReadCommand instance which reads user input with rich interface.
-    ReadCommand readcmd;
+    // Create Text buffer instance which stores text buffers.
+    TextBuffer buffer;
+
+    // Create History manager instance which manages command histories.
+    HistoryManager hist;
 
     // Create CommandRunner instance which runs user input command.
     CommandRunner runner;
+
+    // Append all histories to the editing buffer.
+    for (const StringX& line : hist.read_history_file())
+        buffer.create(StringX(""), line);
 
     while (true)
     {
         // Read user input. Returns value is lhs and rhs.
         // Use command runner's lhs and rhs string as a initial editing string.
-        const StringX input = readcmd.read(runner.get_next_lhs(), runner.get_next_rhs());
+        const StringX input = readline(buffer, hist, runner);
 
         // Exit command loop if exit command is specified.
         if (input == StringX("exit") or input == StringX("^D"))
@@ -125,6 +249,9 @@ nishiki_main(const int32_t argc, const char* argv[])
         // Run command.
         runner.run(input);
     }
+
+    // Update the history file.
+    hist.normalize_and_write();
 
     // Show farewell message.
     std::cout << "See you!" << std::endl;

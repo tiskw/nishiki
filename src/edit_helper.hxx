@@ -39,8 +39,7 @@ class EditHelper
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         std::vector<StringX>
-        candidate(const StringX& lhs)
-        noexcept;
+        candidate(const StringX& lhs) noexcept;
         // [Abstract]
         //   Returns condidates of completion.
         //
@@ -51,8 +50,7 @@ class EditHelper
         //   (std::vector<StringX>): Array of lines (strings) for showing completion candidates to users.
 
         StringX
-        complete(const StringX& lhs)
-        const noexcept;
+        complete(const StringX& lhs) const noexcept;
         // [Abstract]
         //   Execute completion.
         //   This function should be called after calling `candidate` function.
@@ -87,8 +85,7 @@ class EditHelper
 
         // Functions to compute candidates for each use case.
         void
-        cands_command(const std::vector<StringX>& tokens, const std::string& option)
-        noexcept;
+        cands_command(const std::vector<StringX>& tokens, const std::string& option) noexcept;
         // [Abstract]
         //   Compute command completion candidates.
         //   The result candidates will be stored in `this->cands`.
@@ -96,13 +93,9 @@ class EditHelper
         // [Args]
         //   tokens (const std::vector<StringX>&): [IN] Parsed tokens of the user input.
         //   option (const std::string&)         : [IN] Optional string of the completion.
-        //
-        // [Returns]
-        //   void
 
         void
-        cands_filepath(const std::vector<StringX>& tokens, const std::string& option)
-        noexcept;
+        cands_filepath(const std::vector<StringX>& tokens, const std::string& option) noexcept;
         // [Abstract]
         //   Compute file path completion candidates.
         //   The result candidates will be stored in `this->cands`.
@@ -110,13 +103,9 @@ class EditHelper
         // [Args]
         //   tokens (const std::vector<StringX>&): [IN] Parsed tokens of the user input.
         //   option (const std::string&)         : [IN] Optional string of the completion.
-        //
-        // [Returns]
-        //   void
 
         void
-        cands_option(const std::vector<StringX>& tokens, const std::string& option)
-        noexcept;
+        cands_option(const std::vector<StringX>& tokens, const std::string& option) noexcept;
         // [Abstract]
         //   Compute command option candidates.
         //   The result candidates will be stored in `this->cands`.
@@ -124,52 +113,36 @@ class EditHelper
         // [Args]
         //   tokens (const std::vector<StringX>&): [IN] Parsed tokens of the user input.
         //   option (const std::string)          : [IN] Optional string for the options.
-        //
-        // [Returns]
-        //   void
 
         void
-        cands_preview(const std::vector<StringX>& tokens, const std::string& option)
-        noexcept;
+        cands_preview(const std::vector<StringX>& tokens, const std::string& option) noexcept;
         // [Abstract]
         //   Compute completion candidates for preview.
         //
         // [Args]
         //   tokens (const std::vector<StringX>&): [IN] Parsed tokens of the user input.
         //   option (const std::string)          : [IN] Optional string for the preview.
-        //
-        // [Returns]
-        //   void
 
         void
-        cands_shell(const std::vector<StringX>& tokens, const std::string& option)
-        noexcept;
+        cands_shell(const std::vector<StringX>& tokens, const std::string& option) noexcept;
         // [Abstract]
         //   Compute completion candidates from shell command.
         //
         // [Args]
         //   tokens (const std::vector<StringX>&): [IN] Parsed tokens of the user input.
         //   option (const std::string&)         : [IN] Optional string (normally it is a shell command).
-        //
-        // [Returns]
-        //   void
 
         void
-        cands_subcmd(const std::vector<StringX>& tokens, const std::string& option)
-        noexcept;
+        cands_subcmd(const std::vector<StringX>& tokens, const std::string& option) noexcept;
         // [Abstract]
         //   Compute completion candidates from sub command.
         //
         // [Args]
         //   tokens (const std::vector<StringX>&): [IN] Parsed tokens of the user input.
         //   option (const std::string&)         : [IN] Optional string.
-        //
-        // [Returns]
-        //   void
 
         void
-        lines_from_cands(const std::vector<std::pair<StringX, StringX>>& cands)
-        noexcept;
+        lines_from_cands(const std::vector<std::pair<StringX, StringX>>& cands) noexcept;
         // [Abstract]
         //   Convert candidate to strings that will be shown to users.
         //

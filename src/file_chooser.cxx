@@ -36,8 +36,7 @@ FileChooser::FileChooser() : index_cdir(0), index_prev(0), is_grep_mode(false)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<StringX>
-FileChooser::start(const StringX& root)
-noexcept
+FileChooser::start(const StringX& root) noexcept
 {   // {{{
 
     // Height of process information list window.
@@ -60,7 +59,7 @@ noexcept
         this->redraw();
 
         // Get user input.
-        int32_t key = getch();
+        const int32_t key = getch();
 
         // The file chooser has two modes, normal mode and grep mode. 
         if (this->is_grep_mode)
@@ -83,10 +82,7 @@ noexcept
             }
 
             // If exited from grep mode.
-            else
-            {
-                this->grep_str = "";
-            }
+            else this->grep_str = "";
         }
         else
         {
@@ -120,8 +116,7 @@ noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-FileChooser::chdir_next(void)
-noexcept
+FileChooser::chdir_next(void) noexcept
 {   // {{{
 
     // Do nothing if the directory is empty.
@@ -147,8 +142,7 @@ noexcept
 }   // }}}
 
 void
-FileChooser::chdir_prev(void)
-noexcept
+FileChooser::chdir_prev(void) noexcept
 {   // {{{
 
     // Get the previous path and set it to the current directory variable.
@@ -160,8 +154,7 @@ noexcept
 }   // }}}
 
 void
-FileChooser::move_index_cdir(const int32_t delta)
-noexcept
+FileChooser::move_index_cdir(const int32_t delta) noexcept
 {   // {{{
 
     this->index_cdir = MAX(0, MIN((int32_t) this->index_cdir + delta, (int32_t) this->cdir.size() - 1));
@@ -169,8 +162,7 @@ noexcept
 }   // }}}
 
 void
-FileChooser::print_dir_list(const int32_t x, const int32_t y, const int32_t w, const int32_t h, const Directory& dir, const int32_t idx, const bool sel)
-const noexcept
+FileChooser::print_dir_list(const int32_t x, const int32_t y, const int32_t w, const int32_t h, const Directory& dir, const int32_t idx, const bool sel) const noexcept
 {   // {{{
 
     // Compute delta of the index.
@@ -206,28 +198,15 @@ const noexcept
 }   // }}}
 
 void
-FileChooser::print_preview(const int32_t x, const int32_t y, const int32_t w, const int32_t h, const std::string& path)
-const noexcept
+FileChooser::print_preview(const int32_t x, const int32_t y, const int32_t w, const int32_t h, const std::string& path) const noexcept
 {   // {{{
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto set_color = [](const int16_t color_code) noexcept -> void
     // [Abstract]
     //   Set curses color.
     //
     // [Args]
     //   color_code (const int16_t): [IN] Color code (ANSI SGR style).
-    //
-    // [Returns]
-    //   void
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto set_color = [](const int16_t color_code) noexcept
     {
         // Case 1: color_code is zero.
         if (color_code == 0)
@@ -278,8 +257,7 @@ const noexcept
 }   // }}}
 
 void
-FileChooser::redraw(void)
-const noexcept
+FileChooser::redraw(void) const noexcept
 {   // {{{
 
     // Get screen size.
@@ -287,9 +265,9 @@ const noexcept
     getmaxyx(stdscr, h, w);
 
     // Compute size of each sub-window.
-    int32_t w1 = w * 0.15;
-    int32_t w2 = w * 0.45;
-    int32_t w3 = w - w1 - w2;
+    const int32_t w1 = w * 0.15;
+    const int32_t w2 = w * 0.45;
+    const int32_t w3 = w - w1 - w2;
 
     // Erase all window contents.
     werase(stdscr);
@@ -348,8 +326,7 @@ const noexcept
 }   // }}}
 
 std::vector<StringX>
-FileChooser::selected_files(std::filesystem::path root)
-const noexcept
+FileChooser::selected_files(std::filesystem::path root) const noexcept
 {   // {{{
 
     // Initialize returned value.
@@ -386,12 +363,11 @@ const noexcept
 }   // }}}
 
 void
-FileChooser::toggle_select(void)
-noexcept
+FileChooser::toggle_select(void) noexcept
 {   // {{{
 
     // Compute target index.
-    int32_t index = this->index_cdir % this->cdir.size();
+    const int32_t index = this->index_cdir % this->cdir.size();
 
     // Toggle selected/unselected flag.
     this->selected[index] = !(this->selected[index]);
@@ -402,8 +378,7 @@ noexcept
 }   // }}}
 
 void
-FileChooser::update(void)
-noexcept
+FileChooser::update(void) noexcept
 {   // {{{
 
     // Set previous directory.
@@ -440,8 +415,7 @@ noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<StringX>
-choose_files(const StringX& root)
-noexcept
+choose_files(const StringX& root) noexcept
 {   // {{{
 
     return FileChooser().start(root);
@@ -449,8 +423,7 @@ noexcept
 }   // }}}
 
 void
-choose_files_and_exit(const StringX& root)
-noexcept
+choose_files_and_exit(const StringX& root) noexcept
 {   // {{{
 
     for (const StringX& sx : choose_files(root))

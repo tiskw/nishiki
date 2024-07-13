@@ -19,27 +19,24 @@ TextBuffer::TextBuffer(const TextBuffer::Mode mode) : lhs_ptr(nullptr), rhs_ptr(
 // TextBuffer: Getter and setter functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const StringX& TextBuffer::get_lhs(void) const noexcept { return *this->lhs_ptr; }
-const StringX& TextBuffer::get_rhs(void) const noexcept { return *this->rhs_ptr; }
-
-TextBuffer::Mode TextBuffer::get_mode(void) const noexcept { return this->mode; };
+const StringX&   TextBuffer::get_lhs (void) const noexcept { return *this->lhs_ptr; }
+const StringX&   TextBuffer::get_rhs (void) const noexcept { return *this->rhs_ptr; }
+TextBuffer::Mode TextBuffer::get_mode(void) const noexcept { return  this->mode;    }
 
 const std::vector<std::pair<StringX, StringX>>&
-TextBuffer::get_storage(void) const noexcept
-{ return this->storage; };
+TextBuffer::get_storage(void) const noexcept { return this->storage; };
 
 void TextBuffer::set(const StringX& lhs, const StringX& rhs) noexcept { *this->lhs_ptr = lhs;
                                                                         *this->rhs_ptr = rhs; };
 
-void TextBuffer::set_mode(TextBuffer::Mode mode)  noexcept { this->mode = mode; };
+void TextBuffer::set_mode(TextBuffer::Mode mode) noexcept { this->mode = mode; };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // TextBuffer: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-TextBuffer::edit(const CharX& cx)
-noexcept
+TextBuffer::edit(const CharX& cx) noexcept
 {   // {{{
 
     if      (this->mode == TextBuffer::Mode::INSERT) this->edit_insert(cx);
@@ -48,8 +45,7 @@ noexcept
 }   // }}}
 
 void
-TextBuffer::create(const StringX& lhs, const StringX& rhs)
-noexcept
+TextBuffer::create(const StringX& lhs, const StringX& rhs) noexcept
 {   // {{{
 
     // Append the editing buffer if the current index is not the last buffer.
@@ -98,8 +94,7 @@ noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-TextBuffer::edit_insert(const CharX& cx)
-noexcept
+TextBuffer::edit_insert(const CharX& cx) noexcept
 {   // {{{
 
     switch (cx.value)
@@ -125,8 +120,7 @@ noexcept
 }   // }}}
 
 void
-TextBuffer::edit_normal(const CharX& cx)
-noexcept
+TextBuffer::edit_normal(const CharX& cx) noexcept
 {   // {{{
 
     switch (cx.value)
@@ -163,8 +157,7 @@ noexcept
 }   // }}}
 
 void
-TextBuffer::move_cursor(int16_t delta)
-noexcept
+TextBuffer::move_cursor(int16_t delta) noexcept
 {   // {{{
 
     while (delta != 0)
@@ -184,8 +177,7 @@ noexcept
 }   // }}}
 
 void
-TextBuffer::change_buffer(int16_t delta)
-noexcept
+TextBuffer::change_buffer(int16_t delta) noexcept
 {   // {{{
 
     // Update storage index.
