@@ -19,8 +19,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<StringX>
-preview(const std::string& path, uint16_t width, uint16_t height)
-noexcept
+preview(const std::string& path, uint16_t width, uint16_t height) noexcept
 {   // {{{
 
     // FileType instance is reusable, so defined as a static variable.

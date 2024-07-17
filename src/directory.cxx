@@ -20,8 +20,7 @@ Directory::Directory(void)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const std::filesystem::path&
-Directory::get(void)
-const noexcept
+Directory::get(void) const noexcept
 {   // {{{
 
     return this->path;
@@ -29,8 +28,7 @@ const noexcept
 }   // }}}
 
 std::filesystem::path
-Directory::get_relative(const uint32_t index, const std::filesystem::path& root)
-const noexcept
+Directory::get_relative(const uint32_t index, const std::filesystem::path& root) const noexcept
 {   // {{{
 
     return std::filesystem::relative(this->path / (*this)[index % this->size()], root);
@@ -38,8 +36,7 @@ const noexcept
 }   // }}}
 
 void
-Directory::set(const std::filesystem::path& path)
-noexcept
+Directory::set(const std::filesystem::path& path) noexcept
 {   // {{{
 
     this->path = std::filesystem::canonical(path);
@@ -51,15 +48,14 @@ noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool
-Directory::append(const std::string& name)
-noexcept
+Directory::append(const std::string& name) noexcept
 {   // {{{
 
     // Move to the specified directory.
     this->path.append(name);
 
     // Check that the target path is a directory.
-    bool is_directory = std::filesystem::is_directory(this->path);
+    const bool is_directory = std::filesystem::is_directory(this->path);
 
     // Move back to the parent directory if the target path is not a directory.
     if (!is_directory)
@@ -71,8 +67,7 @@ noexcept
 }   // }}}
 
 uint8_t
-Directory::color(const uint32_t index)
-const noexcept
+Directory::color(const uint32_t index) const noexcept
 {   // {{{
 
     // Create copy of myself.
@@ -84,20 +79,19 @@ const noexcept
     // Check the file property and returns color index.
     //   0: Black, 1: Red,     2: Green, 3: Yellow,
     //   4: Blue,  5: Magenta, 6: Cyan,  7: White,
-    if      (std::filesystem::is_block_file(path))     return 3;
+    if      (std::filesystem::is_block_file(path)    ) return 3;
     else if (std::filesystem::is_character_file(path)) return 3;
-    else if (std::filesystem::is_directory(path))      return 4;
-    else if (std::filesystem::is_fifo(path))           return 3;
-    else if (std::filesystem::is_socket(path))         return 3;
-    else if (std::filesystem::is_symlink(path))        return 6;
-    else if (std::filesystem::is_regular_file(path))   return 0;
+    else if (std::filesystem::is_directory(path)     ) return 4;
+    else if (std::filesystem::is_fifo(path)          ) return 3;
+    else if (std::filesystem::is_socket(path)        ) return 3;
+    else if (std::filesystem::is_symlink(path)       ) return 6;
+    else if (std::filesystem::is_regular_file(path)  ) return 0;
     else                                               return 0;
 
 }   // }}}
 
 bool
-Directory::update(void)
-noexcept
+Directory::update(void) noexcept
 {   // {{{
 
     // Do nothing if actual directory change is not detected.

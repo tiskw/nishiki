@@ -31,8 +31,7 @@ class FileType : public std::vector<std::pair<std::string, std::string>>
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         std::string
-        mime(const std::string& path)
-        const noexcept;
+        mime(const std::string& path) const noexcept;
         // [Abstract]
         //   Returns mime type of the given file.
         //

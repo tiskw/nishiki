@@ -36,8 +36,7 @@ class FileChooser : public CursesScreen
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         std::vector<StringX>
-        start(const StringX& root)
-        noexcept;
+        start(const StringX& root) noexcept;
         // [Abstract]
         //   Start session and returns selecetd files.
         //
@@ -82,28 +81,17 @@ class FileChooser : public CursesScreen
         void chdir_prev(void) noexcept;
         // [Abstract]
         //   Move to the next/previous directory.
-        //
-        // [Args]
-        //   void
-        //
-        // [Returns]
-        //   void
 
         void
-        move_index_cdir(const int32_t delta)
-        noexcept;
+        move_index_cdir(const int32_t delta) noexcept;
         // [Abstract]
         //   Move cursor. User can specify the amount of movement.
         //
         // [Args]
         //   delta (const int32_t): [IN] Amount of cursor movement.
-        //
-        // [Returns]
-        //   void
 
         void
-        print_dir_list(const int32_t x, const int32_t y, const int32_t w, const int32_t h, const Directory& dir, const int32_t idx, const bool sel)
-        const noexcept;
+        print_dir_list(const int32_t x, const int32_t y, const int32_t w, const int32_t h, const Directory& dir, const int32_t idx, const bool sel) const noexcept;
         // [Abstract]
         //   Print list to window.
         //
@@ -115,13 +103,9 @@ class FileChooser : public CursesScreen
         //   dir (const Directorty&): [IN] List of items.
         //   idx (const int32_t)    : [IN] Index of forcused item.
         //   sel (const bool)       : [IN] Show selected/unselected marker if true.
-        //
-        // [Returns]
-        //   void
 
         void
-        print_preview(const int32_t x, const int32_t y, const int32_t w, const int32_t h, const std::string& path)
-        const noexcept;
+        print_preview(const int32_t x, const int32_t y, const int32_t w, const int32_t h, const std::string& path) const noexcept;
         // [Abstract]
         //   Print preview window.
         //
@@ -131,25 +115,14 @@ class FileChooser : public CursesScreen
         //   w    (const int32_t)     : [IN] Width of drawing area.
         //   h    (const int32_t)     : [IN] Height of drawing area.
         //   path (const std::string&): [IN] Path to the current file.
-        //
-        // [Returns]
-        //   void
 
         void
-        redraw(void)
-        const noexcept;
+        redraw(void) const noexcept;
         // [Abstract]
         //   Redraw curses window.
-        //
-        // [Args]
-        //   void
-        //
-        // [Returns]
-        //   void
 
         std::vector<StringX>
-        selected_files(const std::filesystem::path root)
-        const noexcept;
+        selected_files(const std::filesystem::path root) const noexcept;
         // [Abstract]
         //   Returns selecetd files.
         //   Tokens that has whitespace will be quoted by single quote.
@@ -161,29 +134,14 @@ class FileChooser : public CursesScreen
         //   (std::vector<StringX>): A vector of selected items.
 
         void
-        toggle_select(void)
-        noexcept;
+        toggle_select(void) noexcept;
         // [Abstract]
         //   Toggle selected/unselected flag of the current item.
-        //
-        // [Args]
-        //   void
-        //
-        // [Returns]
-        //   void
-        //
 
         void
-        update(void)
-        noexcept;
+        update(void) noexcept;
         // [Abstract]
         //   Update directory contents.
-        //
-        // [Args]
-        //   void
-        //
-        // [Returns]
-        //   void
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,8 +149,7 @@ class FileChooser : public CursesScreen
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<StringX>
-choose_files(const StringX& root = StringX("."))
-noexcept;
+choose_files(const StringX& root = StringX(".")) noexcept;
 // [Abstract]
 //   Call file chooser and returns choosed file(s).
 //
@@ -203,16 +160,12 @@ noexcept;
 //   (std::vector<StringX>): A list of choosed file paths.
 
 void
-choose_files_and_exit(const StringX& root = StringX("."))
-noexcept;
+choose_files_and_exit(const StringX& root = StringX(".")) noexcept;
 // [Abstract]
 //   Call file chooser and prints choosed file(s).
 //
 // [Args]
 //   root (const StringX&): [IN] Path of the starting directory.
-//
-// [Returns]
-//   void
 
 #endif
 

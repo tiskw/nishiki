@@ -38,8 +38,7 @@ TextChooser::TextChooser(void) : idx(0), header(""), is_grep_mode(false)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<StringX>
-TextChooser::start(const std::vector<std::string>& lines, int32_t target_index)
-noexcept
+TextChooser::start(const std::vector<std::string>& lines, int32_t target_index) noexcept
 {   // {{{
 
     // Height of process information list window.
@@ -78,7 +77,7 @@ noexcept
         this->redraw();
 
         // Get user input.
-        int32_t key = getch();
+        const int32_t key = getch();
 
         // Text chooser has 2 states, normal mode and grep mode.
         if (this->is_grep_mode)
@@ -121,8 +120,7 @@ noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int32_t
-TextChooser::get_index_on_view(void)
-const noexcept
+TextChooser::get_index_on_view(void) const noexcept
 {   // {{{
 
     // Do nothing if the viewed list is empty, or containing only one.
@@ -136,12 +134,12 @@ const noexcept
     while (range.first != range.second)
     {
         // Compute the middle of the range.
-        uint32_t range_middle = (range.first + range.second) / 2;
+        const uint32_t range_middle = (range.first + range.second) / 2;
 
         // Compute the corresponding original index for each begin, middle, end of the range.
-        int32_t idx_bgn = std::get<2>(*this->views[range.first]);
-        int32_t idx_mid = std::get<2>(*this->views[range_middle]);
-        int32_t idx_end = std::get<2>(*this->views[range.second]);
+        const int32_t idx_bgn = std::get<2>(*this->views[range.first]);
+        const int32_t idx_mid = std::get<2>(*this->views[range_middle]);
+        const int32_t idx_end = std::get<2>(*this->views[range.second]);
 
         // Finish searching, or update the range.
         if      (idx_bgn == this->idx) { return range.first;          }
@@ -156,8 +154,7 @@ const noexcept
 }   // }}}
 
 void
-TextChooser::move_index(int32_t delta)
-noexcept
+TextChooser::move_index(int32_t delta) noexcept
 {   // {{{
 
     // Compute index on the viewed list.
@@ -172,8 +169,7 @@ noexcept
 }   // }}}
 
 void
-TextChooser::redraw(void)
-noexcept
+TextChooser::redraw(void) noexcept
 {   // {{{
 
     // Define position and size of drawing area.
@@ -239,12 +235,10 @@ noexcept
 }   // }}}
  
 std::vector<StringX>
-TextChooser::selected_values(int32_t target_index)
-const noexcept
+TextChooser::selected_values(int32_t target_index) const noexcept
 {   // {{{
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto get_value = [](const std::string& item, int32_t target_index) noexcept -> std::string
     // [Abstract]
     //   Finds process ID on a process information line and returns it.
     //
@@ -253,14 +247,6 @@ const noexcept
     //
     // [Returns]
     //   (std::string): Process ID.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto get_value = [](const std::string& item, int32_t target_index) noexcept
     {
         // Split the given line of "ps aux" by whiltespace.
         std::vector<std::string> tokens = split(item);
@@ -294,12 +280,11 @@ const noexcept
 }   // }}}
 
 void
-TextChooser::toggle_select(void)
-noexcept
+TextChooser::toggle_select(void) noexcept
 {   // {{{
 
     // Compute target index.
-    int32_t index = this->idx % this->items.size();
+    const int32_t index = this->idx % this->items.size();
 
     // Toggle selected/unselected flag.
     std::get<1>(this->items[index]) = !std::get<1>(this->items[index]);
@@ -310,8 +295,7 @@ noexcept
 }   // }}}
 
 void
-TextChooser::update_viewed_items(void)
-noexcept
+TextChooser::update_viewed_items(void) noexcept
 {   // {{{
 
     // Do nothing if not in the grep mode.
@@ -331,8 +315,7 @@ noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<StringX>
-choose_hists(void)
-noexcept
+choose_hists(void) noexcept
 {   // {{{
 
     // Instanciate history manager class to read history file.
@@ -342,7 +325,7 @@ noexcept
     std::vector<StringX> hists_x = hist.read_history_file();
 
     // Convert the history to a vector of std::string.
-    constexpr auto to_string = [](const StringX& sx) { return sx.string(); };
+    constexpr auto to_string = [](const StringX& sx) noexcept -> std::string { return sx.string(); };
     std::vector<std::string> hists = transform<StringX, std::string>(hists_x, to_string);
 
     // Start the text chooser.
@@ -351,8 +334,7 @@ noexcept
 }   // }}}
 
 void
-choose_hists_and_exit(void)
-noexcept
+choose_hists_and_exit(void) noexcept
 {   // {{{
 
     // Call history chooser and print selected histories.
@@ -367,8 +349,7 @@ noexcept
 }   // }}}
 
 std::vector<StringX>
-choose_procs(void)
-noexcept
+choose_procs(void) noexcept
 {   // {{{
 
     // Call process command.
@@ -380,8 +361,7 @@ noexcept
 }   // }}}
 
 void
-choose_procs_and_exit(void)
-noexcept
+choose_procs_and_exit(void) noexcept
 {   // {{{
 
     // Call process chooser and print selected process ID(s).

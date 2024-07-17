@@ -40,8 +40,7 @@ HistoryManager::HistoryManager(void)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<StringX>
-HistoryManager::read_history_file(void)
-const noexcept
+HistoryManager::read_history_file(void) const noexcept
 {   // {{{
 
     // Initialize the returned vector.
@@ -66,8 +65,7 @@ const noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-HistoryManager::append(const StringX& command)
-const noexcept
+HistoryManager::append(const StringX& command) const noexcept
 {   // {{{
 
     // Do nothing if no need to add the given command to the history file.
@@ -82,8 +80,7 @@ const noexcept
 }   // }}}
 
 void
-HistoryManager::normalize(void)
-const noexcept
+HistoryManager::normalize_and_write(void) const noexcept
 {   // {{{
 
     // Initialize a vector to store histories.
@@ -131,8 +128,7 @@ const noexcept
 }   // }}}
 
 void
-HistoryManager::set_completion_cache(const std::vector<std::pair<StringX, StringX>>& storage)
-noexcept
+HistoryManager::set_completion_cache(const std::vector<std::pair<StringX, StringX>>& storage) noexcept
 {   // {{{
 
     // Clear the cache.
@@ -145,8 +141,7 @@ noexcept
 }   // }}}
 
 StringX
-HistoryManager::complete(const StringX& lhs)
-const noexcept
+HistoryManager::complete(const StringX& lhs) const noexcept
 {   // {{{
 
     // Returns empty string immediately if no completion query is given.
@@ -168,8 +163,7 @@ const noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool
-HistoryManager::is_history_target(const StringX& command)
-noexcept
+HistoryManager::is_history_target(const StringX& command) noexcept
 {   // {{{
 
     if      (command.size() == 0                           ) return false;  // Empty command

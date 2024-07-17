@@ -26,8 +26,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<StringX>
-column(const std::vector<StringX>& texts, uint16_t width, uint16_t height, uint16_t margin)
-noexcept;
+column(const std::vector<StringX>& texts, uint16_t width, uint16_t height, uint16_t margin) noexcept;
 // [Abstract]
 //   Format strings in the column style.
 //
@@ -41,20 +40,15 @@ noexcept;
 //   (std::vector<StringX>): Formated strings in column style.
 
 void
-drop_whitespace_tokens(std::vector<StringX>& tokens)
-noexcept;
+drop_whitespace_tokens(std::vector<StringX>& tokens) noexcept;
 // [Abstract]
 //   Drop white-space tokens.
 //
 // [Args]
 //   tokens (std::vector<StringX>&): [IN/OUT] Target list of tokens.
-//
-// [Returns]
-//   void
 
 StringX
-get_common_substring(const std::vector<StringX>& texts)
-noexcept;
+get_common_substring(const std::vector<StringX>& texts) noexcept;
 // [Abstract]
 //   Get common substring of the given strings.
 //
@@ -66,81 +60,56 @@ noexcept;
 
 // Get current directory.
 std::string
-get_cwd(void)
-noexcept;
+get_cwd(void) noexcept;
 // [Abstract]
 //   Get current working directory.
-//
-// [Args]
-//   void
 //
 // [Returns]
 //   (std::string): Current working directory.
 
 std::string
-get_date(void)
-noexcept;
+get_date(void) noexcept;
 // [Abstract]
 //   Get current date as a string.
-//
-// [Args]
-//   void
 //
 // [Returns]
 //   (std::string): Date string.
 
 void
-get_terminal_size(uint16_t* width, uint16_t* height)
-noexcept;
+get_terminal_size(uint16_t* width, uint16_t* height) noexcept;
 // [Abstract]
 //   Get terminal size.
 //
 // [Args]
 //   width  (int*): Integer pointer, or nullptr.
 //   height (int*): Integer pointer, or nullptr.
-//
-// [Returns]
-//   (void)
 
 std::string
-get_time(void)
-noexcept;
+get_time(void) noexcept;
 // [Abstract]
 //   Get current time as a string.
-//
-// [Args]
-//   void
 //
 // [Returns]
 //   (std::string): Time string.
 
 std::string
-get_git_branch_info(void)
-noexcept;
+get_git_branch_info(void) noexcept;
 // [Abstract]
 //   Get git status info as a string.
-//
-// [Args]
-//   void
 //
 // [Returns]
 //   (std::string): Git branch information.
 
 std::vector<StringX>
-get_system_commands(void)
-noexcept;
+get_system_commands(void) noexcept;
 // [Abstract]
 //   Get a list of all available commands in the system.
-//
-// [Args]
-//   void
 //
 // [Returns]
 //   (std::vector<StringX>): List of available command names.
 
 std::string
-replace(const std::string& target, const std::string& oldstr, const std::string& newstr)
-noexcept;
+replace(const std::string& target, const std::string& oldstr, const std::string& newstr) noexcept;
 // [Abstract]
 //   Replace string.
 //
@@ -153,8 +122,7 @@ noexcept;
 //   (std::string): Replaced string.
 
 std::string
-run_command(const std::string& command, bool strip_output = true)
-noexcept;
+run_command(const std::string& command, bool strip_output = true) noexcept;
 // [Abstract]
 //   Run a external command and get the returned value as a string.
 //
@@ -166,8 +134,7 @@ noexcept;
 //   (std::string): Returns value of the external command.
 
 std::vector<std::string>
-split(const std::string& str)
-noexcept;
+split(const std::string& str) noexcept;
 // [Abstract]
 //   Split the given string with whitespaces.
 //
@@ -178,8 +145,7 @@ noexcept;
 //   (std::vector<std::string>): Split strings.
 
 std::vector<std::string>
-split(const std::string& str, const std::string& delim)
-noexcept;
+split(const std::string& str, const std::string& delim) noexcept;
 // [Abstract]
 //   Split the given string with the given delimiter.
 //
@@ -191,8 +157,7 @@ noexcept;
 //   (std::vector<std::string>): Split strings.
 
 bool
-startswith(const std::string& s, const std::string& t)
-noexcept;
+startswith(const std::string& s, const std::string& t) noexcept;
 // [Abstract]
 //   Returns true if the given string `s` is started from `t`.
 //
@@ -204,8 +169,7 @@ noexcept;
 //   (bool): True if `s` is started with `t`.
 
 std::string
-strip(const std::string &str)
-noexcept;
+strip(const std::string &str) noexcept;
 // [Abstract]
 //   Strip white-spaces from both front and end of the given string.
 //
@@ -217,8 +181,7 @@ noexcept;
 
 template <typename T_in, typename T_out, typename F>
 inline std::vector<T_out>
-transform(const std::vector<T_in>& xs, F&& func)
-noexcept
+transform(const std::vector<T_in>& xs, F&& func) noexcept
 // [Abstract]
 //   Similar to std::transform, but returns array instance.
 //

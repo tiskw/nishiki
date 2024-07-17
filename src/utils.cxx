@@ -17,12 +17,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<StringX>
-column(const std::vector<StringX>& texts, uint16_t width, uint16_t height, uint16_t margin)
-noexcept
+column(const std::vector<StringX>& texts, uint16_t width, uint16_t height, uint16_t margin) noexcept
 {   // {{{
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto maximum = [](const std::vector<uint16_t>& array, uint32_t idx_bgn, uint32_t idx_end) noexcept -> uint16_t
     // [Abstract]
     //   Returns maximum value of the given array.
     //
@@ -32,15 +30,7 @@ noexcept
     //   idx_end (uint32_t)                    : End index.
     //
     // [Returns]
-    //   (std::vector<StringX>): List of available command names.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto maximum = [](const std::vector<uint16_t>& array, uint32_t idx_bgn, uint32_t idx_end) noexcept
+    //   (uint16_t): Maximum value of the given array.
     {
         uint16_t val_max = array[idx_bgn];
 
@@ -50,8 +40,7 @@ noexcept
         return val_max;
     };
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto get_shape = [maximum](const std::vector<uint16_t>& ws, uint16_t width, uint16_t margin, uint16_t row) noexcept -> std::pair<uint16_t, bool>
     // [Abstract]
     //   Compute shape of column style display.
     //
@@ -63,14 +52,6 @@ noexcept
     //
     // [Returns]
     //   (std::pair<uint16_t, bool>): A pair of (number of columns, true if all texts can be shown).
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto get_shape = [maximum](const std::vector<uint16_t>& ws, uint16_t width, uint16_t margin, uint16_t row) noexcept
     {
         uint16_t wid_total = 0;
 
@@ -78,14 +59,14 @@ noexcept
         for (uint16_t col = 0; true; ++col)
         {
             // Compute start/end index of the texts used in the current column
-            size_t idx_bgn = col * row;
-            size_t idx_end = MIN(idx_bgn + row, ws.size());
+            const size_t idx_bgn = col * row;
+            const size_t idx_end = MIN(idx_bgn + row, ws.size());
 
             // Compute maximum width of texts used in the current column.
-            uint16_t wid_max = maximum(ws, idx_bgn, idx_end);
+            const uint16_t wid_max = maximum(ws, idx_bgn, idx_end);
 
             // Increment of width by this column.
-            uint16_t wid_inc = ((col > 0) ? margin : 0) + wid_max;
+            const uint16_t wid_inc = ((col > 0) ? margin : 0) + wid_max;
 
             // Exit if the current width exceeds the maximum width.
             if ((wid_total + wid_inc) >= width)
@@ -100,8 +81,7 @@ noexcept
         }
     };
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto get_optimal_height = [get_shape](const std::vector<uint16_t>& ws, uint16_t width, uint16_t height, uint16_t margin) noexcept -> std::pair<uint16_t, int16_t>
     // [Abstract]
     //   Compute optimal shape (rows and columns) of column style display.
     //
@@ -113,19 +93,11 @@ noexcept
     //
     // [Returns]
     //   (std::pair<uint16_t, uint16_t>): A pair of (rows of the optimal shape, columns of the optimal shape).
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto get_optimal_height = [get_shape](const std::vector<uint16_t>& ws, uint16_t width, uint16_t height, uint16_t margin) noexcept
     {
         for (uint16_t row = 1; row < height; ++row)
         {
             // Compute shape for each row.
-            auto [col, finished] = get_shape(ws, width, margin, row);
+            const auto& [col, finished] = get_shape(ws, width, margin, row);
 
             // Immediately determine optimal shape if all texts can be shown.
             if (finished)
@@ -151,7 +123,7 @@ noexcept
     std::vector<uint16_t> ws = transform<StringX, uint16_t>(texts, [](const StringX& sx) { return sx.width(); });
 
     // Compute optimal shape (rows and columns).
-    const auto [rows, cols] = get_optimal_height(ws, width, height, margin);
+    const auto& [rows, cols] = get_optimal_height(ws, width, height, margin);
 
     // Initialize total width.
     uint16_t width_total = 0;
@@ -182,25 +154,18 @@ noexcept
 }   // }}}
 
 void
-drop_whitespace_tokens(std::vector<StringX>& tokens)
-noexcept
+drop_whitespace_tokens(std::vector<StringX>& tokens) noexcept
 {   // {{{
 
-    ///// FUNCTION-LOCAL FUNCTION /////
+    constexpr auto is_whitespace_token = [](const StringX& token) noexcept -> bool
+    // [Abstract]
+    //   Returns true if the given token is whitespace token.
     //
     // [Args]
     //   token (const StringX&): [IN] Target token.
     //
     // [Returns]
-    //   (bool): True if the given token is a white-space token.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto is_whitespace_token = [](const StringX& token) noexcept
+    //   (bool): True if the given token is a whitespace token.
     {
         return (token.size() == 0) or (token[0].value == ' ');
     };
@@ -211,8 +176,7 @@ noexcept
 }   // }}}
 
 StringX
-get_common_substring(const std::vector<StringX>& texts)
-noexcept
+get_common_substring(const std::vector<StringX>& texts) noexcept
 {   // {{{
 
     // Initialize output string.
@@ -244,8 +208,7 @@ noexcept
 }   // }}}
 
 std::string
-get_cwd(void)
-noexcept
+get_cwd(void) noexcept
 {   // {{{
 
     try         { return std::filesystem::current_path(); }
@@ -254,8 +217,7 @@ noexcept
 }   // }}}
 
 std::string
-get_date(void)
-noexcept
+get_date(void) noexcept
 {   // {{{
 
     // Get current date.
@@ -272,8 +234,7 @@ noexcept
 }   // }}}
 
 void
-get_terminal_size(uint16_t* width, uint16_t* height)
-noexcept
+get_terminal_size(uint16_t* width, uint16_t* height) noexcept
 {   // {{{
 
     // Get terminal size.
@@ -287,8 +248,7 @@ noexcept
 }   // }}}
 
 std::string
-get_time(void)
-noexcept
+get_time(void) noexcept
 {   // {{{
 
     // Get the current time.
@@ -305,8 +265,7 @@ noexcept
 }   // }}}
 
 std::string
-get_git_branch_info(void)
-noexcept
+get_git_branch_info(void) noexcept
 {   // {{{
 
     // Get git branch and status information.
@@ -320,8 +279,7 @@ noexcept
 }   // }}}
 
 std::vector<StringX>
-get_system_commands(void)
-noexcept
+get_system_commands(void) noexcept
 {   // {{{
 
     std::vector<StringX> result;
@@ -365,8 +323,7 @@ noexcept
 }   // }}}
 
 std::string
-replace(const std::string& target, const std::string& oldstr, const std::string& newstr)
-noexcept
+replace(const std::string& target, const std::string& oldstr, const std::string& newstr) noexcept
 {   // {{{
 
     // Create copy of the input string.
@@ -390,8 +347,7 @@ noexcept
 }   // }}}
 
 std::string
-run_command(const std::string& command, bool strip_output)
-noexcept
+run_command(const std::string& command, bool strip_output) noexcept
 {   // {{{
 
     // Initialize output variable.
@@ -421,8 +377,7 @@ noexcept
 }   // }}}
 
 std::vector<std::string>
-split(const std::string& str)
-noexcept
+split(const std::string& str) noexcept
 {   // {{{
 
     // Initialize the returned value.
@@ -440,8 +395,7 @@ noexcept
 }   // }}}
  
 std::vector<std::string>
-split(const std::string& str, const std::string& delim)
-noexcept
+split(const std::string& str, const std::string& delim) noexcept
 {   // {{{
 
     // Initialize the output array.
@@ -477,8 +431,7 @@ noexcept
 }   // }}}
 
 bool
-startswith(const std::string& s, const std::string& t)
-noexcept
+startswith(const std::string& s, const std::string& t) noexcept
 {   // {{{
 
     return ((s.size() >= t.size()) and std::equal(std::begin(t), std::end(t), std::begin(s)));
@@ -486,12 +439,23 @@ noexcept
 }   // }}}
 
 std::string
-strip(const std::string& str)
-noexcept
+strip(const std::string& str) noexcept
 {   // {{{
 
-    ///// FUNCTION-LOCAL FUNCTION /////
+    constexpr auto is_not_space = [](unsigned char ch) noexcept -> bool
+    // [Abstract]
+    //   Returns true if the given character is not whitespace.
     //
+    // [Args]
+    //   ch (unsigned char): [IN] Target character.
+    //
+    // [Returns]
+    //   (bool): True if not a space.
+    {
+        return !std::isspace(ch);
+    };
+
+    constexpr auto lstrip = [is_not_space](const std::string &src) noexcept -> std::string
     // [Abstract]
     //   Strip white-spaces from the front.
     //
@@ -500,20 +464,7 @@ noexcept
     //
     // [Returns]
     //   (std::string): Stripped string.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto lstrip = [](const std::string &src)
     {
-        constexpr auto is_not_space = [](unsigned char ch)
-        {
-            return !std::isspace(ch);
-        };
-
         std::string str = std::string(src);
 
         str.erase(str.begin(), std::find_if(str.begin(), str.end(), is_not_space));
@@ -521,8 +472,7 @@ noexcept
         return str;
     };
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto rstrip = [is_not_space](const std::string &src) noexcept -> std::string
     // [Abstract]
     //   Strip white-spaces from the end.
     //
@@ -531,20 +481,7 @@ noexcept
     //
     // [Returns]
     //   (std::string): Stripped string.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto rstrip = [](const std::string &src)
     {
-        constexpr auto is_not_space = [](unsigned char ch)
-        {
-            return !std::isspace(ch);
-        };
-
         std::string str = std::string(src);
 
         str.erase(std::find_if(str.rbegin(), str.rend(), is_not_space).base(), str.end());

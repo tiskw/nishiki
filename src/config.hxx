@@ -65,17 +65,13 @@ extern NishikiConfig config;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-load_config(std::string filepath)
-noexcept;
+load_config(std::string filepath) noexcept;
 // [Abstract]
 //   Load config file written in TOML format.
 //   The result will be stored in the global variable `config` that is declared in `config.cxx`.
 //
 // [Args]
 //   filepath (const char*): [IN] Path to TOML file.
-//
-// [Returns]
-//   void
 
 #endif
 

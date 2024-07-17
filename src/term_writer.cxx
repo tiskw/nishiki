@@ -55,12 +55,10 @@ TermWriter::~TermWriter(void)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-TermWriter::write(const StringX& lhs, const StringX& rhs, TextBuffer::Mode mode, const std::vector<StringX>& clines, const StringX& hist_comp)
-const noexcept
+TermWriter::write(const StringX& lhs, const StringX& rhs, TextBuffer::Mode mode, const std::vector<StringX>& clines, const StringX& hist_comp) const noexcept
 {   // {{{
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto generate_editing_line = [](const StringX& lhs, const StringX& rhs, const StringX& hist_comp) noexcept -> StringX
     // [Abstract]
     //   Computes and returns editing line.
     //
@@ -71,14 +69,6 @@ const noexcept
     //
     // [Returns]
     //   (StringX): Editing line.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto generate_editing_line = [](const StringX& lhs, const StringX& rhs, const StringX& hist_comp)
     {
         // Case 1: only `lhs` is non-empty string.
         if ((rhs.size() == 0) and (hist_comp.size() == 0))
@@ -122,12 +112,10 @@ const noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-TermWriter::update(void)
-noexcept
+TermWriter::update(void) noexcept
 {   // {{{
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto replace_info = [](const std::string& src, const std::map<std::string, std::string>& info) noexcept -> std::string
     // [Abstract]
     //   A function to replace all auxiliary information tag.
     //
@@ -137,17 +125,8 @@ noexcept
     //
     // [Returns]
     //   (std::string): Replaced string.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto replace_info = [](const std::string& src, const std::map<std::string, std::string>& info)
     {
-        ///// FUNCTION-LOCAL FUNCTION /////
-        //
+        constexpr auto replace_item = [](const std::string& src, const std::pair<std::string, std::string>& item) noexcept -> std::string
         // [Abstract]
         //   A function to replace one auxiliary information tag.
         //
@@ -157,8 +136,6 @@ noexcept
         //
         // [Returns]
         //   (std::string): Replaced string.
-        //
-        constexpr auto replace_item = [](const std::string& src, const std::pair<std::string, std::string>& item)
         {
             return replace(src, item.first, item.second);
         };
@@ -196,11 +173,11 @@ noexcept
     if (this->prompt_head.width() >= this->wid)
     {
         // Convert current directory string to StringX instance.
-        StringX cwd = StringX(info["{cwd}"]);
+        const StringX cwd = StringX(info["{cwd}"]);
 
         // Determine width of current working directory path.
-        uint16_t len_cut = this->prompt_head.width() - this->wid + 1;
-        uint16_t len_cwd = StringX(info["{cwd}"]).width() - len_cut;
+        const uint16_t len_cut = this->prompt_head.width() - this->wid + 1;
+        const uint16_t len_cwd = StringX(info["{cwd}"]).width() - len_cut;
 
         // Clip length of current directory path and replace.
         info["{cwd}"] = cwd.clip(len_cwd).string();

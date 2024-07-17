@@ -41,8 +41,7 @@ CharX::CharX(std::istream& sin, bool raw) : value(0), size(0), width(0)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CharX&
-CharX::operator=(const CharX& cx)
-noexcept
+CharX::operator=(const CharX& cx) noexcept
 {   // {{{
 
     this->value = cx.value;
@@ -54,8 +53,7 @@ noexcept
 }   // }}}
 
 StringX
-CharX::operator*(uint16_t n_repeat)
-const noexcept
+CharX::operator*(uint16_t n_repeat) const noexcept
 {   // {{{
 
     StringX result;
@@ -72,12 +70,10 @@ const noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::pair<int16_t, int16_t>
-CharX::ansi_color(void)
-const noexcept
+CharX::ansi_color(void) const noexcept
 {   // {{{
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto parse_to_int = [](uint64_t value, uint8_t index) noexcept -> std::pair<int8_t, int8_t>
     // [Abstract]
     //   Parse CharX value to a pair of color indices.
     //
@@ -87,14 +83,6 @@ const noexcept
     //
     // [Returns]
     //   (std::pair<int8_t, int8_t>): Parsed pair of integers.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto parse_to_int = [](uint64_t value, uint8_t index) noexcept
     {
         // Initialize the target string to be parsed to int.
         std::string target;
@@ -119,16 +107,15 @@ const noexcept
         return std::make_pair(-1, -1);
 
     // Parse foreground and background color code.
-    std::pair<int8_t, uint8_t> result_fg = parse_to_int(this->value, 2);
-    std::pair<int8_t, uint8_t> result_bg = parse_to_int(this->value, result_fg.second);
+    const std::pair<int8_t, uint8_t> result_fg = parse_to_int(this->value, 2);
+    const std::pair<int8_t, uint8_t> result_bg = parse_to_int(this->value, result_fg.second);
 
     return std::make_pair(result_fg.first, result_bg.first);
 
 }   // }}}
 
 std::string
-CharX::printable(void)
-const noexcept
+CharX::printable(void) const noexcept
 {   // {{{
 
     if (this->value <= 0x1F) return std::string("^") + (char) (this->value + '@');
@@ -137,8 +124,7 @@ const noexcept
 }   // }}}
 
 std::string
-CharX::string(void)
-const noexcept
+CharX::string(void) const noexcept
 {   // {{{
 
     std::string result;
@@ -155,8 +141,7 @@ const noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 uint8_t
-CharX::get_utf8_byte_size(char ch)
-noexcept
+CharX::get_utf8_byte_size(char ch) noexcept
 {   // {{{
 
     if      ((ch & 0x80) == 0x00) return (uint8_t) 1;
@@ -168,8 +153,7 @@ noexcept
 }   // }}}
 
 uint8_t
-CharX::get_utf8_width(uint64_t val)
-noexcept
+CharX::get_utf8_width(uint64_t val) noexcept
 {   // {{{
 
     if      (                      (val <= 0x0000FF)) return (uint8_t) 1;
@@ -179,8 +163,7 @@ noexcept
 }   // }}}
 
 void
-CharX::construct_from_char_pointer(CharX* cx, const char* ptr, bool raw)
-noexcept
+CharX::construct_from_char_pointer(CharX* cx, const char* ptr, bool raw) noexcept
 {   // {{{
 
     // Convert char pointer to a string stream.
@@ -191,12 +174,11 @@ noexcept
 }   // }}}
 
 void
-CharX::construct_from_string_stream(CharX* cx, std::istream& sin, bool raw)
-noexcept
+CharX::construct_from_string_stream(CharX* cx, std::istream& sin, bool raw) noexcept
 {   // {{{
 
     // Read the first byte.
-    uint8_t c_first = sin.get();
+    const uint8_t c_first = sin.get();
 
     if      (c_first == '\0'  ) /* Do nothing! */;
     else if (raw              ) CharX::construct_normal_char(cx, c_first, sin);
@@ -206,8 +188,7 @@ noexcept
 }   // }}}
 
 void
-CharX::construct_ansi_escseq(CharX* self, uint8_t c_first, std::istream& sin)
-noexcept
+CharX::construct_ansi_escseq(CharX* self, uint8_t c_first, std::istream& sin) noexcept
 {   // {{{
 
     // Initialize the value using the first byte of the input stream.
@@ -217,7 +198,7 @@ noexcept
     for (self->size = 2; self->size <= 8; ++self->size)
     {
         // Get 1 byte.
-        uint8_t c = sin.get();
+        const uint8_t c = sin.get();
 
         // Write the byte to the value.
         self->value |= (((uint64_t) c) << (8 * (self->size - 1)));
@@ -230,8 +211,7 @@ noexcept
 }   // }}}
 
 void
-CharX::construct_normal_char(CharX* self, uint8_t c_first, std::istream& sin)
-noexcept
+CharX::construct_normal_char(CharX* self, uint8_t c_first, std::istream& sin) noexcept
 {   // {{{
 
     // Compute the byte size of the character.
@@ -270,8 +250,7 @@ StringX::StringX(const std::string& str) : std::deque<CharX>()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 StringX
-StringX::operator+(const CharX& cx)
-const noexcept
+StringX::operator+(const CharX& cx) const noexcept
 {   // {{{
 
     // Create a copy of string.
@@ -285,8 +264,7 @@ const noexcept
 }   // }}}
 
 StringX
-StringX::operator+(const StringX& sx)
-const noexcept
+StringX::operator+(const StringX& sx) const noexcept
 {   // {{{
 
     // Create a copy of string.
@@ -300,8 +278,7 @@ const noexcept
 }   // }}}
 
 StringX&
-StringX::operator=(const StringX& sx)
-noexcept
+StringX::operator=(const StringX& sx) noexcept
 {   // {{{
 
     // Clear current contents.
@@ -316,8 +293,7 @@ noexcept
 }   // }}}
 
 StringX&
-StringX::operator+=(const CharX& cx)
-noexcept
+StringX::operator+=(const CharX& cx) noexcept
 {   // {{{
 
     // Append the given character.
@@ -329,8 +305,7 @@ noexcept
 }   // }}}
 
 StringX&
-StringX::operator+=(const StringX& str)
-noexcept
+StringX::operator+=(const StringX& str) noexcept
 {   // {{{
 
     // Append the given string at the end.
@@ -342,8 +317,7 @@ noexcept
 }   // }}}
 
 bool
-StringX::operator==(const StringX& str)
-const noexcept
+StringX::operator==(const StringX& str) const noexcept
 {   // {{{
 
     return (consistent_comparison(*this, str) == 0);
@@ -351,8 +325,7 @@ const noexcept
 }   // }}}
 
 bool
-StringX::operator!=(const StringX& str)
-const noexcept
+StringX::operator!=(const StringX& str) const noexcept
 {   // {{{
 
     return (consistent_comparison(*this, str) != 0);
@@ -360,8 +333,7 @@ const noexcept
 }   // }}}
 
 bool
-StringX::operator<(const StringX& str)
-const noexcept
+StringX::operator<(const StringX& str) const noexcept
 {   // {{{
 
     return (consistent_comparison(*this, str) < 0);
@@ -373,8 +345,7 @@ const noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 StringX
-StringX::clip(uint16_t length)
-const noexcept
+StringX::clip(uint16_t length) const noexcept
 {   // {{{
 
     StringX result;
@@ -399,8 +370,7 @@ const noexcept
 }   // }}}
 
 StringX
-StringX::colorize(void)
-const noexcept
+StringX::colorize(void) const noexcept
 {   // {{{
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -425,8 +395,7 @@ const noexcept
         StringX("&"), StringX("|"), StringX(">"), StringX("<"), StringX("&&"), StringX("||"), StringX(">>"), StringX("<<"),
     });
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto is_string_token = [](const StringX& token) noexcept -> bool
     // [Abstract]
     //   Define a function that returns true if the given token is a string token
     //   which is enclosed by single/double quotes.
@@ -436,14 +405,6 @@ const noexcept
     //
     // [Returns]
     //   (bool): True if the given token is a string token.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto is_string_token = [](const StringX& token)
     {
         if      (token.size()   == 0   ) return false;
         else if (token[0].value == '\"') return true;
@@ -451,8 +412,7 @@ const noexcept
         else                             return false;
     };
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto colorize_token = [=](const StringX& token) noexcept -> StringX
     // [Abstract]
     //   Define a function to colorize a given token.
     //
@@ -461,14 +421,6 @@ const noexcept
     //
     // [Returns]
     //   (StringX): Colorized token.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto colorize_token = [=](const StringX& token)
     {
         if      (contains(set_command, token)) return StringX("\033[32m") + token + StringX("\033[m");  // Command color.
         else if (contains(set_keyword, token)) return StringX("\033[33m") + token + StringX("\033[m");  // Keyword color.
@@ -489,8 +441,7 @@ const noexcept
 }   // }}}
 
 bool
-StringX::endswith(const char c)
-const noexcept
+StringX::endswith(const char c) const noexcept
 {   // {{{
 
     return ((this->size() > 0) and (this->back().value == (uint64_t) c));
@@ -498,8 +449,7 @@ const noexcept
 }   // }}}
 
 StringX
-StringX::join(const std::vector<StringX>& strs, const bool delim_end)
-const noexcept
+StringX::join(const std::vector<StringX>& strs, const bool delim_end) const noexcept
 {   // {{{
 
     StringX result;
@@ -512,8 +462,7 @@ const noexcept
 }   // }}}
 
 CharX
-StringX::pop(const StringX::Pos pos)
-noexcept
+StringX::pop(const StringX::Pos pos) noexcept
 {   // {{{
 
     CharX cx;
@@ -528,8 +477,7 @@ noexcept
 }   // }}}
 
 bool
-StringX::startswith(const StringX& str)
-const noexcept
+StringX::startswith(const StringX& str) const noexcept
 {   // {{{
 
     // The pattern string never match with the target string
@@ -545,8 +493,7 @@ const noexcept
 }   // }}}
 
 StringX
-StringX::strip(bool left, bool right)
-const noexcept
+StringX::strip(bool left, bool right) const noexcept
 {   // {{{
 
     // Initialize the returned value as a copy of myself.
@@ -565,8 +512,7 @@ const noexcept
 }   // }}}
 
 std::string
-StringX::string(void)
-const noexcept
+StringX::string(void) const noexcept
 {   // {{{
 
     std::string result;
@@ -580,8 +526,7 @@ const noexcept
 }   // }}}
 
 StringX
-StringX::substr(uint32_t pos, uint32_t n)
-const noexcept
+StringX::substr(uint32_t pos, uint32_t n) const noexcept
 {   // {{{
 
     // Starting position should be smaller than the string length.
@@ -589,7 +534,7 @@ const noexcept
 
     // Size of sub-string should be smaller than the size of remaining rest.
     // Note that the default value of UINT32_MAX, so please take care for overflow.
-    uint32_t dist = pos + MIN(n, this->size() - pos);
+    const uint32_t dist = pos + MIN(n, this->size() - pos);
 
     // Initialize returned value.
     StringX result;
@@ -603,12 +548,10 @@ const noexcept
 }   // }}}
 
 std::vector<StringX>
-StringX::tokenize(void)
-const noexcept
+StringX::tokenize(void) const noexcept
 {   // {{{
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto push_string_token = [](StringX& token, const_iterator& iter, const const_iterator& iter_end, const uint64_t quote) noexcept -> void
     // [Abstract]
     //   Get string token that is quoted by single/double quote.
     //
@@ -617,17 +560,6 @@ const noexcept
     //   iter     (const_iterator&)      : [IN ] Start iterator.
     //   iter_end (const const_iterator&): [IN ] End iterator.
     //   quote    (const uint64_t)       : [IN ] Quote type.
-    //
-    // [Returns]
-    //   void
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto push_string_token = [](StringX& token, const_iterator& iter, const const_iterator& iter_end, const uint64_t quote)
     {
         token.push_back(*(iter++));
 
@@ -638,8 +570,7 @@ const noexcept
             token.push_back(*(iter++));
     };
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto push_whitespace_token = [](StringX& token, const_iterator& iter, const const_iterator& iter_end) noexcept -> void
     // [Abstract]
     //   Get white-space token.
     //
@@ -647,24 +578,12 @@ const noexcept
     //   token    (StringX&)             : [OUT] The token will be added to this string instance.
     //   iter     (const_iterator&)      : [IN ] Start iterator.
     //   iter_end (const const_iterator&): [IN ] End iterator.
-    //
-    // [Returns]
-    //   void
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto push_whitespace_token = [](StringX& token, const_iterator& iter, const const_iterator& iter_end)
     {
         while ((iter != iter_end) and ((iter->value == ' ') or (iter->value == '\t')))
             token.push_back(*(iter++));
     };
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto push_normal_token = [](StringX& token, const_iterator& iter, const const_iterator& iter_end) noexcept -> void
     // [Abstract]
     //   Get normal token.
     //
@@ -672,17 +591,6 @@ const noexcept
     //   token    (StringX&)             : [OUT] The token will be added to this string instance.
     //   iter     (const_iterator&)      : [IN ] Start iterator.
     //   iter_end (const const_iterator&): [IN ] End iterator.
-    //
-    // [Returns]
-    //   void
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto push_normal_token = [](StringX& token, const_iterator& iter, const const_iterator& iter_end)
     {
         while ((iter != iter_end) and (iter->value != ' ') and (iter->value != '\t'))
             token.push_back(*(iter++));
@@ -730,8 +638,7 @@ const noexcept
 }   // }}}
 
 StringX
-StringX::unquote(void)
-const noexcept
+StringX::unquote(void) const noexcept
 {   // {{{
 
     // Do nothing if empty string.
@@ -747,13 +654,15 @@ const noexcept
 }   // }}}
 
 uint16_t
-StringX::width(void)
-const noexcept
+StringX::width(void) const noexcept
 {   // {{{
 
+    // Define a function to add the width of the given character.
+    const auto add_width = [](const uint16_t acc, const CharX& cx) { return acc + cx.width; };
+
     // Accumurate width of each character.
-    return std::accumulate(this->cbegin(), this->cend(), (uint16_t) 0,
-                           [](const uint16_t acc, const CharX& cx) { return acc + cx.width; });
+    return std::accumulate(this->cbegin(), this->cend(), (uint16_t) 0, add_width);
+                           
 
 }   // }}}
 
@@ -762,8 +671,7 @@ const noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-StringX::construct_from_char_pointer(StringX* sx, const char* ptr)
-noexcept
+StringX::construct_from_char_pointer(StringX* sx, const char* ptr) noexcept
 {   // {{{
 
     // Read one CharX from the pointer, and incremant the pointer with read bytes.
@@ -777,8 +685,7 @@ noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::ostream&
-operator<<(std::ostream& stream, const CharX& cx)
-noexcept
+operator<<(std::ostream& stream, const CharX& cx) noexcept
 {   // {{{
 
     // Output the given character to the stream.
@@ -790,12 +697,11 @@ noexcept
 }   // }}}
 
 std::ostream&
-operator<<(std::ostream& stream, const StringX& str)
-noexcept
+operator<<(std::ostream& stream, const StringX& str) noexcept
 {   // {{{
 
     // Output the given string to the stream.
-    for (CharX cx : str)
+    for (const CharX& cx : str)
         stream << cx;
 
     return stream;
@@ -803,16 +709,14 @@ noexcept
 }   // }}}
 
 int8_t
-consistent_comparison(const StringX& s1, const StringX& s2)
-noexcept
+consistent_comparison(const StringX& s1, const StringX& s2) noexcept
 {   // {{{
 
     int8_t res  = -128;
     size_t idx1 = 0;
     size_t idx2 = 0;
 
-    ///// FUNCTION-LOCAL FUNCTION /////
-    //
+    constexpr auto check_terminate_condition = [](size_t idx1, const StringX& s1, size_t idx2, const StringX& s2) noexcept -> int8_t
     // [Abstract]
     //   Get normal token.
     //
@@ -823,16 +727,7 @@ noexcept
     //   s2   (const StringX&): [IN] Instance of `s2`.
     //
     // [Returns]
-    //   (int8_t): Returns 0 if s1 == s2, +1 if s1 < s2, -1 if s1 > s2,
-    //             and -128 if continue.
-    //
-    // [Notes]
-    //   This is a function-local function (defined inside a functin and only effective inside the
-    //   function). This function-local function is realized using lambda expression and constexpr
-    //   specifier, therefore this function will be evaluated on compile-time and cause no runtime
-    //   load. This function-local function is sometimes used in the source code of NiShiKi.
-    //
-    constexpr auto check_terminate_condition = [](size_t idx1, const StringX& s1, size_t idx2, const StringX& s2)
+    //   (int8_t): Returns 0 if s1 == s2, +1 if s1 < s2, -1 if s1 > s2, and -128 if continue.
     {
         if ((idx1 == s1.size()) and (idx2 == s2.size())) return (int8_t)  0;   // End condition 1: both s1 and s2 finished at the same time.
         if ( idx1 == s1.size()                         ) return (int8_t) -1;   // End condition 2: s1 finished earlier.

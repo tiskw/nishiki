@@ -34,8 +34,7 @@ class PathX : public std::filesystem::path
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         std::vector<std::string>
-        listdir(uint32_t n_max_items = 128)
-        const noexcept;
+        listdir(uint32_t n_max_items = 128) const noexcept;
         // [Abstract]
         //   Returns a list of names of the entries in the given directory path.
         //   The list is sorted in ascending order.
@@ -52,8 +51,7 @@ class PathX : public std::filesystem::path
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::tuple<PathX, std::string>
-split_to_target_and_query(const std::vector<StringX>& tokens)
-noexcept;
+split_to_target_and_query(const std::vector<StringX>& tokens) noexcept;
 // [Abstract]
 //   Split the path to completion target and query.
 //
