@@ -42,7 +42,7 @@ class CharX
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         CharX&
-        operator=(const CharX& cx) noexcept;
+        operator = (const CharX& cx) noexcept;
         // [Abstract]
         //   Assignment operator.
         //
@@ -53,7 +53,7 @@ class CharX
         //   (StringX): Repeated string.
 
         StringX
-        operator*(uint16_t n_repeat) const noexcept;
+        operator * (uint16_t n_repeat) const noexcept;
         // [Abstract]
         //   Multiple operator.
         //
@@ -62,6 +62,17 @@ class CharX
         //
         // [Returns]
         //   (StringX): Repeated string.
+
+        auto
+        operator <=> (const CharX& cx) const noexcept = default;
+        // [Abstract]
+        //   Three way comparison operator.
+        //
+        // [Args]
+        //   cx (const CharX&): [IN] A character to be assigned.
+        //
+        // [Returns]
+        //   (std::strong_ordering) Three way comparison value.
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Member functions
@@ -196,7 +207,7 @@ class StringX : public std::deque<CharX>
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         StringX
-        operator+(const CharX& cx) const noexcept;
+        operator + (const CharX& cx) const noexcept;
         // [Abstract]
         //   Addition operator with CharX.
         //
@@ -207,7 +218,7 @@ class StringX : public std::deque<CharX>
         //   (StringX): Added string.
 
         StringX
-        operator+(const StringX& str) const noexcept;
+        operator + (const StringX& str) const noexcept;
         // [Abstract]
         //   Addition operator with StringX.
         //
@@ -218,7 +229,7 @@ class StringX : public std::deque<CharX>
         //   (StringX): Added string.
 
         StringX&
-        operator=(const StringX& str) noexcept;
+        operator = (const StringX& str) noexcept;
         // [Abstract]
         //   Assignment operation.
         //
@@ -229,7 +240,7 @@ class StringX : public std::deque<CharX>
         //   (StringX): Myself.
 
         StringX&
-        operator+=(const CharX& cx) noexcept;
+        operator += (const CharX& cx) noexcept;
         // [Abstract]
         //   Addition assignment operator with CharX.
         //
@@ -240,7 +251,7 @@ class StringX : public std::deque<CharX>
         //   (StringX&): Myself.
 
         StringX&
-        operator+=(const StringX& str) noexcept;
+        operator += (const StringX& str) noexcept;
         // [Abstract]
         //   Addition assignment operator with StringX.
         //
@@ -250,38 +261,16 @@ class StringX : public std::deque<CharX>
         // [Returns]
         //   (StringX&): Myself.
 
-        bool
-        operator==(const StringX& str) const noexcept;
+        auto
+        operator <=> (const StringX& str) const noexcept = default;
         // [Abstract]
-        //   Equality operator.
+        //   Three way comparison operator.
         //
         // [Args]
         //   str (const StringX&): [IN] A string to be compared.
         //
         // [Returns]
-        //   (bool): True if `*this` is equal to `str`.
-
-        bool
-        operator!=(const StringX& str) const noexcept;
-        // [Abstract]
-        //   Inequality operator.
-        //
-        // [Args]
-        //   str (const StringX&): [IN] A string to be compared.
-        //
-        // [Returns]
-        //   (bool): True if `*this` is not equal to `str`.
-
-        bool
-        operator<(const StringX& str) const noexcept;
-        // [Abstract]
-        //   Less-than operator.
-        //
-        // [Args]
-        //   str (const StringX&): [IN] A string to be compared.
-        //
-        // [Returns]
-        //   (bool): True if `*this` is less than `str`.
+        //   (std::strong_order): Three way comparison value.
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Member functions
@@ -453,7 +442,7 @@ class StringX : public std::deque<CharX>
 
 // Write the given character to the stream.
 std::ostream&
-operator<<(std::ostream& stream, const CharX& cx) noexcept;
+operator << (std::ostream& stream, const CharX& cx) noexcept;
 // [Abstract]
 //   Write the given character to the output stream.
 //
@@ -465,7 +454,7 @@ operator<<(std::ostream& stream, const CharX& cx) noexcept;
 //   (std::ostream&): The output stream.
 
 std::ostream&
-operator<<(std::ostream& stream, const StringX& str) noexcept;
+operator << (std::ostream& stream, const StringX& str) noexcept;
 // [Abstract]
 //   Write the given string to the output stream.
 //
@@ -475,18 +464,6 @@ operator<<(std::ostream& stream, const StringX& str) noexcept;
 //
 // [Returns]
 //   (std::ostream&): The output stream.
-
-int8_t
-consistent_comparison(const StringX& s1, const StringX& s2) noexcept;
-// [Abstract]
-//   Consistent comparison operator (it likes <=> operator in C++20).
-//
-// [Args]
-//   s1 (const StringX&): [IN] Comparison target 1.
-//   s2 (const StringX&): [IN] Comparison target 2.
-//
-// [Returns]
-//   (int8_t): Returns 0 if s1 == s2, +1 if s1 < s2, and -1 if s1 > s2.
 
 #endif
 
