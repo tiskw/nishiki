@@ -156,18 +156,6 @@ split(const std::string& str, const std::string& delim) noexcept;
 // [Returns]
 //   (std::vector<std::string>): Split strings.
 
-bool
-startswith(const std::string& s, const std::string& t) noexcept;
-// [Abstract]
-//   Returns true if the given string `s` is started from `t`.
-//
-// [Args]
-//   s (const std::string&): [IN] Target string.
-//   t (const std::string&): [IN] Match string.
-//
-// [Returns]
-//   (bool): True if `s` is started with `t`.
-
 std::string
 strip(const std::string &str) noexcept;
 // [Abstract]

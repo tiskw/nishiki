@@ -14,13 +14,6 @@
 #include "utils.hxx"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// File local macros
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Chack the given element is contained in the given set.
-#define contains(set, elem) (set.find(elem) != set.end())
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // CharX: Constructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +34,7 @@ CharX::CharX(std::istream& sin, bool raw) : value(0), size(0), width(0)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CharX&
-CharX::operator=(const CharX& cx) noexcept
+CharX::operator = (const CharX& cx) noexcept
 {   // {{{
 
     this->value = cx.value;
@@ -53,7 +46,7 @@ CharX::operator=(const CharX& cx) noexcept
 }   // }}}
 
 StringX
-CharX::operator*(uint16_t n_repeat) const noexcept
+CharX::operator * (uint16_t n_repeat) const noexcept
 {   // {{{
 
     StringX result;
@@ -250,7 +243,7 @@ StringX::StringX(const std::string& str) : std::deque<CharX>()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 StringX
-StringX::operator+(const CharX& cx) const noexcept
+StringX::operator + (const CharX& cx) const noexcept
 {   // {{{
 
     // Create a copy of string.
@@ -264,7 +257,7 @@ StringX::operator+(const CharX& cx) const noexcept
 }   // }}}
 
 StringX
-StringX::operator+(const StringX& sx) const noexcept
+StringX::operator + (const StringX& sx) const noexcept
 {   // {{{
 
     // Create a copy of string.
@@ -278,7 +271,7 @@ StringX::operator+(const StringX& sx) const noexcept
 }   // }}}
 
 StringX&
-StringX::operator=(const StringX& sx) noexcept
+StringX::operator = (const StringX& sx) noexcept
 {   // {{{
 
     // Clear current contents.
@@ -293,7 +286,7 @@ StringX::operator=(const StringX& sx) noexcept
 }   // }}}
 
 StringX&
-StringX::operator+=(const CharX& cx) noexcept
+StringX::operator += (const CharX& cx) noexcept
 {   // {{{
 
     // Append the given character.
@@ -305,7 +298,7 @@ StringX::operator+=(const CharX& cx) noexcept
 }   // }}}
 
 StringX&
-StringX::operator+=(const StringX& str) noexcept
+StringX::operator += (const StringX& str) noexcept
 {   // {{{
 
     // Append the given string at the end.
@@ -313,30 +306,6 @@ StringX::operator+=(const StringX& str) noexcept
 
     // Returns myself for convenience.
     return *this;
-
-}   // }}}
-
-bool
-StringX::operator==(const StringX& str) const noexcept
-{   // {{{
-
-    return (consistent_comparison(*this, str) == 0);
-
-}   // }}}
-
-bool
-StringX::operator!=(const StringX& str) const noexcept
-{   // {{{
-
-    return (consistent_comparison(*this, str) != 0);
-
-}   // }}}
-
-bool
-StringX::operator<(const StringX& str) const noexcept
-{   // {{{
-
-    return (consistent_comparison(*this, str) < 0);
 
 }   // }}}
 
@@ -422,11 +391,11 @@ StringX::colorize(void) const noexcept
     // [Returns]
     //   (StringX): Colorized token.
     {
-        if      (contains(set_command, token)) return StringX("\033[32m") + token + StringX("\033[m");  // Command color.
-        else if (contains(set_keyword, token)) return StringX("\033[33m") + token + StringX("\033[m");  // Keyword color.
-        else if (contains(set_symbols, token)) return StringX("\033[34m") + token + StringX("\033[m");  // Symbols color.
-        else if (is_string_token(token))       return StringX("\033[31m") + token + StringX("\033[m");  // Strings color.
-        else                                   return                       token                    ;  // Others.
+        if      (set_command.contains(token)) return StringX("\033[32m") + token + StringX("\033[m");  // Command color.
+        else if (set_keyword.contains(token)) return StringX("\033[33m") + token + StringX("\033[m");  // Keyword color.
+        else if (set_symbols.contains(token)) return StringX("\033[34m") + token + StringX("\033[m");  // Symbols color.
+        else if (is_string_token(token))      return StringX("\033[31m") + token + StringX("\033[m");  // Strings color.
+        else                                  return                       token                    ;  // Others.
     };
 
     // Initialize returned value.
@@ -685,7 +654,7 @@ StringX::construct_from_char_pointer(StringX* sx, const char* ptr) noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::ostream&
-operator<<(std::ostream& stream, const CharX& cx) noexcept
+operator << (std::ostream& stream, const CharX& cx) noexcept
 {   // {{{
 
     // Output the given character to the stream.
@@ -697,7 +666,7 @@ operator<<(std::ostream& stream, const CharX& cx) noexcept
 }   // }}}
 
 std::ostream&
-operator<<(std::ostream& stream, const StringX& str) noexcept
+operator << (std::ostream& stream, const StringX& str) noexcept
 {   // {{{
 
     // Output the given string to the stream.
@@ -705,57 +674,6 @@ operator<<(std::ostream& stream, const StringX& str) noexcept
         stream << cx;
 
     return stream;
-
-}   // }}}
-
-int8_t
-consistent_comparison(const StringX& s1, const StringX& s2) noexcept
-{   // {{{
-
-    int8_t res  = -128;
-    size_t idx1 = 0;
-    size_t idx2 = 0;
-
-    constexpr auto check_terminate_condition = [](size_t idx1, const StringX& s1, size_t idx2, const StringX& s2) noexcept -> int8_t
-    // [Abstract]
-    //   Get normal token.
-    //
-    // [Args]
-    //   idx1 (const size_t&) : [IN] Index of the `s1`.
-    //   s1   (const StringX&): [IN] Instance of `s1`.
-    //   idx2 (const size_t&) : [IN] Index of the `s2`.
-    //   s2   (const StringX&): [IN] Instance of `s2`.
-    //
-    // [Returns]
-    //   (int8_t): Returns 0 if s1 == s2, +1 if s1 < s2, -1 if s1 > s2, and -128 if continue.
-    {
-        if ((idx1 == s1.size()) and (idx2 == s2.size())) return (int8_t)  0;   // End condition 1: both s1 and s2 finished at the same time.
-        if ( idx1 == s1.size()                         ) return (int8_t) -1;   // End condition 2: s1 finished earlier.
-        if ( idx2 == s2.size()                         ) return (int8_t) +1;   // End condition 3: s2 finished earlier.
-        if ( s1[idx1].value < s2[idx2].value           ) return (int8_t) -1;   // End condition 4: faced to inequal character and s1 < s2.
-        if ( s1[idx1].value > s2[idx2].value           ) return (int8_t) +1;   // End condition 4: faced to inequal character and s2 > s1.
-        else                                             return (int8_t) -128; // Otherwise, continue the loop.
-    };
-
-    while (true)
-    {
-        // Skip zero-width characters.
-        while ((idx1 < s1.size()) and (s1[idx1].width == 0))
-            ++idx1;
- 
-        // Skip zero-width characters.
-        while ((idx2 < s2.size()) and (s2[idx2].width == 0))
-            ++idx2;
-
-        res = check_terminate_condition(idx1, s1, idx2, s2);
-
-        if (res != -128) break;
-
-        // Continue condition: still the same characters continuing.
-        ++idx1; ++idx2;
-    }
-
-    return res;
 
 }   // }}}
 

@@ -27,13 +27,6 @@
 #include "version.hxx"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// File local macros
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Chack the given element is contained in the given map.
-#define contains(map, elem) (map.find(elem) != map.end())
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // Static functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -128,21 +121,13 @@ readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner) 
         writer.write(lhs, rhs, buffer.get_mode(), helper.candidate(lhs), hist.complete(lhs));
 
         // Get user input.
-<<<<<<< HEAD
         const CharX cx = reader.getch();
-=======
-        CharX cx = reader.getch();
->>>>>>> 60b8fb8 (Update: refactoring)
 
         // Check if the given key is registered in the keybinds.
         // If true, then returns the NiShiKi-internal command.
-        if (contains(config.keybind, cx.printable()))
+        if (config.keybind.contains(cx.printable()))
         {
-<<<<<<< HEAD
             // Get command corresponds to the keybind.
-=======
-            //
->>>>>>> 60b8fb8 (Update: refactoring)
             const std::string command = config.keybind[cx.printable()];
 
             // Sepertor of the NiShiKi-internal command.
@@ -152,7 +137,7 @@ readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner) 
             const std::string::size_type i = command.find(' ');
 
             // Returns encoded NiShiKi-inernal command.
-            if ((i != std::string::npos) and ((command.substr(0, i) == "!int") or (startswith(command.substr(0, i), "!ext"))))
+            if ((i != std::string::npos) and ((command.substr(0, i) == "!int") or (command.substr(0, i).starts_with("!ext"))))
             {
                 const StringX cmd_type = StringX(command.substr(1, i-1));
                 const StringX cmd_cont = StringX(command.substr(i, std::string::npos)).strip();

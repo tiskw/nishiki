@@ -17,13 +17,6 @@
 #include "utils.hxx"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// File local macros
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Chack the given element is contained in the given set.
-#define contains(map, elem) (map.find(elem) != map.end())
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // EditHelper: Constructors and destructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -263,7 +256,8 @@ EditHelper::cands_filepath(const std::vector<StringX>& tokens, const std::string
         if ((not show_dot) and (name[0] == '.'))
             continue;
 
-        if (startswith(name, query_key))
+        //
+        if (name.starts_with(query_key))
         {
             StringX str_query   = StringX((query_dir / name).c_str());
             StringX str_display = StringX(colorize_token(name));
@@ -288,7 +282,7 @@ EditHelper::cands_option(const std::vector<StringX>& tokens, const std::string& 
         command = StringX(option);
 
     // Run command with "--help" option if not registered in the cache.
-    if (not contains(opt_cache, command))
+    if (not opt_cache.contains(command))
     {
         // Create new map instance.
         opt_cache[command] = std::map<StringX, StringX>();
@@ -429,7 +423,7 @@ EditHelper::cands_subcmd(const std::vector<StringX>& tokens, const std::string& 
 
     // Run the given command and add the result to the cache
     // if the given command is not registered in the cache.
-    if (not contains(subcmd_cache, option))
+    if (not subcmd_cache.contains(option))
     {
         // Initialize the result vector.
         subcmd_cache[option] = std::vector<StringX>();
