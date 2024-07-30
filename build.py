@@ -86,7 +86,7 @@ def build(source_files, object_files, args):
     else                   : CC = "g++"
 
     # Add extra options.
-    CC += " -std=c++17 -Wall -Wextra -I./src -I./external -I."
+    CC += " -std=c++20 -Wall -Wextra -mtune=native -march=native -I./src -I./external -I."
 
     # Add optimization.
     if args.gcov: CC += " -O0"
