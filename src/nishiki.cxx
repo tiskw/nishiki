@@ -128,21 +128,13 @@ readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner) 
         writer.write(lhs, rhs, buffer.get_mode(), helper.candidate(lhs), hist.complete(lhs));
 
         // Get user input.
-<<<<<<< HEAD
         const CharX cx = reader.getch();
-=======
-        CharX cx = reader.getch();
->>>>>>> 60b8fb8 (Update: refactoring)
 
         // Check if the given key is registered in the keybinds.
         // If true, then returns the NiShiKi-internal command.
         if (contains(config.keybind, cx.printable()))
         {
-<<<<<<< HEAD
             // Get command corresponds to the keybind.
-=======
-            //
->>>>>>> 60b8fb8 (Update: refactoring)
             const std::string command = config.keybind[cx.printable()];
 
             // Sepertor of the NiShiKi-internal command.

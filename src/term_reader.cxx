@@ -28,10 +28,7 @@ signal_handler_sigint(const int signum) noexcept
 //
 // [Returns]
 //   void
-<<<<<<< HEAD
 //
-=======
->>>>>>> 60b8fb8 (Update: refactoring)
 {   // {{{
 
     if (signum == SIGINT)
