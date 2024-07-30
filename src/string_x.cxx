@@ -14,13 +14,6 @@
 #include "utils.hxx"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// File local macros
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Chack the given element is contained in the given set.
-#define contains(set, elem) (set.find(elem) != set.end())
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // CharX: Constructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -422,11 +415,11 @@ StringX::colorize(void) const noexcept
     // [Returns]
     //   (StringX): Colorized token.
     {
-        if      (contains(set_command, token)) return StringX("\033[32m") + token + StringX("\033[m");  // Command color.
-        else if (contains(set_keyword, token)) return StringX("\033[33m") + token + StringX("\033[m");  // Keyword color.
-        else if (contains(set_symbols, token)) return StringX("\033[34m") + token + StringX("\033[m");  // Symbols color.
-        else if (is_string_token(token))       return StringX("\033[31m") + token + StringX("\033[m");  // Strings color.
-        else                                   return                       token                    ;  // Others.
+        if      (set_command.contains(token)) return StringX("\033[32m") + token + StringX("\033[m");  // Command color.
+        else if (set_keyword.contains(token)) return StringX("\033[33m") + token + StringX("\033[m");  // Keyword color.
+        else if (set_symbols.contains(token)) return StringX("\033[34m") + token + StringX("\033[m");  // Symbols color.
+        else if (is_string_token(token))      return StringX("\033[31m") + token + StringX("\033[m");  // Strings color.
+        else                                  return                       token                    ;  // Others.
     };
 
     // Initialize returned value.

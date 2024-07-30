@@ -430,14 +430,6 @@ split(const std::string& str, const std::string& delim) noexcept
 
 }   // }}}
 
-bool
-startswith(const std::string& s, const std::string& t) noexcept
-{   // {{{
-
-    return ((s.size() >= t.size()) and std::equal(std::begin(t), std::end(t), std::begin(s)));
-
-}   // }}}
-
 std::string
 strip(const std::string& str) noexcept
 {   // {{{

@@ -220,7 +220,7 @@ CommandRunner::command_nishiki(const std::string& command) noexcept
         this->lhs_next = StringX(tokens[1] + run_external_command(tokens, true));
 
     // Command 1-2: external command:
-    else if (startswith(tokens[0], "ext["))
+    else if (tokens[0].starts_with("ext["))
     {
         // Process 'i' specifier: insert command results.
         this->lhs_next = StringX(run_external_command(tokens, contains(tokens[0], 'i')));

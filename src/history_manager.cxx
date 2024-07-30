@@ -14,13 +14,6 @@
 #include "command_runner.hxx"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// File local macros
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Chack the given element is contained in the given set.
-#define contains(map, elem) (map.find(elem) != map.end())
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // HistoryManager: Constructors and destructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -108,7 +101,7 @@ HistoryManager::normalize_and_write(void) const noexcept
     // Deduplicate the histories.
     for (const StringX& hist : histories)
     {
-        if ((hist.size() > 0) and (not contains(hist_cache, hist)))
+        if ((hist.size() > 0) and (not hist_cache.contains(hist)))
         {
             histories_deduplicated.push_back(hist);
             hist_cache.insert(hist);
