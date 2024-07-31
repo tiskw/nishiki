@@ -71,22 +71,22 @@ Directory::color(const uint32_t index) const noexcept
 {   // {{{
 
     // Create copy of myself.
-    std::filesystem::path path = this->path;
+    std::filesystem::path target = this->path;
 
     // Append file name and create the target path.
-    path.append((*this)[index % this->size()]);
+    target.append((*this)[index % this->size()]);
 
     // Check the file property and returns color index.
     //   0: Black, 1: Red,     2: Green, 3: Yellow,
     //   4: Blue,  5: Magenta, 6: Cyan,  7: White,
-    if      (std::filesystem::is_block_file(path)    ) return 3;
-    else if (std::filesystem::is_character_file(path)) return 3;
-    else if (std::filesystem::is_directory(path)     ) return 4;
-    else if (std::filesystem::is_fifo(path)          ) return 3;
-    else if (std::filesystem::is_socket(path)        ) return 3;
-    else if (std::filesystem::is_symlink(path)       ) return 6;
-    else if (std::filesystem::is_regular_file(path)  ) return 0;
-    else                                               return 0;
+    if      (std::filesystem::is_block_file(target)    ) return 3;
+    else if (std::filesystem::is_character_file(target)) return 3;
+    else if (std::filesystem::is_directory(target)     ) return 4;
+    else if (std::filesystem::is_fifo(target)          ) return 3;
+    else if (std::filesystem::is_socket(target)        ) return 3;
+    else if (std::filesystem::is_symlink(target)       ) return 6;
+    else if (std::filesystem::is_regular_file(target)  ) return 0;
+    else                                                 return 0;
 
 }   // }}}
 
@@ -101,8 +101,8 @@ Directory::update(void) noexcept
     this->clear();
 
     // Get directory contents.
-    for (const std::string& path : PathX(this->path).listdir())
-        this->push_back(path);
+    for (const std::string& p : PathX(this->path).listdir())
+        this->push_back(p);
 
     // Add marker if the current directory is empty.
     if (this->size() == 0)

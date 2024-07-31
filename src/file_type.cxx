@@ -39,10 +39,10 @@ FileType::FileType(void)
         const std::string::size_type index_colon = line.find_first_of(':');
 
         // Parse line to mime type and pattern string.
-        const std::string mime    = line.substr(0, index_colon);
-        const std::string pattern = line.substr(index_colon + 1, std::string::npos);
+        const std::string mime_type = line.substr(0, index_colon);
+        const std::string pattern   = line.substr(index_colon + 1, std::string::npos);
 
-        this->emplace_back(mime, pattern);
+        this->emplace_back(mime_type, pattern);
     }
 
 }   // }}}
@@ -65,11 +65,11 @@ FileType::mime(const std::string& path) const noexcept
     // Returns if matched item found.
     for (const auto& pair : *this)
     {
-        const std::string& mime    = pair.first;
-        const std::string& pattern = pair.second;
+        const std::string& mime_type = pair.first;
+        const std::string& pattern   = pair.second;
 
         if (glob::fnmatch(name, pattern))
-            return mime;
+            return mime_type;
     }
 
     // Returns empty string if no matched item found.

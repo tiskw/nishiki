@@ -53,9 +53,6 @@ class FileChooser : public CursesScreen
         // Private member variables
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        int32_t w, h;
-        // Size of screen.
-
         int32_t index_cdir;
         int32_t index_prev;
         // Index of selected file.

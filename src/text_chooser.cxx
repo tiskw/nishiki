@@ -142,11 +142,11 @@ TextChooser::get_index_on_view(void) const noexcept
         const int32_t idx_end = std::get<2>(*this->views[range.second]);
 
         // Finish searching, or update the range.
-        if      (idx_bgn == this->idx) { return range.first;          }
-        else if (idx_end == this->idx) { return range.second;         }
-        else if (idx_mid == this->idx) { return range_middle;         }
-        else if (idx_mid <  this->idx) { range.first  = range_middle; }
-        else if (idx_mid >  this->idx) { range.second = range_middle; }
+        if      (idx_bgn == this->idx)    { return range.first;          }
+        else if (idx_end == this->idx)    { return range.second;         }
+        else if (idx_mid == this->idx)    { return range_middle;         }
+        else if (idx_mid <  this->idx)    { range.first  = range_middle; }
+        else /* (idx_mid >  this->idx) */ { range.second = range_middle; }
     }
 
     return range.first;
