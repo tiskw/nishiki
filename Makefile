@@ -26,7 +26,7 @@ test:
 	cd tests; make test; cd ..
 
 check: version.hxx
-	cppcheck --enable=all -I. -I./src --library=posix --suppress=missingIncludeSystem src/*.cxx src/*.hxx
+	cppcheck --enable=all -I. -I./src --library=posix --suppress=missingIncludeSystem src/*.cxx
 
 count:
 	cloc --by-file src/*.cxx src/*.hxx

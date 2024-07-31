@@ -14,6 +14,13 @@
 #include "command_runner.hxx"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// File local macros
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Chack the given element is contained in the given set.
+#define contains(vec, str) (std::find(vec.begin(), vec.end(), str) != vec.end())
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // HistoryManager: Constructors and destructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -95,17 +102,11 @@ HistoryManager::normalize_and_write(void) const noexcept
     // Initialize a vector to store deduplicated histories.
     std::vector<StringX> histories_deduplicated;
 
-    // Initialize a set to judge deduplication.
-    std::set<StringX> hist_cache;
-
     // Deduplicate the histories.
     for (const StringX& hist : histories)
     {
-        if ((hist.size() > 0) and (not hist_cache.contains(hist)))
-        {
+        if ((hist.size() > 0) and (contains(histories_deduplicated, hist)))
             histories_deduplicated.push_back(hist);
-            hist_cache.insert(hist);
-        }
     }
 
     // Restore the order of the histories.

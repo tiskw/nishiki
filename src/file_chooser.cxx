@@ -24,12 +24,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 FileChooser::FileChooser() : index_cdir(0), index_prev(0), is_grep_mode(false)
-{   // {{{
-
-    // Get screen size.
-    getmaxyx(stdscr, this->h, this->w);
-
-}   // }}}
+{ /* do nothing */ }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileChooser: Member functions
@@ -39,8 +34,12 @@ std::vector<StringX>
 FileChooser::start(const StringX& root) noexcept
 {   // {{{
 
+    // Get screen size.
+    int32_t w, h;
+    getmaxyx(stdscr, h, w);
+
     // Height of process information list window.
-    const int32_t hgt_list = this->h - 4;
+    const int32_t hgt_list = h - 4;
 
     // Initialize indices.
     this->index_cdir = 0;

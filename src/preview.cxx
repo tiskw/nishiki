@@ -33,7 +33,6 @@ preview(const std::string& path, uint16_t width, uint16_t height) noexcept
         return result;
 
     // Compute mime type of the preview target.
-    // const std::string mime_type = get_mime_type(path);
     const std::string mime_type = filetype.mime(path);
 
     // Find matched preview method and run it.
