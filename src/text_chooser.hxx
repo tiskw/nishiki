@@ -46,7 +46,8 @@ class TextChooser : public CursesScreen
         //
         // [Args]
         //   lines        (const std::vector<std::string>&): [IN] Selection targets.
-        //   target_index (int)                            : [IN] Index of the target value.
+        //   target_index (int)                            : [IN] Index of the target column.
+        //                                                        Note that -1 means enter line.
         //
         // [Returns]
         //   (std::vector<StringX>): List of selected items.

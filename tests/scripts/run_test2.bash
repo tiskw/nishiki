@@ -45,6 +45,8 @@ fi
 # Run test commands.
 ####################################################################################################
 
+sleep 0.5s
+
 # Basic commands.
 xdotool type 'echo "NiShiKi"'
 xdotool key Return

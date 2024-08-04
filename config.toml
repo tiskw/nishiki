@@ -110,6 +110,7 @@ grep = "grep --color=auto"
 #     - l: append left-hand side string.
 #     - r: append right-hand side string.
 #   Note that the simple command type "ext" is equivalent to "ext[ilr]".
+#   Whitespace is necessary after the internal/external specifier.
 #
 # The following variables are available for external commands:
 #   - {lhs}: Left-hand side string.
@@ -121,6 +122,7 @@ grep = "grep --color=auto"
 "^U" = "!int histchooser"
 "^P" = "!int procchooser"
 "^V" = "!ext xclip -o"
+"^L" = "!ext[] clear"
 
 
 ################################################################################
@@ -130,9 +132,9 @@ grep = "grep --color=auto"
 
 completions = [
     # Docker command completions.
-    [["docker", "exec", ".*"], "shell",  "docker container ls -a --format '{{.Names}}'"],
-    [["docker", "run",  ".*"], "shell",  "docker image ls --format '{{.Repository}}:{{.Tag}}'"],
-    [["docker", ".*"],         "subcmd", "docker --help | grep -E '^  [^ -]'"],
+    [["docker", "exec", ">>", ".*"], "shell",  "docker container ls -a --format '{{.Names}}'"],
+    [["docker", "run",  ">>", ".*"], "shell",  "docker image ls --format '{{.Repository}}:{{.Tag}}'"],
+    [["docker", ".*"],               "subcmd", "docker --help | grep -E '^  [^ -]'"],
 
     # Git command completions.
     [["git", "branch",   ">>", ".*"], "shell",  "git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"],

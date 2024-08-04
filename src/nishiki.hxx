@@ -15,9 +15,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int32_t
-main(const int32_t argc, const char* argv[]);
+nishiki_main(const int32_t argc, const char* argv[]);
 // [Abstract]
-//   Entry point of NiShiKi.
+//   Main function of NiSHiKi. This function will be called in the "main" function (written in
+//   main.cxx). This structure will not be changed because the test code rely on the structure.
 //
 // [Args]
 //   argc (const int32_t): The number of strings pointed to by argv.

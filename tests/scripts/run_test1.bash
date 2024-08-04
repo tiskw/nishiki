@@ -45,6 +45,8 @@ fi
 # Run test commands.
 ####################################################################################################
 
+sleep 1s
+
 mkdir -p dummy
 sleep 0.2s
 
@@ -127,6 +129,8 @@ xdotool type 'ls src/main.cxx '
 xdotool key Return
 xdotool type 'ls LICENSE '
 xdotool key Return
+xdotool type 'ls DUMMY '
+xdotool key Return
 sleep 0.2s
 
 # Alias command.
@@ -173,7 +177,7 @@ xdotool key Return
 sleep 0.2s
 xdotool key ctrl+f
 sleep 0.2s
-xdotool type 'q'
+xdotool key Return
 sleep 0.2s
 xdotool key Return
 sleep 0.2s
@@ -231,7 +235,12 @@ sleep 0.2s
 # Test external command.
 xdotool type '# '
 xdotool key ctrl+y
+xdotool key Return
 sleep 0.2s
+xdotool key ctrl+w
+xdotool key Return
+sleep 0.2s
+xdotool key ctrl+g
 xdotool key Return
 sleep 0.2s
 
