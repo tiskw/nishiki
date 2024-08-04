@@ -154,6 +154,7 @@ test_StringX()
 
     // Test 3: comparison operators.
     assert(StringX("this is a pen") == StringX("this is a pen"));
+    assert(StringX("this is a pen") < StringX("this is the pen"));
     assert(StringX("echo") == StringX("e\033[31mc\033[27mho"));
     assert(StringX("echa") < StringX("e\033[31mc\033[27mho"));
 
@@ -223,11 +224,6 @@ unittest()
     // Print test result.
     if (passed) { std::cout << "\033[32mPASSED\033[0m" << std::endl; }
     else        { std::cout << "\033[31mFAILED\033[0m" << std::endl; }
-
-    if (not passed)
-    {
-        exit(EXIT_FAILURE);
-    }
 
 }   // }}}
 

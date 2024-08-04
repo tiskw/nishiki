@@ -45,6 +45,8 @@ fi
 # Run test commands.
 ####################################################################################################
 
+sleep 0.5s
+
 # Exit filechooser/textchooser.
 xdotool type 'q'
 sleep 0.2s

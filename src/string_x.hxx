@@ -63,17 +63,6 @@ class CharX
         // [Returns]
         //   (StringX): Repeated string.
 
-        auto
-        operator <=> (const CharX& cx) const noexcept = default;
-        // [Abstract]
-        //   Three way comparison operator.
-        //
-        // [Args]
-        //   cx (const CharX&): [IN] A character to be assigned.
-        //
-        // [Returns]
-        //   (std::strong_ordering) Three way comparison value.
-
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Member functions
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -261,8 +250,41 @@ class StringX : public std::deque<CharX>
         // [Returns]
         //   (StringX&): Myself.
 
-        auto
-        operator <=> (const StringX& str) const noexcept = default;
+        bool
+        operator < (const StringX& str) const noexcept;
+        // [Abstract]
+        //   "less than" operator.
+        //
+        // [Args]
+        //   str (const StringX&): [IN] A string.
+        //
+        // [Returns]
+        //   (bool): True if (*this < str) holds.
+
+        bool
+        operator > (const StringX& str) const noexcept;
+        // [Abstract]
+        //   "greater than" operator.
+        //
+        // [Args]
+        //   str (const StringX&): [IN] A string.
+        //
+        // [Returns]
+        //   (bool): True if (*this > str) holds.
+
+        bool
+        operator == (const StringX& str) const noexcept;
+        // [Abstract]
+        //   Equal operator.
+        //
+        // [Args]
+        //   str (const StringX&): [IN] A string.
+        //
+        // [Returns]
+        //   (bool): True if (*this == str) holds.
+
+        int32_t
+        operator <=> (const StringX& str) const noexcept;
         // [Abstract]
         //   Three way comparison operator.
         //

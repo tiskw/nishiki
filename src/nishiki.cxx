@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// C++ source file: nishiki.cxx                                                                 ///
 ///                                                                                              ///
-/// Entry point of NiShiKi.                                                                      ///
+/// Main function of NiShiKi.                                                                    ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Include the primary header.
@@ -142,12 +142,12 @@ readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner) 
                 const StringX cmd_type = StringX(command.substr(1, i-1));
                 const StringX cmd_cont = StringX(command.substr(i, std::string::npos)).strip();
 
+                // Create NiShiKi internal command and return it.
                 return (delim + cmd_type + delim + lhs + delim + rhs + delim + cmd_cont);
             }
 
             // Parse error.
-            std::cout << "\033[33mNiShiKi: Error while parsing NiShiKi-special command \033[m" << std::endl;
-            return StringX("");
+            return StringX("echo 'NiShiKi: Error while parsing keybind: " + cx.printable() + "'");
         }
 
         // Process input character.
@@ -181,11 +181,11 @@ readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner) 
 }   // }}}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Main function
+// Public functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int32_t
-main(const int32_t argc, const char* argv[])
+nishiki_main(const int32_t argc, const char* argv[])
 {   // {{{
 
     // Parse command line arguments.

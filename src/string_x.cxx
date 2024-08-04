@@ -309,6 +309,53 @@ StringX::operator += (const StringX& str) noexcept
 
 }   // }}}
 
+int32_t
+StringX::operator <=> (const StringX& str) const noexcept
+{   // {{{
+
+    // Rename strings to be compared.
+    const StringX& s1 = *this;
+    const StringX& s2 = str;
+
+    // Initialize local variables.
+    int32_t res  = -128;
+    size_t  idx1 = 0;
+    size_t  idx2 = 0;
+
+    while (res == -128)
+    {
+        // Skip zero-width characters.
+        while ((idx1 < s1.size()) and (s1[idx1].width == 0))
+            ++idx1;
+
+        // Skip zero-width characters.
+        while ((idx2 < s2.size()) and (s2[idx2].width == 0))
+            ++idx2;
+
+        // Compute end flag of each string.
+        const bool is_end1 = (idx1 >= s1.size());
+        const bool is_end2 = (idx2 >= s2.size());
+
+        // End condition.
+        if      (is_end1 and is_end2) res =  0;   // End condition 1: both s1 and s2 finished at the same time.
+        else if (is_end1            ) res = -1;   // End condition 2: s1 finished earlier.
+        else if (is_end2            ) res = +1;   // End condition 3: s2 finished earlier.
+        else if (s1[idx1].value < s2[idx2].value) res = -1;   // End condition 4: faced to inequal character and s1 < s2.
+        else if (s1[idx1].value > s2[idx2].value) res = +1;   // End condition 5: faced to inequal character and s2 > s1.
+
+        // Continue condition: still the same characters continuing.
+        ++idx1; ++idx2;
+    }
+
+    return res;
+
+}   // }}}
+
+// Comparison operators derived from the spaceship operator.
+bool StringX::operator <  (const StringX& str) const noexcept { return (*this <=> str) <  0; }
+bool StringX::operator >  (const StringX& str) const noexcept { return (*this <=> str) >  0; }
+bool StringX::operator == (const StringX& str) const noexcept { return (*this <=> str) == 0; }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // StringX: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////

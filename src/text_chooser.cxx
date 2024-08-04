@@ -252,9 +252,9 @@ TextChooser::selected_values(int32_t target_index) const noexcept
         std::vector<std::string> tokens = split(item);
 
         // Returns all items if the target index is negative, otherwise returns the corresponding item.
-        if      (target_index < 0                       ) { return item;                 }
-        else if (tokens.size() > (uint32_t) target_index) { return tokens[target_index]; }
-        else                                              { return std::string("");      }
+        if      (target_index < 0                     ) { return item;                 }
+        else if (tokens.size() > (size_t) target_index) { return tokens[target_index]; }
+        else                                            { return std::string("");      }
     };
 
     // Initialize the output list.
@@ -323,6 +323,13 @@ choose_hists(void) noexcept
 
     // Get histories.
     std::vector<StringX> hists_x = hist.read_history_file();
+
+    // Do nothing and returns empty vector if the command history is empty.
+    if (hists_x.size() == 0)
+        return hists_x;
+
+    // Insert the first line.
+    hists_x.insert(hists_x.begin(), StringX("List of command history"));
 
     // Convert the history to a vector of std::string.
     constexpr auto to_string = [](const StringX& sx) noexcept -> std::string { return sx.string(); };

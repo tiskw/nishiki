@@ -142,7 +142,7 @@ int32_t
 CommandRunner::command_nishiki(const std::string& command) noexcept
 {   // {{{
 
-    constexpr auto print_error_message = [](const std::vector<std::string>& tokens) noexcept -> uint32_t
+    constexpr auto print_error_message = [](const std::vector<std::string>& tokens) noexcept -> int32_t
     // [Abstract]
     //   Print error message and contents of splitted tokens.
     //   This function will be called when parse error occurred.
@@ -167,7 +167,7 @@ CommandRunner::command_nishiki(const std::string& command) noexcept
         return EXIT_FAILURE;
     };
 
-    constexpr auto run_external_command = [](const std::vector<std::string>& tokens, const bool ret_cmd_out = true) noexcept -> std::string
+    constexpr auto run_external_command = [](const std::vector<std::string>& tokens, const bool ret_cmd_out) noexcept -> std::string
     // [Abstract]
     //   Run the specified external command and returns the command output as a string.
     //
