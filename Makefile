@@ -11,13 +11,13 @@ clang: external/cxxopts.hpp external/glob.hpp external/toml.hpp version.hxx
 	python3 build.py --target nishiki --src ./src --out ./build --link ncursesw --cc clang
 
 external/cxxopts.hpp:
-	wget -q -O ./external/cxxopts.hpp https://raw.githubusercontent.com/jarro2783/cxxopts/master/include/cxxopts.hpp
+	wget -q -O ./external/cxxopts.hpp https://raw.githubusercontent.com/jarro2783/cxxopts/master/include/cxxopts.hpp --no-check-certificate
 
 external/toml.hpp:
-	wget -q -O ./external/toml.hpp https://raw.githubusercontent.com/marzer/tomlplusplus/master/toml.hpp
+	wget -q -O ./external/toml.hpp https://raw.githubusercontent.com/marzer/tomlplusplus/master/toml.hpp --no-check-certificate
 
 external/glob.hpp:
-	wget -q -O ./external/glob.hpp https://raw.githubusercontent.com/p-ranav/glob/master/single_include/glob/glob.hpp
+	wget -q -O ./external/glob.hpp https://raw.githubusercontent.com/p-ranav/glob/master/single_include/glob/glob.hpp --no-check-certificate
 
 version.hxx:
 	echo '#define VERSION "'`git rev-parse HEAD`'"' > version.hxx
