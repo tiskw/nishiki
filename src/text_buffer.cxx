@@ -108,13 +108,7 @@ TextBuffer::edit_insert(const CharX& cx) noexcept
         case 0x1B: this->mode = TextBuffer::Mode::NORMAL; break;
 
         // Default: key input.
-        default:
-            if (cx.value <= 0x1F) { *this->lhs_ptr += StringX(cx.string()); }
-            else                  { *this->lhs_ptr += cx;                   }
-
-        // For debug: the following code is useful for checking input key code.
-        // default:
-        //     this->lhs_ptr->append(StringX(std::to_string(cx.value) + "|"));
+        default: *(this->lhs_ptr) += StringX(cx.string()); break;
     }
 
 }   // }}}
