@@ -127,6 +127,21 @@ grep = "grep --color=auto"
 
 ################################################################################
 # Completion settings
+#
+# The format of the completion is:
+#     [[PATTERN], COMPLETION_TYPE, EXTRA_STRING]
+#
+# The PATTERN is a list of strings. If user input matches to the PATTERN,
+# the corresponding completion will be applied. There are several types of
+# completion, "command", "filepath", "option", "preview", "shell", and "subcmd".
+#
+#   * "command" : Commands in $PATH will be completed.
+#   * "filepath": File paths in a directory willbe completed.
+#   * "option"  : Command option will be completed.
+#   * "preview" : File paths command with preview window.
+#   * "shell"   : Run a shell command and use it as a completion candidate.
+#   * "subcmd"  : Complete sub command of current command.
+#
 ################################################################################
 [COMPLETION]
 

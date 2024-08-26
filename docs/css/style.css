@@ -40,6 +40,11 @@ div.center {
     text-align: center;
 }
 
+ul, ol {
+    width: 95%;
+    margin: 0 auto 0;
+}
+
 /* * * * * * * * * * * * * * * * * * * * * *\
  * Customize Skeleton Template
 \* * * * * * * * * * * * * * * * * * * * * */
