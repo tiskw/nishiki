@@ -127,8 +127,10 @@ sleep 0.2s
 # Preview completion.
 xdotool type 'ls src/main.cxx '
 xdotool key Return
+sleep 0.1s
 xdotool type 'ls LICENSE '
 xdotool key Return
+sleep 0.1s
 xdotool type 'ls DUMMY '
 xdotool key Return
 sleep 0.2s

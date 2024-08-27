@@ -12,7 +12,6 @@ test:
 	make test3
 	make test4
 	make test5
-	make test6
 	lcov -c -d ./build -o lcov.info
 	genhtml lcov.info -o ./lcov
 
@@ -22,25 +21,22 @@ test1:
 
 test2:
 	bash ./scripts/run_test2.bash &
-	./build/nishiki-test
+	./build/nishiki-test --config ./config/config_broken.toml
 
 test3:
 	bash ./scripts/run_test3.bash &
-	cd ~ && $(CWD)/build/nishiki-test
+	./build/nishiki-test
 
 test4:
 	bash ./scripts/run_test4.bash &
-	./build/nishiki-test --config configs/config_broken.toml
+	./build/nishiki-test --plugin filechooser
+	bash ./scripts/run_test4.bash &
+	./build/nishiki-test --plugin histchooser
+	bash ./scripts/run_test4.bash &
+	./build/nishiki-test --plugin procchooser
+	./build/nishiki-test --plugin hoge
 
 test5:
-	bash ./scripts/run_test5.bash &
-	./build/nishiki-test --plugin filechooser
-	bash ./scripts/run_test5.bash &
-	./build/nishiki-test --plugin histchooser
-	bash ./scripts/run_test5.bash &
-	./build/nishiki-test --plugin procchooser
-
-test6:
 	./build/nishiki-test --hoge fuga || :
 	./build/nishiki-test --help
 	./build/nishiki-test --version

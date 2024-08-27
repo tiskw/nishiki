@@ -132,11 +132,10 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
             EditHelper::CompType ctype;
             if      (strcmp(ctype_strptr, "command") == 0) ctype = EditHelper::CompType::COMMAND;
             else if (strcmp(ctype_strptr, "option")  == 0) ctype = EditHelper::CompType::OPTION;
-            else if (strcmp(ctype_strptr, "path")    == 0) ctype = EditHelper::CompType::PATH;
             else if (strcmp(ctype_strptr, "preview") == 0) ctype = EditHelper::CompType::PREVIEW;
             else if (strcmp(ctype_strptr, "shell")   == 0) ctype = EditHelper::CompType::SHELL;
             else if (strcmp(ctype_strptr, "subcmd")  == 0) ctype = EditHelper::CompType::SUBCMD;
-            else                                           ctype = EditHelper::CompType::PATH;
+            else  /* strcmp(ctype_strptr, "path") == 0 */  ctype = EditHelper::CompType::PATH;
 
             ////////////////////////////////////////////////////////////////////////////////////
             // Read optional string

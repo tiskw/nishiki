@@ -50,7 +50,7 @@ parse_args(const int32_t argc, const char* argv[])
     // Configure parser.
     options.add_options()
         ("c,config",  "Path to config file",        cxxopts::value<std::string>()->default_value(std::string("auto")))
-        ("p,plugin",  "Launch plugin and exit",     cxxopts::value<std::string>()->default_value(std::string("none")))
+        ("p,plugin",  "Launch plugin and exit",     cxxopts::value<std::string>()->default_value(std::string("")))
         ("h,help",    "Show help message and exit", cxxopts::value<bool>())
         ("v,version", "Show version info and exit", cxxopts::value<bool>());
 
@@ -198,6 +198,7 @@ nishiki_main(const int32_t argc, const char* argv[])
     if      (args["plugin"] == "filechooser") choose_files_and_exit(StringX("."));
     else if (args["plugin"] == "histchooser") choose_hists_and_exit();
     else if (args["plugin"] == "procchooser") choose_procs_and_exit();
+    else if (args["plugin"] != ""           ) print_message_and_exit("NiShiKi: Error: unknown plugin");
 
     // Show welcome message.
     std::cout << "Welcome to ";
