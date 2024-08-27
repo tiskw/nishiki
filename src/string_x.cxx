@@ -6,7 +6,6 @@
 #include "string_x.hxx"
 
 // Include the headers of STL.
-#include <format>
 #include <numeric>
 #include <sstream>
 #include <set>
@@ -127,7 +126,7 @@ CharX::string(void) const noexcept
 
     // 0x20 ~ 0x7E: simple ANSI code.
     else if (this->value <= 0x7e)
-        return std::string() + ((char) this->value);
+        return std::string() +  ((char) this->value);
 
     // 0x7F: caret expression (^?).
     else if (this->value == 0x7F)
@@ -135,7 +134,7 @@ CharX::string(void) const noexcept
 
     // 0x80 ~ : number expression.
     else
-        return std::format("<0x{:x}>", this->value);
+        return std::string("^") + std::to_string(this->value);
 
 }   // }}}
 

@@ -85,8 +85,7 @@ Directory::color(const uint32_t index) const noexcept
     else if (std::filesystem::is_fifo(target)          ) return 3;
     else if (std::filesystem::is_socket(target)        ) return 3;
     else if (std::filesystem::is_symlink(target)       ) return 6;
-    else if (std::filesystem::is_regular_file(target)  ) return 0;
-    else                                                 return 0;
+    else  /* std::filesystem::is_regular_file(target) */ return 0;
 
 }   // }}}
 

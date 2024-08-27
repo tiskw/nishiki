@@ -108,6 +108,14 @@ get_system_commands(void) noexcept;
 // [Returns]
 //   (std::vector<StringX>): List of available command names.
 
+void
+print_message_and_exit(const char* message) noexcept;
+// [Abstract]
+//   Print message and exit.
+//
+// [Args]
+//   message (const char*): [IN] Message to be shown.
+
 std::string
 replace(const std::string& target, const std::string& oldstr, const std::string& newstr) noexcept;
 // [Abstract]

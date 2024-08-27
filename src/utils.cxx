@@ -322,6 +322,18 @@ get_system_commands(void) noexcept
 
 }   // }}}
 
+void
+print_message_and_exit(const char* message) noexcept
+{   // {{{
+
+    // Print the given messasge.
+    puts(message);
+
+    // Exit with failure code.
+    exit(EXIT_SUCCESS);
+
+}   // }}}
+
 std::string
 replace(const std::string& target, const std::string& oldstr, const std::string& newstr) noexcept
 {   // {{{

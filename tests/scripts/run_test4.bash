@@ -47,15 +47,8 @@ fi
 
 sleep 0.5s
 
-# Basic commands.
-xdotool type 'echo "NiShiKi"'
-xdotool key Return
+# Exit filechooser/textchooser.
+xdotool type 'q'
 sleep 0.2s
-xdotool type 'ls /dev'
-xdotool key Return
-sleep 0.2s
-
-# Exit NiSHiKi.
-xdotool key ctrl+d
 
 # vim: noexpandtab shiftwidth=4 tabstop=4 fdm=marker
