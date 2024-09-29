@@ -165,6 +165,18 @@ test_StringX()
     // Test 5: to string.
     assert(StringX("東京都江東区辰巳").string() == "東京都江東区辰巳");
 
+    // Test6: tokenize.
+    std::vector<StringX> tokens = StringX("echo 'this is a pen' | grep 'pen'").tokenize();
+    assert(tokens[0] == StringX("echo"));
+    assert(tokens[1] == StringX(" "));
+    assert(tokens[2] == StringX("'this is a pen'"));
+    assert(tokens[3] == StringX(" "));
+    assert(tokens[4] == StringX("|"));
+    assert(tokens[5] == StringX(" "));
+    assert(tokens[6] == StringX("grep"));
+    assert(tokens[7] == StringX(" "));
+    assert(tokens[8] == StringX("'pen'"));
+
 }   // }}}
 
 static void

@@ -411,10 +411,10 @@ class StringX : public std::deque<CharX>
         //
         // [Examples]
         //   | // Define target string.
-        //   | StringX str = StringX("echo 'this is a pen' | grep 'pen'")
+        //   | StringX str = StringX("echo 'this is a pen' | grep 'pen'");
         //   |
         //   | // Tokenize.
-        //   | std::vector<StringX> tokens = str.tokenize()
+        //   | std::vector<StringX> tokens = str.tokenize();
         //   |
         //   | // Check tokenization result.
         //   | assert(tokens[0] == StringX("echo"));
