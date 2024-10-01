@@ -283,6 +283,11 @@ StringX&
 StringX::operator = (const StringX& sx) noexcept
 {   // {{{
 
+    // Do nothing if the source and target is the same.
+    // This avoidance is quite important because the following code
+    // does not work if "this" and "sx" is the same instance.
+    if (*this == sx) return *this;
+
     // Clear current contents.
     this->clear();
 
