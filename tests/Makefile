@@ -13,6 +13,7 @@ test:
 	make test4
 	make test5
 	lcov -c -d ./build -o lcov.info
+	lcov --remove lcov.info unittest* -o lcov.info
 	genhtml lcov.info -o ./lcov
 
 test1:

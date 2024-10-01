@@ -5,9 +5,18 @@
 NiShiKi - a simple shell wrapper
 ====================================================================================================
 
-![badge1](https://img.shields.io/badge/C++-20-blue)
-![badge2](https://img.shields.io/badge/license-MIT-orange)
-![badge3](https://img.shields.io/badge/coverage-97.9%25-green)
+<p align="center">
+    <img src="https://img.shields.io/badge/C++-20-blue" alt="badge-language" /> &nbsp;
+    <img src="https://img.shields.io/badge/license-MIT-orange" /> &nbsp;
+    <img src="https://img.shields.io/badge/coverage-97.9%25-green" />
+</p><p align="center">
+    <a href="#features">Features</a> &nbsp;&bull;&nbsp;
+    <a href="#installation">Installation</a> &nbsp;&bull;&nbsp;
+    <a href="#usage">Usage</a> &nbsp;&bull;&nbsp;
+    <a href="#for-developers">For developers</a> &nbsp;&bull;&nbsp;
+    <a href="#gratitude">Gratitude</a> &nbsp;&bull;&nbsp;
+    <a href="#license">License</a>
+</p>
 
 NiShiKi is a simple shell wrapper for UNIX-like OS. It has real-time completion functions to assist
 user command editing, and all completions are customizable by a user-defined config file. Also, you
