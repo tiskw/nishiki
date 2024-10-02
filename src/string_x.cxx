@@ -323,7 +323,7 @@ StringX::operator += (const StringX& str) noexcept
 
 }   // }}}
 
-int32_t
+std::strong_ordering
 StringX::operator <=> (const StringX& str) const noexcept
 {   // {{{
 
@@ -332,11 +332,10 @@ StringX::operator <=> (const StringX& str) const noexcept
     const StringX& s2 = str;
 
     // Initialize local variables.
-    int32_t res  = -128;
-    size_t  idx1 = 0;
-    size_t  idx2 = 0;
+    size_t idx1 = 0;
+    size_t idx2 = 0;
 
-    while (res == -128)
+    while (true)
     {
         // Skip zero-width characters.
         while ((idx1 < s1.size()) and (s1[idx1].width == 0))
@@ -351,17 +350,15 @@ StringX::operator <=> (const StringX& str) const noexcept
         const bool is_end2 = (idx2 >= s2.size());
 
         // End condition.
-        if      (is_end1 and is_end2) res =  0;   // End condition 1: both s1 and s2 finished at the same time.
-        else if (is_end1            ) res = -1;   // End condition 2: s1 finished earlier.
-        else if (is_end2            ) res = +1;   // End condition 3: s2 finished earlier.
-        else if (s1[idx1].value < s2[idx2].value) res = -1;   // End condition 4: faced to inequal character and s1 < s2.
-        else if (s1[idx1].value > s2[idx2].value) res = +1;   // End condition 5: faced to inequal character and s2 > s1.
+        if      (is_end1 and is_end2            ) return std::strong_ordering::equivalent; // Both s1 and s2 finished at the same time.
+        else if (is_end1                        ) return std::strong_ordering::less;       // s1 finished earlier.
+        else if (is_end2                        ) return std::strong_ordering::greater;    // s2 finished earlier.
+        else if (s1[idx1].value < s2[idx2].value) return std::strong_ordering::less;       // Faced to inequal character and s1 < s2.
+        else if (s1[idx1].value > s2[idx2].value) return std::strong_ordering::greater;    // Faced to inequal character and s2 > s1.
 
         // Continue condition: still the same characters continuing.
         ++idx1; ++idx2;
     }
-
-    return res;
 
 }   // }}}
 
@@ -459,14 +456,8 @@ StringX::colorize(void) const noexcept
         else                                  return                       token                    ;  // Others.
     };
 
-    // Initialize returned value.
-    StringX colorized;
-
-    // Split the string to tokens, colorize each tokens, and join.
-    for (const StringX& token : this->tokenize())
-        colorized += colorize_token(token);
-
-    return colorized;
+    // Split the string to tokens, colorize each token, and join them.
+    return StringX("").join(transform<StringX, StringX>(this->tokenize(), colorize_token));
 
 }   // }}}
 

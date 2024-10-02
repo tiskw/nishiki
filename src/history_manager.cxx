@@ -104,10 +104,8 @@ HistoryManager::normalize_and_write(void) const noexcept
 
     // Deduplicate the histories.
     for (const StringX& hist : histories)
-    {
         if ((hist.size() == 0) or (not contains(histories_deduplicated, hist)))
             histories_deduplicated.push_back(hist);
-    }
 
     // Restore the order of the histories.
     std::reverse(histories_deduplicated.begin(), histories_deduplicated.end());
