@@ -283,7 +283,7 @@ class StringX : public std::deque<CharX>
         // [Returns]
         //   (bool): True if (*this == str) holds.
 
-        int32_t
+        std::strong_ordering
         operator <=> (const StringX& str) const noexcept;
         // [Abstract]
         //   Three way comparison operator.
