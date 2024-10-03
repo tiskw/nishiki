@@ -149,6 +149,18 @@ class CommandRunner
         //   - lhs : Left-hand-side of the current editing buffer.
         //   - rhs : Right-hand-side of the current editing buffer.
         //   - cmd : Command contents.
+
+        int32_t
+        command_set(const std::vector<StringX>& tokens) const noexcept;
+        // [Abstract]
+        //   Callback function of "set" command.
+        //   This function manages environment variables.
+        //
+        // [Args]
+        //   tokens (const std::vector<StringX>&): [IN] List of tokens.
+        //
+        // [Returns]
+        //   (int32_t): EXIT_SUCCESS if succeeded otherwise EXIT_FAILURE.
 };
 
 #endif
