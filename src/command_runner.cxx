@@ -7,6 +7,8 @@
 
 // Include the headers of STL.
 #include <iostream>
+#include <unistd.h>
+#include <sys/wait.h>
 
 // Include the headers of custom modules.
 #include "config.hxx"
@@ -76,6 +78,10 @@ CommandRunner::run(const StringX& input) noexcept
     else if (tokens[0] == StringX("cd"))
         return this->command_cd(tokens);
 
+    // Process command "set": set environment.
+    else if (tokens[0] == StringX("set"))
+        return this->command_set(tokens);
+
     // Process NiShiKi-special command: modify editing buffer.
     else if (tokens[0].startswith(StringX(NISHIKI_CMD_DELIM)))
         return this->command_nishiki(command);
@@ -134,7 +140,39 @@ int32_t
 CommandRunner::command_exec(const std::string& command) const noexcept
 {   // {{{
 
-    return system(command.c_str());
+    // Declare the use of global variable.
+    extern char **environ;
+
+    // Fork process.
+    pid_t c_pid = fork();
+
+    // Case 1: failed to fork.
+    if (c_pid == -1)
+    {
+        std::cout << "NiShiki: failed to fork process" << std::endl;
+    }
+
+    // Case 2: parent process.
+    else if (c_pid > 0)
+    {
+        wait(nullptr);
+    }
+
+    // Case 3: child process.
+    else
+    {
+        // Generate input argument vector for bash.
+        char* argv[5] = {const_cast<char*>("/usr/bin/env"),
+                         const_cast<char*>("bash"),
+                         const_cast<char*>("-c"),
+                         const_cast<char*>(command.c_str()),
+                         nullptr};
+
+        // Execute bash.
+        execve(argv[0], argv, environ);
+    }
+
+    return EXIT_SUCCESS;
 
 }   // }}}
 
@@ -252,6 +290,30 @@ CommandRunner::command_nishiki(const std::string& command) noexcept
     // in order to avoid the double whitespaces after filename completion.
     if ((tokens[2].size() > 0) and (tokens[2][0] == ' '))
         this->lhs_next = this->lhs_next.strip(false, true);
+
+    return EXIT_SUCCESS;
+
+}   // }}}
+
+int32_t
+CommandRunner::command_set(const std::vector<StringX>& tokens) const noexcept
+{   // {{{
+
+    // Declare the use of global variable.
+    extern char **environ;
+
+    // Case 1: "set" => print all environment variables.
+    if (tokens.size() == 1)
+        for (char** env_ptr = environ; *env_ptr != nullptr; ++env_ptr)
+            std::cout << *env_ptr << std::endl;
+
+    // Case 2: "set -x NAME VALUE" => set as an environment variable.
+    else if ((tokens.size() == 4) and ((tokens[1] == StringX("-x")) or (tokens[1] == StringX("--export"))))
+        setenv(tokens[2].string().c_str(), tokens[3].string().c_str(), 1);
+
+    // Case 3: "set -e NAME" => delete environment variable.
+    else if ((tokens.size() == 3) and ((tokens[1] == StringX("-e")) or (tokens[1] == StringX("--erase"))))
+        unsetenv(tokens[2].string().c_str());
 
     return EXIT_SUCCESS;
 
