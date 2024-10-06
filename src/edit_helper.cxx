@@ -233,7 +233,7 @@ EditHelper::cands_filepath(const std::vector<StringX>& tokens, const std::string
     // [Returns]
     //   (std::string): Colorized token.
     {
-        if (token.size() > 0 and token.back() == '/') return "\033[34m" + token + "\033[m";
+        if (token.size() > 0 and token.back() == '/') return "\033[94m" + token + "\033[m";
         else                                          return token;
     };
 

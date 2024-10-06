@@ -134,7 +134,7 @@ CharX::string(void) const noexcept
 
     // 0x80 ~ : number expression.
     else
-        return std::string("^") + std::to_string(this->value);
+        return std::string("^") + ((char) this->value);
 
 }   // }}}
 
