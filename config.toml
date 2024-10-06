@@ -14,12 +14,12 @@ column_margin = 3
 
 # Prefix and postfix of the time stamp.
 # For example, you can set ANSI color code to colorize the time stamp.
-datetime_pre  = "\u001B[37m["
+datetime_pre  = "\u001B[90m["
 datetime_post = "\u001B[m]"
 
 # Prefix and postfix of the history hint.
 # For example, you can set ANSI color code to colorize history hint.
-histhint_pre  = "\u001B[37m"
+histhint_pre  = "\u001B[90m"
 histhint_post = "\u001B[m"
 
 
@@ -52,16 +52,16 @@ histhint_post = "\u001B[m"
 [PROMPT]
 
 # Prompts for editing area. The layout of prompt is the following.
-prompt1 = "\u001B[37m[\u001B[32m{user}@{host}\u001B[37m]-[\u001B[33m{date}\u001B[37m]-[\u001B[34m{time}\u001B[37m]-[\u001B[35m{cwd}\u001B[37m]\u001B[m"
+prompt1 = "\u001B[90m[\u001B[32m{user}@{host}\u001B[90m]-[\u001B[33m{date}\u001B[90m]-[\u001B[34m{time}\u001B[90m]-[\u001B[35m{cwd}\u001B[90m]\u001B[m"
 prompt2 = "{git}"
 
 # Prompt3 has two values, "prompt3_ins" for INSERT mode and "prompt3_nor" for
 # NORMAL mode.
-prompt3_ins = "\u001B[37m->\u001B[m "
-prompt3_nor = "\u001B[37m>-\u001B[m "
+prompt3_ins = "\u001B[90m->\u001B[m "
+prompt3_nor = "\u001B[90m>-\u001B[m "
 
 # Prompts for completion area.
-prompt_comp = "\u001B[37m|\u001B[m "
+prompt_comp = "\u001B[90m|\u001B[m "
 
 
 ################################################################################
