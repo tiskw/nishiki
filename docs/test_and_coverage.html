@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+
+    <!-- Basic Page Needs -->
+    <meta charset="utf-8">
+    <meta name="description" content="User's guide of NiShiKi">
+    <meta name="author" content="Tetsuya Ishikawa">
+    <meta name="keywords" content="nishiki,shell,c++">
+
+    <!-- Mobile Specific Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- FONT -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Noto+Sans&family=Raleway&family=Roboto&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <!-- Reference: http://getskeleton.com/ -->
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/prism.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="images/favicon.png">
+
+    <!-- Page title -->
+    <title>NiShiKi - User's Guide</title>
+
+</head><body>
+
+    <div class="container">
+
+        <!-- Teaser -->
+        <div class="row teaser">
+            <a href="index.html"><img class="teaser_mini" src="images/icon.svg"></a>
+            <p class="title">NiShiKi : Test and Coverage</p>
+            <p class="subtitle">Automatic test and code coverage measurement</p>
+        </div>
+
+        <div class="row">
+            <p>Our code provides a way to test NiShiKi and measure the coverage of the source code. <!--
+            -->In this section we will explain how to run a test and measure the code coverage.</p>
+        </div>
+
+        <h1>Preparation</h1>
+        <div class="row">
+            <p>You need to install additional tools for running the test. <!--
+            -->Please run the following command.</p>
+            <div class="code"><pre><code class="language-bash">
+            # Install additional tools for test.
+            sudo apt install xdotool lcov
+            </code></pre></div>
+        </div>
+
+        <h1>Test and coverage measurement</h1>
+        <div class="row">
+            <div class="code"><pre><code class="language-bash">
+            # Run the test.
+            make test
+            </code></pre></div>
+            <p>Please do not move window forcus from your terminal emulator while running the test. <!--
+            -->The above command automatically launch NiShiKi, type test commands and measure the code coverage.</p>
+            <p>Then, open <code>test/lcov/index.html</code> in your browser. <!--
+            -->You can see the code coverage information like the following.</p>
+            <div class="center">
+                <img src="images/lcov_code_coverage.webp" width="550" height="493">
+            </div>
+        </div>
+
+        <h1>How to Extend the Test</h1>
+        <div class="row">
+            <p>You can extend our test by modifying <code>test/run_test.bash</code>. <!--
+            -->Please open the bash file and add/modify the test code as you like.</p>
+        </div>
+
+        <hr>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>Copyright (C) 2024-<span id="thisYear"></span> Tetsuya Ishikawa</span>
+        </footer>
+
+        <!-- Load javascripts -->
+        <script src="js/jquery-3.7.1.slim.min.js"></script>
+        <script src="js/prism.js"></script>
+        <script src="js/script.js"></script>
+
+    </div>
+
+</body></html>

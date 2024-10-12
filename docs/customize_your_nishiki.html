@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+
+    <!-- Basic Page Needs -->
+    <meta charset="utf-8">
+    <meta name="description" content="User's guide of NiShiKi">
+    <meta name="author" content="Tetsuya Ishikawa">
+    <meta name="keywords" content="nishiki,shell,c++">
+
+    <!-- Mobile Specific Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- FONT -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Noto+Sans&family=Raleway&family=Roboto&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <!-- Reference: http://getskeleton.com/ -->
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/prism.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="images/favicon.png">
+
+    <!-- Page title -->
+    <title>NiShiKi - User's Guide : Customize Your NiShiKi</title>
+
+</head><body>
+
+    <div class="container">
+
+        <!-- Teaser -->
+        <div class="row teaser">
+            <a href="index.html"><img class="teaser_mini" src="images/icon.svg"></a>
+            <p class="title">NiShiKi : Customize Your NiShiKi</p>
+            <p class="subtitle">Customize your NiShiKi as you like!</p>
+        </div>
+
+        <div class="row">
+            <p>This section provides examples of customization on your NiShiKi. You can <!--
+            -->add and modify prompt, key bindings, and completions without touching <!--
+            -->NiShiKi source code.</p>
+        </div>
+
+        <h1>Customize Through Config File</h1>
+
+        <h2>Create your config file</h2>
+        <div class="row">
+            <p>At first, you need to create your config file if you haven't created yet. <!--
+            -->You can write a config file from scratch, but it's better to start from <!--
+            --><a href="https://github.com/tiskw/nishiki/blob/main/config.toml">this config.toml file</a>. <!--
+            -->Please download it and place on <code>~/.config/nishiki/config.toml</code>.</p>
+            <div class="code"><pre><code class="language-bash">
+            mkdir -p ~/.config/nishiki
+            mv DOWNLOAD_DIRECTORY/config.toml ~/.config/nishiki/config.toml
+            </code></pre></div>
+        </div>
+
+        <h2>Configure prompt</h2>
+        <div class="row">
+            <p>You can customize your prompt by setting the variables <code>prompt1</code>, <!--
+            --><code>prompt2</code>, <code>prompt3_ins</code>, <code>prompt3_nor</code>, <!--
+            -->and <code>prompt_comp</code> in your config file. The following is the layout <!--
+            -->of each prompt variable:</p>
+            <div class="code"><pre><code class="language-html">
+            <- prompt1 ---------------> <------- propmt2 (right justified) ->
+            <- prompt3 -> <- user input ------------------------------------>
+            <- prompt_comp -> <- completion area (line 1) ------------------>
+            <- prompt_comp -> <- completion area (line 2) ------------------>
+            ...
+            <- prompt_comp -> <- completion area (last line) --------------->
+            </code></pre></div>
+            <p>Note that the <code>prompt3_ins</code> will be used as the prompt3 when <!--
+            -->insert mode, and <code>prompt3_nor</code> will be used when normal mode.</p>
+            <p>Also, the following variables are available in the prompt setting:</p>
+            <ul>
+                <li><code>{cwd}</code>: Current working directory path.</li>
+                <li><code>{date}</code>: Date string of format "%Y-%m-%d".</li>
+                <li><code>{git}</code>: Git branch information.</li>
+                <li><code>{host}</code>: Host name.</li>
+                <li><code>{time}</code>: Time string of format "%H-%M-%S".</li>
+                <li><code>{user}</code>: Current user name.</li>
+            </ul>
+            <p>For example, the following setting:</p>
+            <div class="code"><pre><code class="language-toml">
+            prompt1 = "{user}@{host}:{cwd}"
+            prompt2 = "{git}"
+            prompt3_ins = "$ "
+            prompt3_nor = "+ "
+            </code></pre></div>
+            <p>results in the following display:</p>
+            <div class="code"><pre><code class="language-html">
+            USERNAME@HOSTNAME:CURRENT_DIRECTORY_PATH              GIT_BRANCH
+            $
+            </code></pre></div>
+            <p>where <code>USERNAME</code>, <code>HOSTNAME</code>,
+            <code>CURRENT_DIRECTORY_PATH</code>, and <code>GIT_BRANCH</code>, will be <!--
+            -->replaced to an appropriate string. Also, the character <code>$</code> will <!--
+            -->be replaced to <code>+</code> in the NORMAL mode.</p>
+        </div>
+
+        <h2>Add new key binding</h2>
+        <div class="row">
+            <p>You can customize the keybind of NiShiKi by the <code>[KEYBIND]</code> section of <!--
+            -->the config file. The following is the format of the items in the <code>[KEYBIND]</code> section:</p>
+            <div class="code"><pre><code class="language-toml">
+            "&lt;keybind&gt;" = "!&lt;command_type&gt;[&lt;option&gt;] &lt;command&gt;"
+            </code></pre></div>
+            <p>where <code>&lt;keybind&gt;</code> is a keybind to be assigned, <!--
+            --><code>&lt;command_type&gt;</code> is a command type spacifier, <!--
+            --><code>&lt;option&gt;</code> is optional characters for command type, <!--
+            -->and <code>&lt;command&gt;</code> is a command to ce called. <!--
+            -->The <code>&lt;command_type&gt;</code> must be either <code>int</code> (internal) <!--
+            -->or <code>ext</code> (external). The details of each command type are as follows.</p>
+        </div>
+
+        <h3>command_type: int</h3>
+        <div class="row">
+            <p>The internal command calls NiShiKi-internal functions (i.e. functions <!--
+            -->embedded in NiShiKi). It has three command contents: </p>
+            <ul>
+                <li><code>filechooser</code>: Choose file path graphically.</li>
+                <li><code>histchooser</code>: Choose command history graphically.</li>
+                <li><code>procchooser</code>: Choose process number graphically.</li>
+            </ul>
+            <p>This sample config file sets keybinds of them to <code>Ctrl-F</code>, <code>Ctrl-H</code>, <!--
+            -->and <code>Ctrl-P</code> respectively. See the sample config file.</p>
+        </div>
+
+        <h3>command_type: ext</h3>
+        <div class="row">
+            <p>The external command calls an external command, for example <code>xclip</code>, and <!--
+            -->inserts the command results into your editing line if you want. The external <!--
+            -->command types have several specifiers, <code>i</code>, <code>l</code> and <!--
+            --><code>r</code> etc. The specifiers are declared like <code>ext[il]</code> <!--
+            -->which means the external command with <code>i</code> and <!--
+            --><code>l</code> specifiers. The following is the meaning of each specifier.</p>
+            <ul>
+                <li><code>i</code>: insert command results to the editing buffer.</li>
+                <li><code>l</code>: append left-hand side string.</li>
+                <li><code>r</code>: append right-hand side string.</li>
+            </ul>
+            <p>Note that the simple command type "ext" is equivalent to <code>ext[ilr]</code>.
+            Whitespace is necessary after the internal/external specifier.</p>
+            <p>The following variables are available for external commands:</p>
+            <ul>
+                <li><code>{lhs}</code>: Left-hand side string.</li>
+                <li><code>{rhs}</code>: Right-hand side string.</li>
+            </ul>
+        </div>
+
+        <h2>Add new completion</h2>
+        <div class="row">
+            <p>The format of the completion is:</p>
+            <div class="code"><pre><code class="language-text">
+            [[PATTERN], COMPLETION_TYPE, EXTRA_STRING]
+            </code></pre></div>
+            <p>where <code>PATTERN</code> is a list of strings, <code>COMPLETION_TYPE</code> is <!--
+            -->a completion type, and <code>EXTRA_STRING</code> is additional string for completion. <!--
+            -->If user input matches to the <code>PATTERN</code>, the corresponding completion <!--
+            -->will be applied. There are several types of completion, <code>"command"</code>, <!--
+            --><code>"filepath"</code>, <code>"option"</code>, <code>"preview"</code>, <!--
+            --><code>"shell"</code>, and <code>"subcmd"</code>. The following is the short explanation <!--
+            -->of each completion type.</p>
+            <ul>
+                <li><code>"command"</code>: Commands in $PATH will be completed.</li>
+                <li><code>"filepath"</code>: File paths in a directory willbe completed.</li>
+                <li><code>"option"</code>: Command option will be completed.</li>
+                <li><code>"preview"</code>: File paths command with preview window.</li>
+                <li><code>"shell"</code>: Run a shell command and use it as a completion candidate.</li>
+                <li><code>"subcmd"</code>: Complete sub command of current command.</li>
+            </ul>
+        </div>
+
+        <hr>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>Copyright (C) 2024-<span id="thisYear"></span> Tetsuya Ishikawa</span>
+        </footer>
+
+        <!-- Load javascripts -->
+        <script src="js/jquery-3.7.1.slim.min.js"></script>
+        <script src="js/prism.js"></script>
+        <script src="js/script.js"></script>
+
+    </div>
+
+</body></html>
