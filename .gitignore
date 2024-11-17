@@ -1,0 +1,11 @@
+# Ignore build cache files.
+/build/external
+/build/objects
+
+# Ignore test outputs.
+/tests/build
+/tests/external
+/tests/lcov
+/tests/lcov.info
+/tests/src
+/tests/version.hxx
