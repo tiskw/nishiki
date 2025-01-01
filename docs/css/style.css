@@ -1,0 +1,112 @@
+/* * * * * * * * * * * * * * * * * * * * * *\
+ * Text settings
+\* * * * * * * * * * * * * * * * * * * * * */
+
+body {
+    font-size: 1.6rem;
+    color: #333;
+    font-family: "Raleway", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    letter-spacing: 0.02em;
+}
+
+p {
+    margin: 0.5rem;
+}
+
+h1 {
+    font-size: 3.2rem;
+    font-weight: bold;
+    color: #111;
+    letter-spacing: 0.02em;
+}
+
+h2 {
+    font-size: 2.4rem;
+    font-weight: bold;
+    color: #111;
+    letter-spacing: 0.02em;
+}
+
+h3 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #111;
+    letter-spacing: 0.02em;
+}
+
+div.center {
+    text-align: center;
+}
+
+ul, ol {
+    width: 95%;
+    margin: 0 auto 0;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * *\
+ * Customize Skeleton Template
+\* * * * * * * * * * * * * * * * * * * * * */
+
+.row {
+    margin-bottom: 3.0rem;
+}
+
+hr {
+    margin: 1.0rem;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * *\
+ * Teaser
+\* * * * * * * * * * * * * * * * * * * * * */
+
+div.teaser {
+    margin-top: 10%;
+    margin-bottom: 5%;
+    text-align: center;
+}
+
+img.teaser {
+    width: 75%;
+    margin: 0 auto;
+}
+
+img.teaser_mini {
+    width: 20%;
+    margin: 0 auto;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * *\
+ * Page title
+\* * * * * * * * * * * * * * * * * * * * * */
+
+p.title {
+    font-size: 4.2rem;
+    font-weight: bold;
+    color: #111;
+}
+
+p.subtitle {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #999;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * *\
+ * Footer
+\* * * * * * * * * * * * * * * * * * * * * */
+
+footer.footer {
+    margin: 2.0rem auto;
+    text-align: center;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * *\
+ * Code
+\* * * * * * * * * * * * * * * * * * * * * */
+
+div.code {
+    font-size: 1.4rem;
+}
+

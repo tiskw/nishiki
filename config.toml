@@ -1,0 +1,204 @@
+# Config file for NiShiKi
+
+
+################################################################################
+# General settings
+################################################################################
+[GENERAL]
+
+# Height of drawing area.
+area_hgt = 12
+
+# Length of mergin in the column display.
+column_margin = 3
+
+# Prefix and postfix of the time stamp.
+# For example, you can set ANSI color code to colorize the time stamp.
+datetime_pre  = "\u001B[90m["
+datetime_post = "]\u001B[m"
+
+# Prefix and postfix of the history hint.
+# For example, you can set ANSI color code to colorize history hint.
+histhint_pre  = "\u001B[90m"
+histhint_post = "\u001B[m"
+
+
+################################################################################
+# Prompt settings
+#
+# You can customize your prompt by setting the variables used in this section,
+# "prompt1", "prompt2", "prompt3_ins", "prompt3_nor", and "prompt_comp". The
+# location of each prompt variable is the following:
+#
+#   <- prompt1 ---------------> <------- propmt2 (right justified) ->
+#   <- prompt3 -> <- user input ------------------------------------>
+#   <- prompt_comp -> <- completion area (line 1) ------------------>
+#   <- prompt_comp -> <- completion area (line 2) ------------------>
+#   ...
+#   <- prompt_comp -> <- completion area (last line) --------------->
+#
+# Note that the "prompt3_ins" will be used as the prompt3 when insert mode,
+# and "prompt3_nor" will be used when normal mode.
+# 
+# The following variables are available for these prompt variables.
+#
+#   - "{cwd}" : Current working directory path.
+#   - "{date}": Date string of format "%Y-%m-%d".
+#   - "{git}" : Git branch information.
+#   - "{host}": Host name.
+#   - "{time}": Time string of format "%H-%M-%S".
+#   - "{user}": Current user name.
+################################################################################
+[PROMPT]
+
+# Prompts for editing area. The layout of prompt is the following.
+prompt1 = "\u001B[90m[\u001B[92m{user}@{host}\u001B[90m]-[\u001B[93m{date}\u001B[90m]-[\u001B[94m{time}\u001B[90m]-[\u001B[95m{cwd}\u001B[90m]\u001B[m"
+prompt2 = "{git}"
+
+# Prompt3 has two values, "prompt3_ins" for INSERT mode and "prompt3_nor" for
+# NORMAL mode.
+prompt3_ins = "\u001B[90m->\u001B[m "
+prompt3_nor = "\u001B[90m>-\u001B[m "
+
+# Prompts for completion area.
+prompt_comp = " "
+
+
+################################################################################
+# Alias settings
+################################################################################
+[ALIAS]
+
+ls = "ls -h --color=auto --group-directories-first"
+ll = "ls -hl --color=auto --group-directories-first"
+la = "ls -ahl --color=auto --group-directories-first"
+sl = "ls -h --color=auto --group-directories-first"
+
+cp = "cp -i"
+mv = "mv -i"
+rm = "rm -i"
+
+diff = "diff --color=auto"
+grep = "grep --color=auto"
+
+
+################################################################################
+# Keybind settings
+#
+# The format of the key binding string is:
+#     "!COMMAND_TYPE COMMAND_CONTENTS"
+#
+# The COMMAND_TYPE must be either "int" (internal) or "ext" (external). The
+# details of each command type are as follows.
+#
+# [command_type: int]
+#   The internal command calls NiShiKi-internal functions (i.e. functions
+#   embedded in NiShiKi). It has three command contents:
+#     - filechooser: Choose file path graphically.
+#     - histchooser: Choose command history graphically.
+#     - procchooser: Choose process number graphically.
+#   This sample config file sets keybinds of them to Ctrl-F, Ctrl-H, and
+#   Ctrl-P respectively. See the following [KEYBIND] section.
+#
+# [command_type: ext]
+#   The external command calls an external command, for example "xclip", and
+#   inserts the command results into your editing line if you want. The external
+#   command types have several specifiers, 'i', 'l' and 'r' etc. The specifiers
+#   are declared like "ext[il]" which means the external command with 'i' and
+#   'l' specifiers. The following is the meaning of each specifier.
+#     - i: insert command results to the editing buffer.
+#     - l: append left-hand side string.
+#     - r: append right-hand side string.
+#   Note that the simple command type "ext" is equivalent to "ext[ilr]".
+#   Whitespace is necessary after the internal/external specifier.
+#
+# The following variables are available for external commands:
+#   - {lhs}: Left-hand side string.
+#   - {rhs}: Right-hand side string.
+################################################################################
+[KEYBIND]
+
+"^F" = "!int filechooser"
+"^U" = "!int histchooser"
+"^P" = "!int procchooser"
+"^V" = "!ext xclip -o"
+"^L" = "!ext[] clear"
+
+
+################################################################################
+# Completion settings
+#
+# The format of the completion is:
+#     [[PATTERN], COMPLETION_TYPE, EXTRA_STRING]
+#
+# The PATTERN is a list of strings. If user input matches to the PATTERN,
+# the corresponding completion will be applied. There are several types of
+# completion, "command", "filepath", "option", "preview", "shell", and "subcmd".
+#
+#   * "command" : Commands in $PATH will be completed.
+#   * "filepath": File paths in a directory willbe completed.
+#   * "option"  : Command option will be completed.
+#   * "preview" : File paths command with preview window.
+#   * "shell"   : Run a shell command and use it as a completion candidate.
+#   * "subcmd"  : Complete sub command of current command.
+#
+################################################################################
+[COMPLETION]
+
+completions = [
+    # Docker command completions.
+    [["docker", "exec", ">>", ".*"], "shell",  "docker container ls -a --format '{{.Names}}'"],
+    [["docker", "run",  ">>", ".*"], "shell",  "docker image ls --format '{{.Repository}}:{{.Tag}}'"],
+    [["docker", ".*"],               "subcmd", "docker --help | grep -E '^  [^ -]'"],
+
+    # Git command completions.
+    [["git", "branch",   ">>", ".*"], "shell",  "git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"],
+    [["git", "checkout", ">>", ".*"], "shell",  "git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"],
+    [["git", "merge",    ">>", ".*"], "shell",  "git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"],
+    [["git", "push",     ">>", ".*"], "shell",  "git branch -a --no-color | cut -b 3- | cut -d ' ' -f 1"],
+    [["git", ".*"],                   "subcmd", "git --help | grep -E '^   [^ ]'"],
+
+    # Ssh command completions.
+    [["ssh", ".*"], "shell", "cat ~/.ssh/config 2>/dev/null | grep '^Host ' 2>/dev/null | cut -b 6-"],
+
+    # Low priority completions.
+    [["[./~].*",],       "path",    ""],
+    [[".+",],            "command", ""],
+    [[">>", "-.*"],      "option",  ""],
+    [[">>", "FILE", ""], "preview", ""],
+    [[">>", ".*"],       "path",    ""],
+]
+
+
+################################################################################
+# Preview settings
+################################################################################
+[PREVIEW]
+
+# An ordered list of preview table, where the format of the key is MIME type splitted
+# by "/". You are able to check the file MIME type by the command `file --mime <filepath>`.
+previews = [
+    # Directory.
+    ["inode/directory", "timeout 0.1s ls -hl --color=always --group-directories-first '{path}'"],
+
+    # Text file: colorize file.
+    ["text/.*",          "timeout 0.1s highlight --force -O ansi '{path}'"],
+    ["application/x-sh", "timeout 0.1s highlight --force -O ansi '{path}'"],
+
+    # Media file: display media infomation.
+    ["image/.*", "file '{path}' | sed 's/, /\\n/g'"],
+    ["video/.*", "file '{path}' | sed 's/, /\\n/g'"],
+
+    # Archive file: list archive contents.
+    [".*/x-7z-compressed", "timeout 0.1s 7z l    '{path}'"],
+    [".*/zip",             "timeout 0.1s zipinfo '{path}'"],
+]
+
+# Delimiter of the preview window.
+preview_delim = " \u2502 "
+
+# Ratio of the preview window.
+preview_ratio = 0.45
+
+
+# vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker
