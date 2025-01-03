@@ -22,7 +22,7 @@ TermWriter::TermWriter(void)
 {   // {{{
 
     // Get terminal size.
-    get_terminal_size(&this->wid, &this->hgt);
+    get_terminal_size(&this->wid, &this->hgt, nullptr, nullptr);
 
     // Hide cursor.
     std::cout << "\033[?25l";

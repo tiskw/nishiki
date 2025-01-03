@@ -153,6 +153,45 @@ bool StringX::operator == (const StringX& str) const noexcept { return (*this <=
 // StringX: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+std::vector<StringX>
+StringX::chunk(uint16_t width) const noexcept
+{   // {{{
+
+    std::vector<StringX> result;
+
+    // Tenporary string.
+    StringX sx_tmp;
+
+    // Width of the temporary string.
+    uint16_t total = 0;
+
+    for (const CharX& cx : *this)
+    {
+        if ((total + cx.width) > width)
+        {
+            // Append the temporary string to the result vector.
+            result.push_back(sx_tmp);
+
+            // Clear temporary values.
+            sx_tmp.clear();
+            total = 0;
+        }
+
+        // Update total width.
+        total += cx.width;
+
+        // Append to the temporary string.
+        sx_tmp.push_back(cx);
+    }
+
+    // Append the temporary string to the result vector if temporary string is not empty.
+    if (sx_tmp.size() > 0)
+        result.push_back(sx_tmp);
+
+    return result;
+
+}   // }}}
+
 StringX
 StringX::clip(uint16_t length) const noexcept
 {   // {{{

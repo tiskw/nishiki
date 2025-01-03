@@ -10,6 +10,7 @@
 // Include the headers of STL.
 #include <algorithm>
 #include <cstdint>
+#include <string>
 
 // Include the headers of custom modules.
 #include "string_x.hxx"
@@ -76,7 +77,7 @@ get_date(void) noexcept;
 //   (std::string): Date string.
 
 void
-get_terminal_size(uint16_t* width, uint16_t* height) noexcept;
+get_terminal_size(uint16_t* width, uint16_t* height, uint16_t* width_px, uint16_t* height_px) noexcept;
 // [Abstract]
 //   Get terminal size.
 //
@@ -115,6 +116,17 @@ print_message_and_exit(const char* message) noexcept;
 //
 // [Args]
 //   message (const char*): [IN] Message to be shown.
+
+std::string
+random_string(uint16_t length) noexcept;
+// [Abstract]
+//   Get random string.
+//
+// [Args]
+//   length (uint16_t): [IN] Length of the returned random strign.
+//
+// [Returns]
+//   (std::string): Random string.
 
 std::string
 replace(const std::string& target, const std::string& oldstr, const std::string& newstr) noexcept;

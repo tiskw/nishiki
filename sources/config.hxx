@@ -30,6 +30,10 @@ typedef struct
     std::string datetime_post;
     std::string histhint_pre;
     std::string histhint_post;
+    uint16_t    ls_image_col_thumb;
+    uint16_t    ls_image_row_thumb;
+    uint16_t    ls_image_row_iname;
+    uint16_t    ls_image_pad_thumb;
 
     // [PROMPT] settings.
     std::string prompt1;

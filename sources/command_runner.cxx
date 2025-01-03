@@ -13,6 +13,7 @@
 // Include the headers of custom modules.
 #include "config.hxx"
 #include "file_chooser.hxx"
+#include "ls_image.hxx"
 #include "text_chooser.hxx"
 #include "utils.hxx"
 
@@ -140,6 +141,11 @@ int32_t
 CommandRunner::command_exec(const std::string& command) const noexcept
 {   // {{{
 
+    // Process NiShiKi builtin command: ls_image
+    if (command.starts_with(NISHIKI_CMD_PREFIX "ls_image"))
+        return ls_image(command.c_str());
+
+    // Otherwise 
     const int32_t res = std::system(strip(command).c_str());
 
     if (res == 0) { return EXIT_SUCCESS; }
@@ -254,7 +260,7 @@ CommandRunner::command_nishiki(const std::string& command) noexcept
     else if ((tokens[0] == "int") and (tokens[3] == "procchooser"))
         this->lhs_next = StringX(tokens[1]) + StringX(" ").join(choose_procs(), true);
 
-    // Command 4: parse error
+    // Command 3: parse error
     else return print_error_message(tokens);
 
     // Delete extra whitespaces from the bottom of lhs_next if rhs_next starts with white space,

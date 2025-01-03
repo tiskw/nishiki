@@ -24,7 +24,7 @@ EditHelper::EditHelper(void)
 {   // {{{
 
     // Get terminal size.
-    get_terminal_size(&this->wid, nullptr);
+    get_terminal_size(&this->wid, nullptr, nullptr, nullptr);
     this->hgt = config.area_hgt - 2;
 
     // Create the cache of available command names.

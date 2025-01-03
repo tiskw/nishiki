@@ -22,6 +22,12 @@ datetime_post = "]\u001B[m"
 histhint_pre  = "\u001B[90m"
 histhint_post = "\u001B[m"
 
+# Config values for the "ls_image" command.
+ls_image_col_thumb = 24  # Width of image thumbnails (number of columns).
+ls_image_row_thumb = 8   # Height of image thumbnails (number of rows).
+ls_image_row_iname = 3   # Maximum rows of filenames.
+ls_image_pad_thumb = 12  # Image padding size (pixel).
+
 
 ################################################################################
 # Prompt settings
@@ -80,6 +86,8 @@ rm = "rm -i"
 
 diff = "diff --color=auto"
 grep = "grep --color=auto"
+
+lsimg = ":NISHIKI_BUILTIN:ls_image"
 
 
 ################################################################################

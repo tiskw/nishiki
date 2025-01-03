@@ -146,6 +146,17 @@ class StringX : public std::deque<CharX>
         // Member functions
         ////////////////////////////////////////////////////////////////////////////////////////////
 
+        std::vector<StringX>
+        chunk(uint16_t width) const noexcept;
+        // [Abstract]
+        //   Split the string to chunks.
+        //
+        // [Args]
+        //   width (uint16_t): [IN] The width of the returned chunks.
+        //
+        // [Returns]
+        //   (std::vector<StringX>): Chunked string.
+
         StringX
         clip(uint16_t length) const noexcept;
         // [Abstract]

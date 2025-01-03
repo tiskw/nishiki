@@ -234,7 +234,7 @@ get_date(void) noexcept
 }   // }}}
 
 void
-get_terminal_size(uint16_t* width, uint16_t* height) noexcept
+get_terminal_size(uint16_t* width, uint16_t* height, uint16_t* width_px, uint16_t* height_px) noexcept
 {   // {{{
 
     // Get terminal size.
@@ -242,8 +242,10 @@ get_terminal_size(uint16_t* width, uint16_t* height) noexcept
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
     // Set values.
-    if (width  != nullptr) { *width  = w.ws_col; }
-    if (height != nullptr) { *height = w.ws_row; }
+    if (width     != nullptr) { *width     = w.ws_col;    }
+    if (height    != nullptr) { *height    = w.ws_row;    }
+    if (width_px  != nullptr) { *width_px  = w.ws_xpixel; }
+    if (height_px != nullptr) { *height_px = w.ws_ypixel; }
 
 }   // }}}
 
@@ -331,6 +333,24 @@ print_message_and_exit(const char* message) noexcept
 
     // Exit with failure code.
     exit(EXIT_SUCCESS);
+
+}   // }}}
+
+std::string
+random_string(uint16_t length) noexcept
+{   // {{{
+
+    constexpr char charset[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    constexpr size_t max_idx = sizeof(charset) - 1;
+
+    // Initialize the output string.
+    std::string randstr;
+
+    // Append random character to the output string.
+    for (uint16_t n = 0; n < length; ++n)
+        randstr += charset[rand() % max_idx];
+
+    return randstr;
 
 }   // }}}
 

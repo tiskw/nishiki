@@ -56,13 +56,17 @@ set_config(const toml::table& table, const toml::key& section, const toml::key& 
     // Read the [GENERAL] section.
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    if      ((section == "GENERAL") and (value == "area_hgt"     )) config.area_hgt      = node.value_or(config.area_hgt);
-    else if ((section == "GENERAL") and (value == "column_margin")) config.column_margin = node.value_or(config.column_margin);
-    else if ((section == "GENERAL") and (value == "datetime_pre" )) config.datetime_pre  = node.value_or(config.datetime_pre);
-    else if ((section == "GENERAL") and (value == "datetime_post")) config.datetime_post = node.value_or(config.datetime_post);
-    else if ((section == "GENERAL") and (value == "histhint_pre" )) config.histhint_pre  = node.value_or(config.histhint_pre);
-    else if ((section == "GENERAL") and (value == "histhint_post")) config.histhint_post = node.value_or(config.histhint_post);
-    else if ((section == "GENERAL")                               ) show_error_message(section, value);
+    if      ((section == "GENERAL") and (value == "area_hgt"          )) config.area_hgt           = node.value_or(config.area_hgt);
+    else if ((section == "GENERAL") and (value == "column_margin"     )) config.column_margin      = node.value_or(config.column_margin);
+    else if ((section == "GENERAL") and (value == "datetime_pre"      )) config.datetime_pre       = node.value_or(config.datetime_pre);
+    else if ((section == "GENERAL") and (value == "datetime_post"     )) config.datetime_post      = node.value_or(config.datetime_post);
+    else if ((section == "GENERAL") and (value == "histhint_pre"      )) config.histhint_pre       = node.value_or(config.histhint_pre);
+    else if ((section == "GENERAL") and (value == "histhint_post"     )) config.histhint_post      = node.value_or(config.histhint_post);
+    else if ((section == "GENERAL") and (value == "ls_image_col_thumb")) config.ls_image_col_thumb = node.value_or(config.ls_image_col_thumb);
+    else if ((section == "GENERAL") and (value == "ls_image_row_thumb")) config.ls_image_row_thumb = node.value_or(config.ls_image_row_thumb);
+    else if ((section == "GENERAL") and (value == "ls_image_row_iname")) config.ls_image_row_iname = node.value_or(config.ls_image_row_iname);
+    else if ((section == "GENERAL") and (value == "ls_image_pad_thumb")) config.ls_image_pad_thumb = node.value_or(config.ls_image_pad_thumb);
+    else if ((section == "GENERAL")                                    ) show_error_message(section, value);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Read the [PROMPT] section.
@@ -192,12 +196,16 @@ load_config(std::string filepath) noexcept
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     // The [GENERAL] settings.
-    config.area_hgt      = 6u;
-    config.column_margin = 3u;
-    config.datetime_pre  = "";
-    config.datetime_post = "";
-    config.histhint_pre  = "";
-    config.histhint_post = "";
+    config.area_hgt           = 6u;
+    config.column_margin      = 3u;
+    config.datetime_pre       = "";
+    config.datetime_post      = "";
+    config.histhint_pre       = "";
+    config.histhint_post      = "";
+    config.ls_image_col_thumb = 24u;
+    config.ls_image_row_thumb = 8u;
+    config.ls_image_row_iname = 3u;
+    config.ls_image_pad_thumb = 12u;
 
     // The [PROMPT] settings.
     config.prompt1     = "[{user}@{host}]-[{cwd}]";

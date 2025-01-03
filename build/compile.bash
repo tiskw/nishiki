@@ -53,7 +53,7 @@ echo -e "\033[95m//////////////////////////////////////////////////\033[0m"
 if [ ${compiler} = "clang" ]; then
     CC="clang++ -stdlib=libc++"
 else
-    CC="g++"
+    CC="g++-14"
 fi
 
 # Add extra options.
