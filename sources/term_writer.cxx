@@ -72,15 +72,15 @@ TermWriter::write(const StringX& lhs, const StringX& rhs, TextBuffer::Mode mode,
     {
         // Case 1: only `lhs` is non-empty string.
         if ((rhs.size() == 0) and (hist_comp.size() == 0))
-            return lhs.colorize() + StringX("\033[7m \033[m");
+            return lhs.colorize() + "\033[7m \033[m";
 
         // Case 2: `rhs` is empty.
         else if (rhs.size() == 0)
-            return lhs.colorize() + StringX("\033[7m") + hist_comp.front() + StringX("\033[m" + config.histhint_pre) + hist_comp.substr(1) + StringX(config.histhint_post);
+            return lhs.colorize() + "\033[7m" + hist_comp.front() + "\033[m" + config.histhint_pre + hist_comp.substr(1) + config.histhint_post;
 
         // Case 3: others.
         else
-            return (lhs + CharX("\033[7m") + rhs.front() + CharX("\033[27m") + rhs.substr(1)).colorize();
+            return (lhs + "\033[7m" + rhs.front() + "\033[27m" + rhs.substr(1)).colorize();
     };
 
     // Computes editing line.
@@ -90,19 +90,26 @@ TermWriter::write(const StringX& lhs, const StringX& rhs, TextBuffer::Mode mode,
     if      (mode == TextBuffer::Mode::INSERT) eline = StringX(config.prompt3_ins) + eline;
     else if (mode == TextBuffer::Mode::NORMAL) eline = StringX(config.prompt3_nor) + eline;
 
-    // Print header, prompts, editing line, and completion candidates.
+    // Print header and prompts.
     std::cout << "\033[" << config.area_hgt << "F" << std::endl;
-    std::cout << this->prompt_head     << "\033[0K" << std::endl;
-    std::cout << eline.clip(this->wid) << "\033[0K" << std::endl;
+    std::cout << this->prompt_head << "\033[0K" << std::endl;
 
-    for (size_t i = 0; i < clines.size(); ++i)
+    // Print editing lines.
+    std::vector<StringX> eline_chunks = eline.chunk(this->wid - 2);
+    for (const StringX& sx : eline_chunks)
+        std::cout << sx << "\033[0K" << std::endl;
+
+    // Compute the number of completion lines to be printed.
+    int16_t n_clines = clines.size() - std::max(0, static_cast<int16_t>(eline_chunks.size()) - 1);
+
+    for (int16_t i = 0; i < n_clines; ++i)
     {
-        // Write completion lines.
+        // Write a completion line.
         std::cout << clines[i] << "\033[0K";
 
         // Do not write newline at the end of completion lines.
-        if (i == (clines.size() - 1)) std::cout << std::flush;
-        else                          std::cout << std::endl;
+        if (i == (n_clines - 1)) std::cout << std::flush;
+        else                     std::cout << std::endl;
     }
 
 }   // }}}

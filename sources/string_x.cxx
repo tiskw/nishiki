@@ -61,6 +61,29 @@ StringX::operator + (const StringX& sx) const noexcept
 
 }   // }}}
 
+StringX
+StringX::operator + (const char* s) const noexcept
+{   // {{{
+
+    // Create a copy of string.
+    StringX sx = StringX(*this);
+
+    // Read one CharX from the pointer, and incremant the pointer with read bytes.
+    for (const char* p = s; *p != '\0'; p += sx.back().size)
+        sx.emplace_back(p);
+
+    return sx;
+
+}   // }}}
+
+StringX
+StringX::operator + (const std::string& s) const noexcept
+{   // {{{
+
+    return *this + s.c_str();
+
+}   // }}}
+
 StringX&
 StringX::operator = (const StringX& sx) noexcept
 {   // {{{
@@ -99,6 +122,30 @@ StringX::operator += (const StringX& str) noexcept
 
     // Append the given string at the end.
     std::copy(str.cbegin(), str.cend(), std::back_inserter(*this));
+
+    // Returns myself for convenience.
+    return *this;
+
+}   // }}}
+
+StringX&
+StringX::operator += (const char* s) noexcept
+{   // {{{
+
+    // Read one CharX from the pointer, and incremant the pointer with read bytes.
+    for (const char* p = s; *p != '\0'; p += this->back().size)
+        this->emplace_back(p);
+
+    // Returns myself for convenience.
+    return *this;
+
+}   // }}}
+
+StringX&
+StringX::operator += (const std::string& s) noexcept
+{   // {{{
+
+    *this += s.c_str();
 
     // Returns myself for convenience.
     return *this;
@@ -175,6 +222,29 @@ StringX::clip(uint16_t length) const noexcept
     }
 
     return result;
+
+}   // }}}
+
+std::vector<StringX>
+StringX::chunk(uint16_t chunk_size) const noexcept
+{   // {{{
+
+    // Initialize the output chunks.
+    std::vector<StringX> chunks;
+
+    // Initialize the starting position of the current chunk.
+    uint32_t pos = 0;
+
+    while (pos < this->size())
+    {
+        // Add the chunk to the output vector.
+        chunks.emplace_back(this->substr(pos, this->size()).clip(chunk_size));
+
+        // Compute the starting position of the next chunk.
+        pos += chunks.back().size();
+    }
+
+    return chunks;
 
 }   // }}}
 
