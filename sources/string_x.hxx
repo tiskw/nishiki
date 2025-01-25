@@ -65,6 +65,28 @@ class StringX : public std::deque<CharX>
         // [Returns]
         //   (StringX): Added string.
 
+        StringX
+        operator + (const char* s) const noexcept;
+        // [Abstract]
+        //   Addition operator with char pointer.
+        //
+        // [Args]
+        //   s (const char*): [IN] A string to be added.
+        //
+        // [Returns]
+        //   (StringX): Added string.
+
+        StringX
+        operator + (const std::string& s) const noexcept;
+        // [Abstract]
+        //   Addition operator with string.
+        //
+        // [Args]
+        //   s (const string&): [IN] A string to be added.
+        //
+        // [Returns]
+        //   (StringX): Added string.
+
         StringX&
         operator = (const StringX& str) noexcept;
         // [Abstract]
@@ -94,6 +116,28 @@ class StringX : public std::deque<CharX>
         //
         // [Args]
         //   str (const StringX&): [IN] A string to be added.
+        //
+        // [Returns]
+        //   (StringX&): Myself.
+
+        StringX&
+        operator += (const char* s) noexcept;
+        // [Abstract]
+        //   Addition assignment operator with char pointer.
+        //
+        // [Args]
+        //   str (const char*): [IN] A string to be added.
+        //
+        // [Returns]
+        //   (StringX&): Myself.
+
+        StringX&
+        operator += (const std::string& s) noexcept;
+        // [Abstract]
+        //   Addition assignment operator with string.
+        //
+        // [Args]
+        //   str (const std::string&): [IN] A string to be added.
         //
         // [Returns]
         //   (StringX&): Myself.
@@ -156,6 +200,17 @@ class StringX : public std::deque<CharX>
         //
         // [Returns]
         //   (StringX): Clipped string.
+
+        std::vector<StringX>
+        chunk(uint16_t chunk_size) const noexcept;
+        // [Abstract]
+        //   Split the string into fixed width chunks.
+        //
+        // [Args]
+        //   chunk_size (uint16_t): [IN] Maximum width of each chunk.
+        //
+        // [Returns]
+        //   (StringX): Chunked strings.
 
         StringX
         colorize(void) const noexcept;

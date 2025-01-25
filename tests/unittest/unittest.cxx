@@ -177,6 +177,12 @@ test_StringX()
     assert(tokens[7] == StringX(" "));
     assert(tokens[8] == StringX("'pen'"));
 
+    // Test7: chunking.
+    std::vector<StringX> chunks = StringX("東京都江東区辰巳").chunk(6);
+    assert(tokens[0] == StringX("東京都"));
+    assert(tokens[1] == StringX("江東区"));
+    assert(tokens[2] == StringX("辰巳"));
+
 }   // }}}
 
 static void

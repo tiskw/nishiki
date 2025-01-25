@@ -1,3 +1,6 @@
+# Ignore binary file.
+/build/nishiki
+
 # Ignore build cache files.
 /build/external
 /build/objects
