@@ -59,6 +59,9 @@ fi
 # Add extra options.
 CC="${CC} -std=c++23 -Wall -Wextra -I${src} -I./external -I."
 
+# Add cflags for libraries.
+CC="${CC} `pkg-config --cflags ${link}`"
+
 # Add optimization.
 if [ ${gcov} = "true" ]; then
     CC="${CC} -O0 -fprofile-arcs -ftest-coverage"
@@ -142,15 +145,11 @@ then
     echo -e "\033[94m${target}\033[0m <- \033[92m${obj}/*.o\033[0m"
 
     # Compute link options.
-    IFS=":"
-    link_options=""
-    for name in ${link}; do
-        link_options="${link_options} -l${name}"
-    done
-    IFS=$' \t\n'
+    link_options=`pkg-config --libs ${link}`
+    link_options="${link_options} -lstdc++ -lm"
 
     # Link all compiled objects.
-    ${CC} -o ${target} ${obj}/*.o ${link_options}
+    ${CC} -o ${target} ${obj}/*.o ./external/*.o ${link_options}
 
     # Exit if error occured.
     if [ ${?} -ne "0" ]; then

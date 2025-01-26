@@ -20,12 +20,11 @@
 // EditHelper: Constructors and destructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EditHelper::EditHelper(void)
+EditHelper::EditHelper(uint16_t height) : hgt(height)
 {   // {{{
 
-    // Get terminal size.
+    // Get terminal width.
     get_terminal_size(&this->wid, nullptr);
-    this->hgt = config.area_hgt - 2;
 
     // Create the cache of available command names.
     this->cache_commands = get_system_commands();
@@ -473,7 +472,7 @@ EditHelper::lines_from_cands(const std::vector<std::pair<StringX, StringX>>& can
 
     // Format descriptions in a column style.
     this->lines.clear();
-    for (const StringX& line : column(texts, this->wid, this->hgt, config.column_margin))
+    for (const StringX& line : column(texts, this->wid - 1, this->hgt, config.column_margin))
         this->lines.push_back(line);
 
     // Add decoration at the left line and clip line width.

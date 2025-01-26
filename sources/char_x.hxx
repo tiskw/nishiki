@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/// C++ header file: char_x.hxx                                                                ///
+/// C++ header file: char_x.hxx                                                                  ///
 ///                                                                                              ///
-/// Extended character class and it's iterator class.                                               ///
+/// Extended character class and it's iterator class.                                            ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef CHAR_X_HXX
@@ -90,7 +90,7 @@ class CharX
         //   (std::string): String expression of CharX.
 
         ////////////////////////////////////////////////////////////////////////////////////////////
-        // Member variables
+        // Public member variables
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         uint64_t value;
