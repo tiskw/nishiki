@@ -253,6 +253,17 @@ class StringX : public std::deque<CharX>
         // [Returns]
         //   (CharX): The popped character.
 
+        std::vector<StringX>
+        split(const CharX& delim) const noexcept;
+        // [Abstract]
+        //   Split the given string with the given delimiter.
+        //
+        // [Args]
+        //   delim (const CharX&): [IN] Delimiter character.
+        //
+        // [Returns]
+        //   (std::vector<StringX>): Splitted strings.
+
         bool
         startswith(const StringX& str) const noexcept;
         // [Abstract]

@@ -11,6 +11,7 @@
 #include <set>
 
 // Include the headers of custom modules.
+#include "config.hxx"
 #include "utils.hxx"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +42,7 @@ StringX::operator + (const CharX& cx) const noexcept
     StringX src = StringX(*this);
 
     // Append the given character.
-    src.push_back(cx);
+    src.emplace_back(cx);
 
     return src;
 
@@ -161,18 +162,14 @@ StringX::operator <=> (const StringX& str) const noexcept
     const StringX& s2 = str;
 
     // Initialize local variables.
-    size_t idx1 = 0;
-    size_t idx2 = 0;
+    uint32_t idx1 = 0;
+    uint32_t idx2 = 0;
 
     while (true)
     {
         // Skip zero-width characters.
-        while ((idx1 < s1.size()) and (s1[idx1].width == 0))
-            ++idx1;
-
-        // Skip zero-width characters.
-        while ((idx2 < s2.size()) and (s2[idx2].width == 0))
-            ++idx2;
+        while ((idx1 < s1.size()) and (s1[idx1].width == 0)) ++idx1;
+        while ((idx2 < s2.size()) and (s2[idx2].width == 0)) ++idx2;
 
         // Compute end flag of each string.
         const bool is_end1 = (idx1 >= s1.size());
@@ -256,23 +253,10 @@ StringX::colorize(void) const noexcept
     // File local constants
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    static const std::set<StringX> set_command({
-        StringX("cat") , StringX("cd")    , StringX("chmod"), StringX("chown"), StringX("cp") , StringX("echo"),
-        StringX("env") , StringX("export"), StringX("grep") , StringX("let")  , StringX("ln") , StringX("ls")  ,
-        StringX("make"), StringX("mkdir") , StringX("mv")   , StringX("rm")   , StringX("sed"), StringX("set") ,
-        StringX("tar") , StringX("touch") , StringX("umask"), StringX("unset"),
-    });
-
-    static const std::set<StringX> set_keyword({
-        StringX("case") , StringX("do")   , StringX("done")  , StringX("elif")    , StringX("else") , StringX("esac"),
-        StringX("exit") , StringX("fi")   , StringX("for")   , StringX("function"), StringX("if")   , StringX("in")  ,
-        StringX("local"), StringX("read") , StringX("return"), StringX("select")  , StringX("shift"), StringX("then"),
-        StringX("time") , StringX("until"), StringX("while") ,
-    });
-
-    static const std::set<StringX> set_symbols({
-        StringX("&"), StringX("|"), StringX(">"), StringX("<"), StringX("&&"), StringX("||"), StringX(">>"), StringX("<<"),
-    });
+    // Get command, keyword, and symbol tokens to be colorized.
+    static const std::set<StringX> set_command = to_set(StringX(config.colorize_commands).split(CharX(",")));
+    static const std::set<StringX> set_keyword = to_set(StringX(config.colorize_keywords).split(CharX(",")));
+    static const std::set<StringX> set_symbols = to_set(StringX(config.colorize_symbols ).split(CharX(",")));
 
     constexpr auto is_string_token = [](const StringX& token) noexcept -> bool
     // [Abstract]
@@ -349,6 +333,25 @@ StringX::pop(const StringX::Pos pos) noexcept
 
 }   // }}}
 
+std::vector<StringX>
+StringX::split(const CharX& delim) const noexcept
+{   // {{{
+
+    // Initialize the output array.
+    std::vector<StringX> result = {StringX("")};
+
+    for (const CharX& cx : *this)
+    {
+        if (cx.value == delim.value)
+            result.push_back(StringX(""));
+        else
+            result.back().emplace_back(cx);
+    }
+
+    return result;
+
+}   // }}}
+
 bool
 StringX::startswith(const StringX& str) const noexcept
 {   // {{{
@@ -357,7 +360,7 @@ StringX::startswith(const StringX& str) const noexcept
     // if the length of pattern string is longer than the target string.
     if (this->size() < str.size()) return false;
 
-    for (size_t i = 0; i < str.size(); ++i)
+    for (uint32_t i = 0; i < str.size(); ++i)
         if (str[i].value != (*this)[i].value)
             return false;
 

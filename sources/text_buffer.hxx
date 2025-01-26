@@ -39,6 +39,10 @@ class TextBuffer
         // [Args]
         //   mode (TextBuffer::Mode): [IN] Initial mode.
 
+        ~TextBuffer(void);
+        // [Abstract]
+        //   Default destructor of TextBuffer.
+
         ////////////////////////////////////////////////////////////////////////
         // Getter and setter functions
         ////////////////////////////////////////////////////////////////////////
@@ -104,6 +108,13 @@ class TextBuffer
         // [Args]
         //   lhs (const StringX&): [IN] Initial left hand side of cursor.
         //   rhs (const StringX&): [IN] Initial right hand side of cursor.
+        
+        ////////////////////////////////////////////////////////////////////////
+        // Public variables
+        ////////////////////////////////////////////////////////////////////////
+
+        static TextBuffer* instance;
+        // Existing instance of TextBuffer.
 
     private:
 

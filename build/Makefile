@@ -21,10 +21,10 @@ LIBS := ncursesw
 # Build commands
 ################################################################################
 
-gcc: external/cxxopts.hpp external/glob.hpp external/toml.hpp
+gcc: external/cxxopts.hpp external/glob.hpp external/pocketpy.o
 	bash compile.bash --compiler=gcc --src=${SRCDIR} --obj=${OBJDIR} --link=${LIBS}
 
-clang: external/cxxopts.hpp external/glob.hpp external/toml.hpp
+clang: external/cxxopts.hpp external/glob.hpp external/pocketpy.o
 	bash compile.bash --compiler=clang --src=../sources --obj=objects --link=${LIBS}
 
 external/cxxopts.hpp:
@@ -35,9 +35,16 @@ external/glob.hpp:
 	mkdir -p external
 	wget -q -O external/glob.hpp https://raw.githubusercontent.com/p-ranav/glob/master/single_include/glob/glob.hpp --no-check-certificate
 
-external/toml.hpp:
+external/pocketpy.c:
 	mkdir -p external
-	wget -q -O external/toml.hpp https://raw.githubusercontent.com/marzer/tomlplusplus/master/toml.hpp --no-check-certificate
+	wget -q -O external/pocketpy.c https://github.com/pocketpy/pocketpy/releases/download/v2.0.5/pocketpy.c
+
+external/pocketpy.h:
+	mkdir -p external
+	wget -q -O external/pocketpy.h https://github.com/pocketpy/pocketpy/releases/download/v2.0.5/pocketpy.h
+
+external/pocketpy.o: external/pocketpy.c external/pocketpy.h
+	gcc -std=c11 -c -O3 -DNDEBUG -DPK_ENABLE_OS=1 -I./external -o external/pocketpy.o external/pocketpy.c
 
 ################################################################################
 # Other utility commands

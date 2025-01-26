@@ -13,13 +13,23 @@
     <!-- FONT -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Noto+Sans&family=Raleway&family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet" />
 
     <!-- CSS -->
     <!-- Reference: http://getskeleton.com/ -->
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/skeleton.css">
-    <link rel="stylesheet" href="css/prism.css">
+
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="css/highlight_stackoverflow-light.min.css">
+    <script type="text/javascript" src="js/highlight.min.js"></script>
+
+    <!-- jQuery.js -->
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+
+    <!-- Custom CSS / JS -->
     <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" src="js/script.js"></script>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="images/favicon.png">
@@ -50,70 +60,126 @@
         <div class="row">
             <p>At first, you need to create your config file if you haven't created yet. <!--
             -->You can write a config file from scratch, but it's better to start from <!--
-            --><a href="https://github.com/tiskw/nishiki/blob/main/config.toml">this config.toml file</a>. <!--
-            -->Please download it and place on <code>~/.config/nishiki/config.toml</code>.</p>
-            <div class="code"><pre><code class="language-bash">
-            mkdir -p ~/.config/nishiki
-            mv DOWNLOAD_DIRECTORY/config.toml ~/.config/nishiki/config.toml
-            </code></pre></div>
+            --><a href="https://github.com/tiskw/nishiki/blob/main/config.py">this config.py file</a>. <!--
+            -->Please download it and place on <code class="language-bash">~/.config/nishiki/config.py</code>.</p>
+            <pre><code class="language-bash">mkdir -p ~/.config/nishiki
+mv DOWNLOAD_DIRECTORY/config.py ~/.config/nishiki/config.py</code></pre>
         </div>
 
         <h2>Configure prompt</h2>
         <div class="row">
-            <p>You can customize your prompt by setting the variables <code>prompt1</code>, <!--
-            --><code>prompt2</code>, <code>prompt3_ins</code>, <code>prompt3_nor</code>, <!--
-            -->and <code>prompt_comp</code> in your config file. The following is the layout <!--
-            -->of each prompt variable:</p>
-            <div class="code"><pre><code class="language-html">
-            <- prompt1 ---------------> <------- propmt2 (right justified) ->
-            <- prompt3 -> <- user input ------------------------------------>
-            <- prompt_comp -> <- completion area (line 1) ------------------>
-            <- prompt_comp -> <- completion area (line 2) ------------------>
-            ...
-            <- prompt_comp -> <- completion area (last line) --------------->
-            </code></pre></div>
-            <p>Note that the <code>prompt3_ins</code> will be used as the prompt3 when <!--
-            -->insert mode, and <code>prompt3_nor</code> will be used when normal mode.</p>
-            <p>Also, the following variables are available in the prompt setting:</p>
-            <ul>
-                <li><code>{cwd}</code>: Current working directory path.</li>
-                <li><code>{date}</code>: Date string of format "%Y-%m-%d".</li>
-                <li><code>{git}</code>: Git branch information.</li>
-                <li><code>{host}</code>: Host name.</li>
-                <li><code>{time}</code>: Time string of format "%H-%M-%S".</li>
-                <li><code>{user}</code>: Current user name.</li>
-            </ul>
-            <p>For example, the following setting:</p>
-            <div class="code"><pre><code class="language-toml">
-            prompt1 = "{user}@{host}:{cwd}"
-            prompt2 = "{git}"
-            prompt3_ins = "$ "
-            prompt3_nor = "+ "
-            </code></pre></div>
-            <p>results in the following display:</p>
-            <div class="code"><pre><code class="language-html">
-            USERNAME@HOSTNAME:CURRENT_DIRECTORY_PATH              GIT_BRANCH
-            $
-            </code></pre></div>
-            <p>where <code>USERNAME</code>, <code>HOSTNAME</code>,
-            <code>CURRENT_DIRECTORY_PATH</code>, and <code>GIT_BRANCH</code>, will be <!--
-            -->replaced to an appropriate string. Also, the character <code>$</code> will <!--
-            -->be replaced to <code>+</code> in the NORMAL mode.</p>
+            <p>You can customize your prompt by defining a function <code>get_ps0</code>, <code>get_ps1</code>, <!--
+            -->and <code>get_ps2</code> that return a propmt string. The prompt string returned by <code>get_ps1</code> <!--
+            -->and <code>get_ps2</code> corresponds to <code>PS1</code> and <code>PS2</code> of Bash respectively. <!--
+            -->The string of <code>get_ps0</code> will be displayed before the editing line:</p>
+            <pre><code class="language-text"><- get_ps0 ----------------------------------------------------->
+<- get_ps1 -> <- user input ------------------------------------>
+<- get_ps2 -> <- user input ------------------------------------>
+...</code></pre>
+            <p>The default definition of <code>get_ps*</code> is the following:</p>
+            <pre><code class="language-python">def get_ps0() -> str:
+    """
+    Returns the line before the prompt.
+    """
+    # Get the date and time string.
+    date, time = str(datetime.datetime.now()).split()
+
+    # Get the current directory.
+    try   : cwd = os.getcwd().replace(os.getenv("HOME"), "~")
+    except: cwd = "???"
+
+    # Get the width of the terminal.
+    width = nishiki.get("width")
+
+    # Get the git branch info.
+    git_info = get_git_branch_info()
+
+    # Create the left side of the prompt string.
+    prompt  = "\x1b[31m{user} \x1b[0m: ".format(user=os.getenv("USER"))
+    prompt += "\x1b[32m{name} \x1b[0m: ".format(name=os.getenv("NAME"))
+    prompt += "\x1b[33m{date} \x1b[0m: ".format(date=date)
+    prompt += "\x1b[34m{time} \x1b[0m: ".format(time=time)
+    prompt += "\x1b[35m{cwd}\x1b[0m".format(cwd=cwd)
+
+    # Create the right side of the prompt string.
+    prompt += " " * (width - strwidth(prompt) - strwidth(git_info) - 1)
+    prompt += git_info
+
+    return prompt
+
+
+def get_ps1() -> str:
+    """
+    Returns the first prompt.
+    """
+    return "=>> "
+
+
+def get_ps2() -> str:
+    """
+    Returns the second prompt.
+    """
+    return ".. "
+
+
+#-------------------------------------------------------------------------------
+# Utility functions
+#-------------------------------------------------------------------------------
+
+def get_git_branch_info() -> str:
+    """
+    Get git branch and status information and return as a colored string.
+    """
+    # Get git branch and status information.
+    branch = nishiki.check_output("git rev-parse --abbrev-ref HEAD").strip()
+    status = nishiki.check_output("git status --porcelain").strip()
+
+    if ((len(branch) > 0) and (len(status) > 0)):
+        return ("\x1b[33m" + branch + "!\x1b[m");
+    elif len(branch) > 0:
+        return ("\x1b[32m" + branch +  "\x1b[m");
+    return branch;
+
+
+def strwidth(text: str) -> int:
+    """
+    Compute the width of the given string.
+
+    Args:
+        text (str): Target string.
+
+    Returns:
+        (int): Width of the string.
+    """
+    def get_width_char(c: str) -> int:
+        """
+        Get the width of a unicode character.
+        """
+        if               ord(c) <= 0x0000FF: return 1
+        elif 0xEFBDB1 <= ord(c) <= 0xEFBE9F: return 1
+        else                               : return 2
+
+    # Ignroe ANSI SGR.
+    text = re.sub("\x1b\\[[0-9]*m", "", text)
+
+    return sum(map(get_width_char, text))</code></pre>
         </div>
 
         <h2>Add new key binding</h2>
         <div class="row">
-            <p>You can customize the keybind of NiShiKi by the <code>[KEYBIND]</code> section of <!--
-            -->the config file. The following is the format of the items in the <code>[KEYBIND]</code> section:</p>
-            <div class="code"><pre><code class="language-toml">
-            "&lt;keybind&gt;" = "!&lt;command_type&gt;[&lt;option&gt;] &lt;command&gt;"
-            </code></pre></div>
-            <p>where <code>&lt;keybind&gt;</code> is a keybind to be assigned, <!--
-            --><code>&lt;command_type&gt;</code> is a command type spacifier, <!--
-            --><code>&lt;option&gt;</code> is optional characters for command type, <!--
-            -->and <code>&lt;command&gt;</code> is a command to ce called. <!--
-            -->The <code>&lt;command_type&gt;</code> must be either <code>int</code> (internal) <!--
-            -->or <code>ext</code> (external). The details of each command type are as follows.</p>
+            <p>You can customize the keybind of NiShiKi by the <code>keybinds</code> variable of <!--
+            -->the config file. The following is the format of the items in the <code>keybinds</code> variable:</p>
+            <pre><code class="language-python">keybinds: list = [
+    ["&lt;keybind&gt;", "!&lt;command_type&gt;[&lt;option&gt;] &lt;command&gt;"],
+    ...,
+]</code></pre>
+            <p>where <code class="language-python">&lt;keybind&gt;</code> is a keybind to be assigned, <!--
+            --><code class="language-text">&lt;command_type&gt;</code> is a command type spacifier, <!--
+            --><code class="language-text">&lt;option&gt;</code> is optional characters for command type, <!--
+            -->and <code class="language-text">&lt;command&gt;</code> is a command to ce called. <!--
+            -->The <code class="language-text">&lt;command_type&gt;</code> must be either <!--
+            --><code class="language-text">int</code> (internal) or <code class="language-text">ext</code> <!--
+            -->(external). The details of each command type are as follows.</p>
         </div>
 
         <h3>command_type: int</h3>
@@ -125,52 +191,55 @@
                 <li><code>histchooser</code>: Choose command history graphically.</li>
                 <li><code>procchooser</code>: Choose process number graphically.</li>
             </ul>
-            <p>This sample config file sets keybinds of them to <code>Ctrl-F</code>, <code>Ctrl-H</code>, <!--
-            -->and <code>Ctrl-P</code> respectively. See the sample config file.</p>
+            <p>This sample config file sets keybinds of them to <code class="language-text">Ctrl-F</code>, <!--
+            --><code class="language-text">Ctrl-H</code>, and <code class="language-text">Ctrl-P</code> <!--
+            -->respectively. See the sample config file.</p>
         </div>
 
         <h3>command_type: ext</h3>
         <div class="row">
-            <p>The external command calls an external command, for example <code>xclip</code>, and <!--
+            <p>The external command calls an external command, for example <code class="language-text">xclip</code>, and <!--
             -->inserts the command results into your editing line if you want. The external <!--
-            -->command types have several specifiers, <code>i</code>, <code>l</code> and <!--
-            --><code>r</code> etc. The specifiers are declared like <code>ext[il]</code> <!--
-            -->which means the external command with <code>i</code> and <!--
-            --><code>l</code> specifiers. The following is the meaning of each specifier.</p>
+            -->command types have several specifiers, <code class="language-text">i</code>, <code class="language-text">l</code> and <!--
+            --><code class="language-text">r</code> etc. The specifiers are declared like <code class="language-text">ext[il]</code> <!--
+            -->which means the external command with <code class="language-text">i</code> and <!--
+            --><code class="language-text">l</code> specifiers. The following is the meaning of each specifier.</p>
             <ul>
-                <li><code>i</code>: insert command results to the editing buffer.</li>
-                <li><code>l</code>: append left-hand side string.</li>
-                <li><code>r</code>: append right-hand side string.</li>
+                <li><code class="language-text">i</code>: insert command results to the editing buffer.</li>
+                <li><code class="language-text">l</code>: append left-hand side string.</li>
+                <li><code class="language-text">r</code>: append right-hand side string.</li>
             </ul>
-            <p>Note that the simple command type "ext" is equivalent to <code>ext[ilr]</code>.
+            <p>Note that the simple command type "ext" is equivalent to <code class="language-text">ext[ilr]</code>.
             Whitespace is necessary after the internal/external specifier.</p>
             <p>The following variables are available for external commands:</p>
             <ul>
-                <li><code>{lhs}</code>: Left-hand side string.</li>
-                <li><code>{rhs}</code>: Right-hand side string.</li>
+                <li><code class="language-text">{lhs}</code>: Left-hand side string.</li>
+                <li><code class="language-text">{rhs}</code>: Right-hand side string.</li>
             </ul>
         </div>
 
         <h2>Add new completion</h2>
         <div class="row">
-            <p>The format of the completion is:</p>
-            <div class="code"><pre><code class="language-text">
-            [[PATTERN], COMPLETION_TYPE, EXTRA_STRING]
-            </code></pre></div>
-            <p>where <code>PATTERN</code> is a list of strings, <code>COMPLETION_TYPE</code> is <!--
-            -->a completion type, and <code>EXTRA_STRING</code> is additional string for completion. <!--
-            -->If user input matches to the <code>PATTERN</code>, the corresponding completion <!--
-            -->will be applied. There are several types of completion, <code>"command"</code>, <!--
-            --><code>"filepath"</code>, <code>"option"</code>, <code>"preview"</code>, <!--
-            --><code>"shell"</code>, and <code>"subcmd"</code>. The following is the short explanation <!--
+            <p>You can customize the command completions of NiShiKi by the <code>completions</code> variable of <!--
+            -->the config file. The following is the format of the items in the <code>completions</code> variable:</p>
+            <pre><code class="language-python">completions: list = [
+    [[PATTERN, ...], COMPLETION_TYPE, EXTRA_STRING],
+    ...,
+]</code></pre>
+            <p>where <code class="language-text">PATTERN</code> is a list of strings, <code class="language-text">COMPLETION_TYPE</code> is <!--
+            -->a completion type, and <code class="language-text">EXTRA_STRING</code> is additional string for completion. <!--
+            -->If user input matches to the <code class="language-text">PATTERN</code>, the corresponding completion <!--
+            -->will be applied. There are several types of completion, <code class="language-text">"command"</code>, <!--
+            --><code class="language-text">"filepath"</code>, <code class="language-text">"option"</code>, <code class="language-text">"preview"</code>, <!--
+            --><code class="language-text">"shell"</code>, and <code class="language-text">"subcmd"</code>. The following is the short explanation <!--
             -->of each completion type.</p>
             <ul>
-                <li><code>"command"</code>: Commands in $PATH will be completed.</li>
-                <li><code>"filepath"</code>: File paths in a directory willbe completed.</li>
-                <li><code>"option"</code>: Command option will be completed.</li>
-                <li><code>"preview"</code>: File paths command with preview window.</li>
-                <li><code>"shell"</code>: Run a shell command and use it as a completion candidate.</li>
-                <li><code>"subcmd"</code>: Complete sub command of current command.</li>
+                <li><code class="language-text">"command"</code>: Commands in $PATH will be completed.</li>
+                <li><code class="language-text">"filepath"</code>: File paths in a directory willbe completed.</li>
+                <li><code class="language-text">"option"</code>: Command option will be completed.</li>
+                <li><code class="language-text">"preview"</code>: File paths command with preview window.</li>
+                <li><code class="language-text">"shell"</code>: Run a shell command and use it as a completion candidate.</li>
+                <li><code class="language-text">"subcmd"</code>: Complete sub command of current command.</li>
             </ul>
         </div>
 
@@ -181,11 +250,22 @@
             <span>Copyright (C) 2024-<span id="thisYear"></span> Tetsuya Ishikawa</span>
         </footer>
 
-        <!-- Load javascripts -->
-        <script src="js/jquery-3.7.1.slim.min.js"></script>
-        <script src="js/prism.js"></script>
-        <script src="js/script.js"></script>
-
+        <!-- Activate highlight.js for both inline/block code -->
+        <script>
+            window.addEventListener("DOMContentLoaded", function() {
+                var elements = document.getElementsByTagName("code");
+                var l=elements.length;
+                for (var i=0; i<l; i++) {
+	                var el = elements[i];
+	                hljs.highlightBlock(el);
+	                if (el.parentNode.tagName.toLowerCase() != "pre") {
+	    	            el.style.display = "inline";
+	    	            el.style.margin = "0 2px";
+	    	            el.style.padding = "1px 3px";
+	                }
+                }
+            }, false);
+        </script>
     </div>
 
 </body></html>

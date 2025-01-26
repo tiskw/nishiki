@@ -26,7 +26,7 @@ class TermWriter
         // Constructors and descructors
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-         TermWriter(void);
+        explicit TermWriter(uint16_t height);
         ~TermWriter(void);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ class TermWriter
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         void
-        write(const StringX& lhs, const StringX& rhs, TextBuffer::Mode mode, const std::vector<StringX>& clines, const StringX& hist_comp) const noexcept;
+        write(const std::string& prompt, const StringX& lhs, const StringX& rhs, const std::vector<StringX>& clines, const StringX& hist_comp) const noexcept;
         // [Abstract]
         //   Write the given contents to the terminal.
         //   Layout of the contents is the following.
@@ -62,15 +62,6 @@ class TermWriter
 
         StringX prompt_head;
         // Header line of the prompt.
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
-        // Private member functions
-        ////////////////////////////////////////////////////////////////////////////////////////////
-
-        void
-        update(void) noexcept;
-        // [Abstract]
-        //   Update auxiliary information.
 };
 
 #endif

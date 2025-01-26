@@ -12,10 +12,26 @@
 // Include the headers of STL.
 #include <cstdint>
 #include <map>
+#include <string>
+#include <tuple>
+#include <vector>
 
 // Include the headers of custom modules.
 #include "edit_helper.hxx"
 #include "string_x.hxx"
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Data type alias
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// A map from string to string.
+using StringMap = std::map<std::string, std::string>;
+
+// A vector of strings.
+using StringVector = std::vector<std::string>;
+
+// Completion item.
+using CompletionItem = std::tuple<StringVector, EditHelper::CompType, std::string>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Data type declaration
@@ -23,34 +39,32 @@
 
 typedef struct
 {
-    // [GENERAL] settings.
-    uint16_t    area_hgt;
-    uint16_t    column_margin;
+    // General settings.
+    uint16_t    area_height = 8;
+    uint16_t    column_margin = 3;
     std::string datetime_pre;
     std::string datetime_post;
     std::string histhint_pre;
     std::string histhint_post;
 
-    // [PROMPT] settings.
-    std::string prompt1;
-    std::string prompt2;
-    std::string prompt3_ins;
-    std::string prompt3_nor;
-    std::string prompt_comp;
+    // Alias settings.
+    StringMap aliases;
 
-    // [ALIAS] settings.
-    std::map<StringX, StringX> aliases;
+    // Colorization settings.
+    std::string colorize_commands = "cat,cd,chmod,chown,cp,echo,env,export,grep,let,ln,ls,make,mkdir,mv,rm,sed,set,tar,touch,umask,unset";
+    std::string colorize_keywords = "case,do,done,elif,else,esac,exit,fi,for,function,if,in,local,read,return,select,shift,then,time,until,while";
+    std::string colorize_symbols  = "&,|,>,<,&&,||,>>,<<";
 
-    // [KEYBIND] settings.
-    std::map<std::string, std::string> keybind;
+    // Keybind settings.
+    StringMap keybind;
 
-    // [COMPLETION] settings.
-    std::vector<std::tuple<std::vector<std::string>, EditHelper::CompType, std::string>> completions;
+    // Completion settings.
+    std::vector<CompletionItem> completions;
 
-    // [PREVIEW] settings.
-    std::vector<std::pair<std::string, std::string>> previews;
-    std::string                                      preview_delim;
-    float                                            preview_ratio;
+    // Preview settings.
+    StringMap   preview;
+    float       preview_ratio = 0.45;
+    std::string preview_delim = "|";
 }
 NishikiConfig;
 
@@ -59,19 +73,6 @@ NishikiConfig;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 extern NishikiConfig config;
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Public functions
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void
-load_config(std::string filepath) noexcept;
-// [Abstract]
-//   Load config file written in TOML format.
-//   The result will be stored in the global variable `config` that is declared in `config.cxx`.
-//
-// [Args]
-//   filepath (const char*): [IN] Path to TOML file.
 
 #endif
 
