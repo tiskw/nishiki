@@ -8,7 +8,6 @@
 // Include the headers of STL.
 #include <cstdio>
 #include <filesystem>
-#include <regex>
 #include <unistd.h>
 #include <sys/ioctl.h>
 
@@ -153,69 +152,6 @@ column(const std::vector<StringX>& texts, uint16_t width, uint16_t height, uint1
 
 }   // }}}
 
-void
-drop_whitespace_tokens(std::vector<StringX>& tokens) noexcept
-{   // {{{
-
-    constexpr auto is_whitespace_token = [](const StringX& token) noexcept -> bool
-    // [Abstract]
-    //   Returns true if the given token is whitespace token.
-    //
-    // [Args]
-    //   token (const StringX&): [IN] Target token.
-    //
-    // [Returns]
-    //   (bool): True if the given token is a whitespace token.
-    {
-        return (token.size() == 0) or (token[0].value == ' ');
-    };
-
-    // Drop white-space tokens.
-    tokens.erase(std::remove_if(tokens.begin(), tokens.end(), is_whitespace_token), tokens.cend());
-
-}   // }}}
-
-StringX
-get_common_substring(const std::vector<StringX>& texts) noexcept
-{   // {{{
-
-    // Initialize output string.
-    StringX result;
-
-    // Returns empty string if the size of the given text list is zero.
-    if (texts.size() == 0)
-        return result;
-
-    // Find minimul length of the given texts.
-    uint32_t min_size = texts[0].size();
-    for (uint32_t n = 1; n < texts.size(); ++n)
-        min_size = std::min(min_size, static_cast<uint32_t>(texts[n].size()));
-
-    // Check consistency for each character and append to the result string.
-    for (uint32_t m = 0; m < min_size; ++m)
-    {
-        // Check the character consistency.
-        for (uint32_t n = 1; n < texts.size(); ++n)
-            if (texts[n][m].value != texts[0][m].value)
-                return result;
-
-        // Append to the result string.
-        result += texts[0][m];
-    }
-
-    return result;
-
-}   // }}}
-
-std::string
-get_cwd(void) noexcept
-{   // {{{
-
-    try         { return std::filesystem::current_path(); }
-    catch (...) { return "???";                           }
-
-}   // }}}
-
 std::string
 get_date(void) noexcept
 {   // {{{
@@ -261,20 +197,6 @@ get_time(void) noexcept
     sprintf(buffer, "%02d:%02d:%02d", p.tm_hour, p.tm_min, p.tm_sec);
 
     return std::string(buffer);
-
-}   // }}}
-
-std::string
-get_git_branch_info(void) noexcept
-{   // {{{
-
-    // Get git branch and status information.
-    const std::string branch = run_command("git rev-parse --abbrev-ref HEAD");
-    const std::string status = run_command("git status --porcelain");
-
-    if      ((branch.size() > 0) and (status.size() > 0)) return ("\033[33m" + branch + "!\033[m");
-    else if ( branch.size() > 0                         ) return ("\033[32m" + branch +  "\033[m");
-    else                                                  return branch;
 
 }   // }}}
 
@@ -335,30 +257,6 @@ print_message_and_exit(const char* message) noexcept
 }   // }}}
 
 std::string
-replace(const std::string& target, const std::string& oldstr, const std::string& newstr) noexcept
-{   // {{{
-
-    // Create copy of the input string.
-    std::string replaced = target;
-
-    // Find the old string in the target string.
-    std::string::size_type pos = replaced.find(oldstr);
- 
-    while (pos != std::string::npos)
-    {
-        // Replace the old string to the new string.
-        replaced.replace(pos, oldstr.length(), newstr);
-
-        // Find the old string again.
-        pos = replaced.find(oldstr, pos + newstr.length());
-    }
-
-    // Returns the replaced string.
-    return replaced;
-
-}   // }}}
-
-std::string
 run_command(const std::string& command, bool strip_output) noexcept
 {   // {{{
 
@@ -385,115 +283,6 @@ run_command(const std::string& command, bool strip_output) noexcept
     // Returns the output value.
     if (strip_output) { return strip(result); }
     else              { return result;        }
-
-}   // }}}
-
-std::vector<std::string>
-split(const std::string& str) noexcept
-{   // {{{
-
-    // Initialize the returned value.
-    std::vector<std::string> result;
-
-    // Pattern for splitting.
-    const std::regex pattern("\\S+");
-
-    // Split given string using the pattern.
-    for (std::sregex_iterator it(std::begin(str), std::end(str), pattern), end; it != end; ++it)
-        result.emplace_back(it->str());
-
-    return result;
-
-}   // }}}
- 
-std::vector<std::string>
-split(const std::string& str, const std::string& delim) noexcept
-{   // {{{
-
-    // Initialize the output array.
-    std::vector<std::string> result;
-
-    // Do nothing if the delimiter is an empty string.
-    if (delim.size() == 0)
-    {
-        result.push_back(str);
-        return result;
-    }
-
-    // Initialize offset which indicates current position.
-    std::string::size_type offset = 0;
-
-    while (true)
-    {
-        // Find next target.
-        const std::string::size_type pos = str.find(delim, offset);
-
-        // Returns if no next target found.
-        if (pos == std::string::npos)
-        {
-            result.push_back(str.substr(offset));
-            return result;
-        }
-
-        // Otherwise, memorize the found target and update the offset value.
-        result.push_back(str.substr(offset, pos - offset));
-        offset = pos + delim.size();
-    }
-
-}   // }}}
-
-std::string
-strip(const std::string& str) noexcept
-{   // {{{
-
-    constexpr auto is_not_space = [](unsigned char ch) noexcept -> bool
-    // [Abstract]
-    //   Returns true if the given character is not whitespace.
-    //
-    // [Args]
-    //   ch (unsigned char): [IN] Target character.
-    //
-    // [Returns]
-    //   (bool): True if not a space.
-    {
-        return !std::isspace(ch);
-    };
-
-    constexpr auto lstrip = [is_not_space](const std::string &src) noexcept -> std::string
-    // [Abstract]
-    //   Strip white-spaces from the front.
-    //
-    // [Args]
-    //   str (const std::string&): [IN] Target string to be stripped.
-    //
-    // [Returns]
-    //   (std::string): Stripped string.
-    {
-        std::string str = std::string(src);
-
-        str.erase(str.begin(), std::find_if(str.begin(), str.end(), is_not_space));
-
-        return str;
-    };
-
-    constexpr auto rstrip = [is_not_space](const std::string &src) noexcept -> std::string
-    // [Abstract]
-    //   Strip white-spaces from the end.
-    //
-    // [Args]
-    //   str (const std::string&): [IN] Target string to be stripped.
-    //
-    // [Returns]
-    //   (std::string): Stripped string.
-    {
-        std::string str = std::string(src);
-
-        str.erase(std::find_if(str.rbegin(), str.rend(), is_not_space).base(), str.end());
-
-        return str;
-    };
-
-    return rstrip(lstrip(str));
 
 }   // }}}
 

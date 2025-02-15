@@ -25,7 +25,8 @@ nishiki_main(const int32_t argc, const char* argv[]);
 //
 // [Args]
 //   argc (const int32_t): The number of strings pointed to by argv.
-//   argv (const char*)  : The strings of command line arguments.
+//   argv (const char*[]): Contents of command line arguments.
+//   envp (const char*[]): Pointer to environment variables.
 //
 // [Returns]
 //   (int32_t): Return code (EXIT_SUCCESS or EXIT_FAILURE).

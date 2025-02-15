@@ -106,7 +106,9 @@ footer.footer {
  * Code
 \* * * * * * * * * * * * * * * * * * * * * */
 
-div.code {
-    font-size: 1.4rem;
+code {
+    font-family: "JetBrains Mono";
+    font-size: 1.3rem;
+    line-height: 160%;
 }
 

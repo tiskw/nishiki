@@ -1,85 +1,128 @@
+################################################################################
 # Config file for NiShiKi
+#
+# NOTE: This config file is written in Python, but it is PocketPy not CPython.
+#       Therefore the available standard library is very limited. See the
+#       <https://pocketpy.dev/> for the details of PocketPy.
+################################################################################
+
+# Import standard libraries.
+import datetime
+import os
+import re
+
+# Import NiShiKi's custom module.
+import nishiki
 
 
 ################################################################################
 # General settings
 ################################################################################
-[GENERAL]
 
 # Height of drawing area.
-area_hgt = 12
+area_height: int = 8
 
 # Length of mergin in the column display.
-column_margin = 3
+column_margin: int = 3
 
 # Prefix and postfix of the time stamp.
 # For example, you can set ANSI color code to colorize the time stamp.
-datetime_pre  = "\u001B[90m["
-datetime_post = "]\u001B[m"
+datetime_pre: str  = "\x1B[90m["
+datetime_post: str = "]\x1b[m"
 
 # Prefix and postfix of the history hint.
 # For example, you can set ANSI color code to colorize history hint.
-histhint_pre  = "\u001B[90m"
-histhint_post = "\u001B[m"
-
-
-################################################################################
-# Prompt settings
-#
-# You can customize your prompt by setting the variables used in this section,
-# "prompt1", "prompt2", "prompt3_ins", "prompt3_nor", and "prompt_comp". The
-# location of each prompt variable is the following:
-#
-#   <- prompt1 ---------------> <------- propmt2 (right justified) ->
-#   <- prompt3 -> <- user input ------------------------------------>
-#   <- prompt_comp -> <- completion area (line 1) ------------------>
-#   <- prompt_comp -> <- completion area (line 2) ------------------>
-#   ...
-#   <- prompt_comp -> <- completion area (last line) --------------->
-#
-# Note that the "prompt3_ins" will be used as the prompt3 when insert mode,
-# and "prompt3_nor" will be used when normal mode.
-# 
-# The following variables are available for these prompt variables.
-#
-#   - "{cwd}" : Current working directory path.
-#   - "{date}": Date string of format "%Y-%m-%d".
-#   - "{git}" : Git branch information.
-#   - "{host}": Host name.
-#   - "{time}": Time string of format "%H-%M-%S".
-#   - "{user}": Current user name.
-################################################################################
-[PROMPT]
-
-# Prompts for editing area. The layout of prompt is the following.
-prompt1 = "\u001B[90m[\u001B[92m{user}@{host}\u001B[90m]-[\u001B[93m{date}\u001B[90m]-[\u001B[94m{time}\u001B[90m]-[\u001B[95m{cwd}\u001B[90m]\u001B[m"
-prompt2 = "{git}"
-
-# Prompt3 has two values, "prompt3_ins" for INSERT mode and "prompt3_nor" for
-# NORMAL mode.
-prompt3_ins = "\u001B[90m->\u001B[m "
-prompt3_nor = "\u001B[90m>-\u001B[m "
-
-# Prompts for completion area.
-prompt_comp = " "
+histhint_pre: str  = "\x1B[90m"
+histhint_post: str = "\x1B[m"
 
 
 ################################################################################
 # Alias settings
 ################################################################################
-[ALIAS]
 
-ls = "ls -h --color=auto --group-directories-first"
-ll = "ls -hl --color=auto --group-directories-first"
-la = "ls -ahl --color=auto --group-directories-first"
-sl = "ls -h --color=auto --group-directories-first"
+aliases: list = [
 
-cp = "cp -i"
-mv = "mv -i"
-rm = "rm -i"
+    # "ls" command families.
+    ["ls", "ls -h --color=auto --group-directories-first"],
+    ["ll", "ls -hl --color=auto --group-directories-first"],
+    ["la", "ls -ahl --color=auto --group-directories-first"],
+    ["sl", "ls -h --color=auto --group-directories-first"],
 
-diff = "diff --color=auto"
-grep = "grep --color=auto"
+    # "cp", "mv", and "rm".
+    ["cp", "cp -i"],
+    ["mv", "mv -i"],
+    ["rm", "rm -i"],
+
+    # Others.
+    ["diff", "diff --color=auto"],
+    ["grep", "grep --color=auto"],
+]
+
+
+################################################################################
+# Colorization settings
+################################################################################
+
+# Comma seperated values of shell command to be colorized.
+# Default value: "cat,cd,chmod,chown,cp,echo,env,export,grep,let,ln,ls,make,..."
+colorize_commands: str = None
+
+# Comma seperated values of shell keywords to be colorized.
+# Default value: "case,do,done,elif,else,esac,exit,fi,for,function,if,in,..."
+colorize_keywords: str = None
+
+# Comma seperated values of shell symbols to be colorized.
+# Default value: "&,|,>,<,&&,||,>>,<<"
+colorize_symbols: str = None
+
+
+################################################################################
+# Propmt settings
+################################################################################
+
+def get_ps0() -> str:
+    """
+    Returns the line before the prompt.
+    """
+    # Get the date and time string.
+    date, time = str(datetime.datetime.now()).split()
+
+    # Get the current directory.
+    try   : cwd = os.getcwd().replace(os.getenv("HOME"), "~")
+    except: cwd = "???"
+
+    # Get the width of the terminal.
+    width = nishiki.get("width")
+
+    # Get the git branch info.
+    git_info = get_git_branch_info()
+
+    # Create the left side of the prompt string.
+    prompt  = "\x1b[31m{user} \x1b[0m: ".format(user=os.getenv("USER"))
+    prompt += "\x1b[32m{name} \x1b[0m: ".format(name=os.getenv("NAME"))
+    prompt += "\x1b[33m{date} \x1b[0m: ".format(date=date)
+    prompt += "\x1b[34m{time} \x1b[0m: ".format(time=time)
+    prompt += "\x1b[35m{cwd}\x1b[0m".format(cwd=cwd)
+
+    # Create the right side of the prompt string.
+    prompt += " " * (width - strwidth(prompt) - strwidth(git_info) - 1)
+    prompt += git_info
+
+    return prompt
+
+
+def get_ps1() -> str:
+    """
+    Returns the first prompt.
+    """
+    return "=>> "
+
+
+def get_ps2() -> str:
+    """
+    Returns the second prompt.
+    """
+    return ".. "
 
 
 ################################################################################
@@ -116,13 +159,14 @@ grep = "grep --color=auto"
 #   - {lhs}: Left-hand side string.
 #   - {rhs}: Right-hand side string.
 ################################################################################
-[KEYBIND]
 
-"^F" = "!int filechooser"
-"^U" = "!int histchooser"
-"^P" = "!int procchooser"
-"^V" = "!ext xclip -o"
-"^L" = "!ext[] clear"
+keybinds: list = [
+    ["^F", "!int filechooser"],
+    ["^U", "!int histchooser"],
+    ["^P", "!int procchooser"],
+    ["^V", "!ext xclip -o"],
+    ["^L", "!ext[] clear"],
+]
 
 
 ################################################################################
@@ -143,9 +187,8 @@ grep = "grep --color=auto"
 #   * "subcmd"  : Complete sub command of current command.
 #
 ################################################################################
-[COMPLETION]
 
-completions = [
+completions: list = [
     # Docker command completions.
     [["docker", "exec", ">>", ".*"], "shell",  "docker container ls -a --format '{{.Names}}'"],
     [["docker", "run",  ">>", ".*"], "shell",  "docker image ls --format '{{.Repository}}:{{.Tag}}'"],
@@ -173,11 +216,10 @@ completions = [
 ################################################################################
 # Preview settings
 ################################################################################
-[PREVIEW]
 
 # An ordered list of preview table, where the format of the key is MIME type splitted
 # by "/". You are able to check the file MIME type by the command `file --mime <filepath>`.
-previews = [
+previews: list = [
     # Directory.
     ["inode/directory", "timeout 0.1s ls -hl --color=always --group-directories-first '{path}'"],
 
@@ -195,10 +237,53 @@ previews = [
 ]
 
 # Delimiter of the preview window.
-preview_delim = " \u2502 "
+preview_delim: str = " │ "
 
 # Ratio of the preview window.
-preview_ratio = 0.45
+preview_ratio: float = 0.45
 
 
-# vim: expandtab shiftwidth=4 shiftwidth=4 fdm=marker
+################################################################################
+# Utility functions (if you don't use, you can erase)
+################################################################################
+
+def get_git_branch_info() -> str:
+    """
+    Get git branch and status information and return as a colored string.
+    """
+    # Get git branch and status information.
+    branch = nishiki.check_output("git rev-parse --abbrev-ref HEAD").strip()
+    status = nishiki.check_output("git status --porcelain").strip()
+
+    if ((len(branch) > 0) and (len(status) > 0)):
+        return ("\x1b[33m" + branch + "!\x1b[m");
+    elif len(branch) > 0:
+        return ("\x1b[32m" + branch +  "\x1b[m");
+    return branch;
+
+
+def strwidth(text: str) -> int:
+    """
+    Compute the width of the given string.
+
+    Args:
+        text (str): Target string.
+
+    Returns:
+        (int): Width of the string.
+    """
+    def get_width_char(c: str) -> int:
+        """
+        Get the width of a unicode character.
+        """
+        if               ord(c) <= 0x0000FF: return 1
+        elif 0xEFBDB1 <= ord(c) <= 0xEFBE9F: return 1
+        else                               : return 2
+
+    # Ignroe ANSI SGR.
+    text = re.sub("\x1b\\[[0-9]*m", "", text)
+
+    return sum(map(get_width_char, text))
+
+
+# vim: expandtab tabstop=4 shiftwidth=4 fdm=marker

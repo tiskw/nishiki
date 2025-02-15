@@ -10,6 +10,8 @@
 // Include the headers of STL.
 #include <algorithm>
 #include <cstdint>
+#include <regex>
+#include <set>
 
 // Include the headers of custom modules.
 #include "string_x.hxx"
@@ -39,16 +41,36 @@ column(const std::vector<StringX>& texts, uint16_t width, uint16_t height, uint1
 // [Returns]
 //   (std::vector<StringX>): Formated strings in column style.
 
-void
-drop_whitespace_tokens(std::vector<StringX>& tokens) noexcept;
+constexpr inline void
+drop_whitespace_tokens(std::vector<StringX>& tokens) noexcept
 // [Abstract]
 //   Drop white-space tokens.
 //
 // [Args]
 //   tokens (std::vector<StringX>&): [IN/OUT] Target list of tokens.
+//
+{   // {{{
 
-StringX
-get_common_substring(const std::vector<StringX>& texts) noexcept;
+    constexpr auto is_whitespace_token = [](const StringX& token) noexcept -> bool
+    // [Abstract]
+    //   Returns true if the given token is whitespace token.
+    //
+    // [Args]
+    //   token (const StringX&): [IN] Target token.
+    //
+    // [Returns]
+    //   (bool): True if the given token is a whitespace token.
+    {
+        return (token.size() == 0) or (token[0].value == ' ');
+    };
+
+    // Drop white-space tokens.
+    tokens.erase(std::remove_if(tokens.begin(), tokens.end(), is_whitespace_token), tokens.cend());
+
+};  // }}}
+
+constexpr inline StringX
+get_common_substring(const std::vector<StringX>& texts) noexcept
 // [Abstract]
 //   Get common substring of the given strings.
 //
@@ -57,6 +79,36 @@ get_common_substring(const std::vector<StringX>& texts) noexcept;
 //
 // [Returns]
 //   (StringX): Common string in the given list of strings.
+//
+{   // {{{
+
+    // Initialize output string.
+    StringX result;
+
+    // Returns empty string if the size of the given text list is zero.
+    if (texts.size() == 0)
+        return result;
+
+    // Find minimul length of the given texts.
+    uint32_t min_size = texts[0].size();
+    for (uint32_t n = 1; n < texts.size(); ++n)
+        min_size = std::min(min_size, static_cast<uint32_t>(texts[n].size()));
+
+    // Check consistency for each character and append to the result string.
+    for (uint32_t m = 0; m < min_size; ++m)
+    {
+        // Check the character consistency.
+        for (uint32_t n = 1; n < texts.size(); ++n)
+            if (texts[n][m].value != texts[0][m].value)
+                return result;
+
+        // Append to the result string.
+        result += texts[0][m];
+    }
+
+    return result;
+
+};  // }}}
 
 // Get current directory.
 std::string
@@ -108,6 +160,25 @@ get_system_commands(void) noexcept;
 // [Returns]
 //   (std::vector<StringX>): List of available command names.
 
+constexpr inline uint64_t
+hash(const char* str) noexcept
+// [Abstract]
+//   Compute a hash value of the given string.
+//
+// [Returns]
+//   (uint64_t): Hash value of the string.
+//
+{   // {{{
+
+    uint64_t value = 14695981039346656037UL;
+
+    while (*str != '\0')
+        value = (1099511628211UL * value) ^ *(str++);
+
+    return value;
+
+};  // }}}
+
 void
 print_message_and_exit(const char* message) noexcept;
 // [Abstract]
@@ -116,8 +187,8 @@ print_message_and_exit(const char* message) noexcept;
 // [Args]
 //   message (const char*): [IN] Message to be shown.
 
-std::string
-replace(const std::string& target, const std::string& oldstr, const std::string& newstr) noexcept;
+constexpr inline std::string
+replace(const std::string& target, const std::string& oldstr, const std::string& newstr) noexcept
 // [Abstract]
 //   Replace string.
 //
@@ -128,6 +199,28 @@ replace(const std::string& target, const std::string& oldstr, const std::string&
 //
 // [Returns]
 //   (std::string): Replaced string.
+//
+{   // {{{
+
+    // Create copy of the input string.
+    std::string replaced = target;
+
+    // Find the old string in the target string.
+    std::string::size_type pos = replaced.find(oldstr);
+ 
+    while (pos != std::string::npos)
+    {
+        // Replace the old string to the new string.
+        replaced.replace(pos, oldstr.length(), newstr);
+
+        // Find the old string again.
+        pos = replaced.find(oldstr, pos + newstr.length());
+    }
+
+    // Returns the replaced string.
+    return replaced;
+
+};  // }}}
 
 std::string
 run_command(const std::string& command, bool strip_output = true) noexcept;
@@ -141,8 +234,8 @@ run_command(const std::string& command, bool strip_output = true) noexcept;
 // [Returns]
 //   (std::string): Returns value of the external command.
 
-std::vector<std::string>
-split(const std::string& str) noexcept;
+constexpr inline std::vector<std::string>
+split(const std::string& str) noexcept
 // [Abstract]
 //   Split the given string with whitespaces.
 //
@@ -151,9 +244,25 @@ split(const std::string& str) noexcept;
 //
 // [Returns]
 //   (std::vector<std::string>): Split strings.
+//
+{   // {{{
 
-std::vector<std::string>
-split(const std::string& str, const std::string& delim) noexcept;
+    // Initialize the returned value.
+    std::vector<std::string> result;
+
+    // Pattern for splitting.
+    const std::regex pattern("\\S+");
+
+    // Split given string using the pattern.
+    for (std::sregex_iterator it(std::begin(str), std::end(str), pattern), end; it != end; ++it)
+        result.emplace_back(it->str());
+
+    return result;
+
+};  // }}}
+
+constexpr inline std::vector<std::string>
+split(const std::string& str, const std::string& delim) noexcept
 // [Abstract]
 //   Split the given string with the given delimiter.
 //
@@ -163,9 +272,43 @@ split(const std::string& str, const std::string& delim) noexcept;
 //
 // [Returns]
 //   (std::vector<std::string>): Split strings.
+//
+{   // {{{
 
-std::string
-strip(const std::string &str) noexcept;
+    // Initialize the output array.
+    std::vector<std::string> result;
+
+    // Do nothing if the delimiter is an empty string.
+    if (delim.size() == 0)
+    {
+        result.push_back(str);
+        return result;
+    }
+
+    // Initialize offset which indicates current position.
+    std::string::size_type offset = 0;
+
+    while (true)
+    {
+        // Find next target.
+        const std::string::size_type pos = str.find(delim, offset);
+
+        // Returns if no next target found.
+        if (pos == std::string::npos)
+        {
+            result.push_back(str.substr(offset));
+            return result;
+        }
+
+        // Otherwise, memorize the found target and update the offset value.
+        result.push_back(str.substr(offset, pos - offset));
+        offset = pos + delim.size();
+    }
+
+};  // }}}
+
+constexpr inline std::string
+strip(const std::string &str) noexcept
 // [Abstract]
 //   Strip white-spaces from both front and end of the given string.
 //
@@ -174,6 +317,74 @@ strip(const std::string &str) noexcept;
 //
 // [Returns]
 //   (std::string): Stripped string.
+//
+{   // {{{
+
+    constexpr auto is_not_space = [](unsigned char ch) noexcept -> bool
+    // [Abstract]
+    //   Returns true if the given character is not whitespace.
+    //
+    // [Args]
+    //   ch (unsigned char): [IN] Target character.
+    //
+    // [Returns]
+    //   (bool): True if not a space.
+    {
+        return !std::isspace(ch);
+    };
+
+    constexpr auto lstrip = [is_not_space](const std::string &src) noexcept -> std::string
+    // [Abstract]
+    //   Strip white-spaces from the front.
+    //
+    // [Args]
+    //   str (const std::string&): [IN] Target string to be stripped.
+    //
+    // [Returns]
+    //   (std::string): Stripped string.
+    {
+        std::string str = std::string(src);
+
+        str.erase(str.begin(), std::find_if(str.begin(), str.end(), is_not_space));
+
+        return str;
+    };
+
+    constexpr auto rstrip = [is_not_space](const std::string &src) noexcept -> std::string
+    // [Abstract]
+    //   Strip white-spaces from the end.
+    //
+    // [Args]
+    //   str (const std::string&): [IN] Target string to be stripped.
+    //
+    // [Returns]
+    //   (std::string): Stripped string.
+    {
+        std::string str = std::string(src);
+
+        str.erase(std::find_if(str.rbegin(), str.rend(), is_not_space).base(), str.end());
+
+        return str;
+    };
+
+    return rstrip(lstrip(str));
+
+};  // }}}
+
+template <typename T>
+constexpr inline std::set<T>
+to_set(const std::vector<T>& vec) noexcept
+// [Abstract]
+//
+// [Args]
+//
+// [Returns]
+//
+{   // {{{
+
+    return std::set<T>(vec.begin(), vec.end());
+
+}   // }}}
 
 template <typename T_in, typename T_out, typename F>
 inline std::vector<T_out>

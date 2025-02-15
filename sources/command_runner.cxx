@@ -57,8 +57,8 @@ CommandRunner::run(const StringX& input) noexcept
     std::vector<StringX> tokens = input.strip().tokenize();
 
     // Apply alias.
-    if (tokens.size() > 0 and config.aliases.find(tokens[0]) != config.aliases.end())
-        tokens[0] = config.aliases[tokens[0]];
+    if (tokens.size() > 0 and config.aliases.find(tokens[0].string()) != config.aliases.end())
+        tokens[0] = StringX(config.aliases[tokens[0].string()]);
 
     // Concat all tokens and create command string.
     const std::string command = StringX("").join(tokens).string();

@@ -13,13 +13,23 @@
     <!-- FONT -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Noto+Sans&family=Raleway&family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet" />
 
     <!-- CSS -->
     <!-- Reference: http://getskeleton.com/ -->
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/skeleton.css">
-    <link rel="stylesheet" href="css/prism.css">
+
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="css/highlight_stackoverflow-light.min.css">
+    <script type="text/javascript" src="js/highlight.min.js"></script>
+
+    <!-- jQuery.js -->
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+
+    <!-- Custom CSS / JS -->
     <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" src="js/script.js"></script>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="images/favicon.png">
@@ -85,41 +95,33 @@
 
         <h3>Step 1: Compile NiShiKi</h3>
         <div class="row">
-            <div class="code"><pre><code class="language-bash">
-            # Install g++ and related tools.
-            sudo apt install build-essential g++ libncurses-dev
+            <pre><code class="language-bash"># Install g++ and related tools.
+sudo apt install build-essential g++ libncurses-dev
 
-            # Build NiShiKi.
-            make
-            </code></pre></div>
+# Build NiShiKi.
+make</code></pre>
             <p>If you prefer Clang over GCC, try the following commands instead.</p>
-            <div class="code"><pre><code class="language-bash">
-            # Install clang++ and related tools.
-            sudo apt install build-essential clang libc++-dev libc++abi-dev libncurses-dev
+            <pre><code class="language-bash"># Install clang++ and related tools.
+sudo apt install build-essential clang libc++-dev libc++abi-dev libncurses-dev
 
-            # Build NiShiKi.
-            make clang
-            </code></pre></div>
+# Build NiShiKi.
+make clang</code></pre>
         </div>
 
         <h3>Step 2: Copy NiShiKi binary and config file</h3>
         <div class="row">
-            <div class="code"><pre><code class="language-bash">
-            # Move NiShiKi binary to somewhere in $PATH.
-            mv build/nishiki SOMEWHERE_IN_PATH
+            <pre><code class="language-bash"># Move NiShiKi binary to somewhere in $PATH.
+mv build/nishiki SOMEWHERE_IN_PATH
 
-            # Make NiShiKi config directory and copy config file.
-            mkdir -p ~/.config/nishiki
-            cp config.toml ~/.config/nishiki
-            </code></pre></div>
+# Make NiShiKi config directory and copy config file.
+mkdir -p ~/.config/nishiki
+cp config.py ~/.config/nishiki</code></pre>
         </div>
 
         <h3>Step 3: Try NiShiKi!</h3>
         <div class="row">
-            <div class="code"><pre><code class="language-bash">
-            # Launch NiShiKi!
-            nishiki
-            </code></pre></div>
+            <pre><code class="language-bash"># Launch NiShiKi!
+nishiki</code></pre>
         </div>
 
         <h2 id="usage">Usage</h2>
@@ -183,11 +185,22 @@
             <span>Copyright (C) 2024-<span id="thisYear"></span> Tetsuya Ishikawa</span>
         </footer>
 
-        <!-- Load javascripts -->
-        <script src="js/jquery-3.7.1.slim.min.js"></script>
-        <script src="js/prism.js"></script>
-        <script src="js/script.js"></script>
-
+        <!-- Activate highlight.js for both inline/block code -->
+        <script>
+            window.addEventListener("DOMContentLoaded", function() {
+                var elements = document.getElementsByTagName("code");
+                var l=elements.length;
+                for (var i=0; i<l; i++) {
+	                var el = elements[i];
+	                hljs.highlightBlock(el);
+	                if (el.parentNode.tagName.toLowerCase() != "pre") {
+	    	            el.style.display = "inline";
+	    	            el.style.margin = "0 2px";
+	    	            el.style.padding = "1px 3px";
+	                }
+                }
+            }, false);
+        </script>
     </div>
 
 </body></html>

@@ -36,7 +36,7 @@ preview(const std::string& path, uint16_t width, uint16_t height) noexcept
     const std::string mime_type = filetype.mime(path);
 
     // Find matched preview method and run it.
-    for (const auto& pv : config.previews)
+    for (const auto& pv : config.preview)
     {
         if (regex_match(mime_type, std::regex(pv.first)))
         {

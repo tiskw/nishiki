@@ -19,10 +19,11 @@
 #include "config.hxx"
 #include "file_chooser.hxx"
 #include "history_manager.hxx"
+#include "pkpy_engine.hxx"
+#include "string_x.hxx"
 #include "text_chooser.hxx"
 #include "term_reader.hxx"
 #include "term_writer.hxx"
-#include "string_x.hxx"
 #include "utils.hxx"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,14 +82,16 @@ parse_args(const int32_t argc, const char* argv[])
 }   // }}}
 
 static StringX
-readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner) noexcept
+readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner, const PkPyEngine& py_engine) noexcept
 // [Abstract]
 //   Read user input with rich interface.
 //
 // [Args]
-//   buffer (TextBuffer&)         : Text buffer.
-//   hist   (HistoryManager&)     : History manager.
-//   runner (const CommandRunner&): Command runner.
+//   buffer    (TextBuffer&)    : Text buffer.
+//   hist      (HistoryManager&): History manager.
+//   luaman    (LuaManager&)    : Lua manager.
+//   runner    (CommandRunner&) : Command runner.
+//   py_engine (PkPyEngine&)    : PocketPy engine.
 //
 // [Returns]
 //   (std::map<std::string, std::string>): Parsed command line arguments.
@@ -96,8 +99,8 @@ readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner) 
 {   // {{{
 
     TermReader reader = TermReader();
-    TermWriter writer = TermWriter();
-    EditHelper helper = EditHelper();
+    TermWriter writer = TermWriter(config.area_height - 1);
+    EditHelper helper = EditHelper(config.area_height - 2);
 
     // Create new buffer.
     buffer.create(runner.get_next_lhs(), runner.get_next_rhs());
@@ -110,6 +113,9 @@ readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner) 
     // previous editing result should be contained in the history cache.
     hist.set_completion_cache(buffer.get_storage());
 
+    // Get the prompt string 1.
+    const std::string ps1 = py_engine.get_prompt(1);
+
     while (true)
     {
         // Get editing buffer.
@@ -117,7 +123,7 @@ readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner) 
         const StringX& rhs = buffer.get_rhs();
 
         // Re-draw terminal.
-        writer.write(lhs, rhs, buffer.get_mode(), helper.candidate(lhs), hist.complete(lhs));
+        writer.write(ps1, lhs, rhs, helper.candidate(lhs), hist.complete(lhs));
 
         // Get user input.
         const CharX cx = reader.getch();
@@ -190,19 +196,17 @@ nishiki_main(const int32_t argc, const char* argv[])
     // Parse command line arguments.
     auto args = parse_args(argc, argv);
 
-    // Load config file.
-    load_config(args["config"]);
+    // Create PkPyEngine instance which manages PocketPy engine.
+    PkPyEngine py_engine;
+
+    // Load config values from the config file.
+    py_engine.setup_config(&config);
 
     // Call plugin and exit if --plugin option is specified.
     if      (args["plugin"] == "filechooser") choose_files_and_exit(StringX("."));
     else if (args["plugin"] == "histchooser") choose_hists_and_exit();
     else if (args["plugin"] == "procchooser") choose_procs_and_exit();
     else if (args["plugin"] != ""           ) print_message_and_exit("NiShiKi: Error: unknown plugin");
-
-    // Show welcome message.
-    std::cout << "Welcome to ";
-    std::cout << "\033[31mN \033[35mI \033[32mS \033[33mH \033[35mI \033[36mK \033[35mI\033[m !!";
-    std::cout << std::endl;
 
     // Create Text buffer instance which stores text buffers.
     TextBuffer buffer;
@@ -213,15 +217,23 @@ nishiki_main(const int32_t argc, const char* argv[])
     // Create CommandRunner instance which runs user input command.
     CommandRunner runner;
 
+    // Show welcome message.
+    std::cout << "Welcome to ";
+    std::cout << "\033[31mN \033[35mI \033[32mS \033[33mH \033[35mI \033[36mK \033[35mI\033[m !!";
+    std::cout << std::endl;
+
     // Append all histories to the editing buffer.
     for (const StringX& line : hist.read_history_file())
         buffer.create(StringX(""), line);
 
     while (true)
     {
+        // Print the prompt0.
+        std::cout << '\n' << py_engine.get_prompt(0) << std::endl;
+
         // Read user input. Returns value is lhs and rhs.
         // Use command runner's lhs and rhs string as a initial editing string.
-        const StringX input = readline(buffer, hist, runner);
+        const StringX input = readline(buffer, hist, runner, py_engine);
 
         // Exit command loop if exit command is specified.
         if (input == StringX("exit") or input == StringX("^D"))

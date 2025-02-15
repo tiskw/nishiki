@@ -109,8 +109,8 @@ Gratitude
     lightweight but enough rich command line parser (MIT license).
   - [glob](https://github.com/p-ranav/glob):
     Glob pattern matching for C++17 (MIT license).
-  - [toml++](https://github.com/marzer/tomlplusplus):
-    header-only TOML config file parser and serializer for C++17 (MIT license).
+  - [PocketPy](https://github.com/pocketpy/pocketpy):
+    Portable Python 3.x interpreter, written in C11 (MIT license).
 
 * And, of course, [C/C++](https://isocpp.org/) and [Bash](https://www.gnu.org/software/bash/)
   maintainers. NiShiKi is written in C/C++, and utility scripts like build script are written in
