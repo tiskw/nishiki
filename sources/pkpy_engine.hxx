@@ -42,12 +42,12 @@ class PkPyEngine
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         std::string
-        get_prompt(int16_t index) const noexcept;
+        get_prompt(const int16_t index) const noexcept;
         // [Abstract]
         //   Returns the prompt string.
         //
         // [Args]
-        //   index (int16_t): Index of the prompt to be returned.
+        //   index (const int16_t): [IN] Index of the prompt to be returned.
         //
         // [Returns]
         //   (std::string): Prompt string.
@@ -63,12 +63,13 @@ class PkPyEngine
     private:
 
         bool
-        exec(const char* s, py_CompileMode mode) const noexcept;
+        exec(const char* str, py_CompileMode mode) const noexcept;
         // [Abstract]
         //   Runs the given string as a Python script.
         //
         // [Args]
-        //   mode (py_CompileMode): 
+        //   str  (const char*)   : [IN] Python command to run.
+        //   mode (py_CompileMode): [IN] Compile mode (exec or eval).
         //
         // [Returns]
         //   (bool): True if success.
@@ -79,7 +80,7 @@ class PkPyEngine
         //   Read the specified file and run as a Python script.
         //
         // [Args]
-        //   path (const char*): File path to be read.
+        //   path (const char*): [IN] File path to be read.
         //
         // [Returns]
         //   (bool): True if success.

@@ -40,7 +40,8 @@ using CompletionItem = std::tuple<StringVector, EditHelper::CompType, std::strin
 typedef struct
 {
     // General settings.
-    uint16_t    area_height = 8;
+    uint16_t    max_hist_size = 5000;
+    uint16_t    area_height   = 8;
     uint16_t    column_margin = 3;
     std::string datetime_pre;
     std::string datetime_post;

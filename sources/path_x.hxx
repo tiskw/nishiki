@@ -27,7 +27,18 @@ class PathX : public std::filesystem::path
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         explicit PathX(const std::filesystem::path& path);
+        // [Abstract]
+        //   Constructor of PathX.
+        //
+        // [Args]
+        //   path (const std::filesystem::path&): [IN] Source path to be copied.
+
         explicit PathX(const char* path);
+        // [Abstract]
+        //   Constructor of PathX.
+        //
+        // [Args]
+        //   path (const char*): [IN] Source path to be copied.
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Member functions
@@ -38,9 +49,6 @@ class PathX : public std::filesystem::path
         // [Abstract]
         //   Returns a list of names of the entries in the given directory path.
         //   The list is sorted in ascending order.
-        //
-        // [Args]
-        //   void
         //
         // [Returns]
         //   (std::vector<std::string>): List of names of the entries.

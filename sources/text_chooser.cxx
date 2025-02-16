@@ -322,7 +322,7 @@ choose_hists(void) noexcept
     HistoryManager hist;
 
     // Get histories.
-    std::vector<StringX> hists_x = hist.read_history_file();
+    std::vector<StringX> hists_x = hist.get_histories();
 
     // Do nothing and returns empty vector if the command history is empty.
     if (hists_x.size() == 0)

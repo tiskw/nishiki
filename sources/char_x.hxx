@@ -39,8 +39,27 @@ class CharX
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         CharX(const CharX& cx);
-        explicit CharX(uint64_t value = 0, uint16_t size = 0, uint16_t width = 0);
+        // [Abstract]
+        //   Default constructor of CharX.
+        //
+        // [Args]
+        //   cx (const CharX&): [IN] Source character to be copied.
+
+        explicit CharX(const uint64_t value = 0, const uint16_t size = 0, const uint16_t width = 0);
+        // [Abstract]
+        //   Constructor of CharX.
+        //
+        // [Args]
+        //   value (uint64_t): [IN] Value of the UTF8 character.
+        //   size  (uint16_t): [IN] Size of the UTF8 character.
+        //   width (uint16_t): [IN] Width of the UTF8 character.
+
         explicit CharX(const char* ptr);
+        // [Abstract]
+        //   Constructor of CharX.
+        //
+        // [Args]
+        //   ptr (const char*): [IN] Source string to be parsed as a character.
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Operators

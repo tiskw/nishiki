@@ -26,15 +26,17 @@ class HistoryManager
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         HistoryManager(void);
+        // [Abstract]
+        //   Default constructor of HistoryManager.
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Getter and setter functions
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         std::vector<StringX>
-        read_history_file(void) const noexcept;
+        get_histories(void) const noexcept;
         // [Abstract]
-        //   Read history file and returns a vector of histories.
+        //   Returns a vector of histories.
         //
         // [Returns]
         //   (std::vector<StringX>): A vector of histories.
@@ -44,27 +46,17 @@ class HistoryManager
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         void
-        append(const StringX& command) const noexcept;
+        append(const StringX& cmd) noexcept;
         // [Abstract]
         //   Append the given command to the history file.
         //
         // [Args]
-        //   command (const StringX&): Command history.
+        //   command (const StringX&): [IN] Command history.
 
-        // Normalize the history file.
         void
         normalize_and_write(void) const noexcept;
         // [Abstract]
         //   Normalize the history file.
-
-        // Set the completion cache where the `storage` comes from TextBuffer.
-        void
-        set_completion_cache(const std::vector<std::pair<StringX, StringX>>& storage) noexcept;
-        // [Abstract]
-        //   Set the completion cache where the `storage` comes from TextBuffer.
-        //
-        // [Args]
-        //   storage (const std::vector<std::pair<StringX, StringX>>&): Source of histories.
 
         StringX
         complete(const StringX& lhs) const noexcept;
@@ -73,7 +65,7 @@ class HistoryManager
         //   Note that the `lhs` is not contained in the returned value.
         //
         // [Args]
-        //   lhs (const StringX&): Left-hand-side of the editing buffer, i.e. completion query.
+        //   lhs (const StringX&): [IN] Left-hand-side of the editing buffer, i.e. completion query.
         //
         // [Returns]
         //   (StringX): Completion result where `lhs` itself is not contained in the result.
@@ -83,12 +75,12 @@ class HistoryManager
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         static bool
-        is_history_target(const StringX& command) noexcept;
+        is_history_target(const StringX& cmd) noexcept;
         // [Abstract]
         //   Returns true if the given command should be contained in the history file.
         //
         // [Args]
-        //   command (const StringX&): Target command.
+        //   command (const StringX&): [IN] Target command.
         //
         // [Returns]
         //   (bool): True if the given command should contained in the history file.
@@ -102,10 +94,7 @@ class HistoryManager
         std::filesystem::path path;
         // Path to the history file.
 
-        bool can_exists;
-        // True if the history file can be exist.
-
-        std::vector<StringX> hist_cache;
+        std::vector<StringX> histories;
         // History cache for completion.
 };
 

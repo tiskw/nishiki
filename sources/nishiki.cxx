@@ -9,112 +9,41 @@
 
 // Include the headers of STL.
 #include <iostream>
-#include <map>
-
-// Include the header of the cxxopts library.
-#include <cxxopts.hpp>
 
 // Include the headers of custom modules.
-#include "command_runner.hxx"
 #include "config.hxx"
 #include "file_chooser.hxx"
-#include "history_manager.hxx"
-#include "pkpy_engine.hxx"
-#include "string_x.hxx"
-#include "text_chooser.hxx"
 #include "term_reader.hxx"
 #include "term_writer.hxx"
+#include "text_chooser.hxx"
 #include "utils.hxx"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Static functions
+// Public functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static std::map<std::string, std::string>
-parse_args(const int32_t argc, const char* argv[])
-// [Abstract]
-//   Parse command line arguments.
-//
-// [Args]
-//   argc (const int32_t): The number of strings pointed to by argv.
-//   argv (const char*)  : The strings of command line arguments.
-//
-// [Returns]
-//   (std::map<std::string, std::string>): Parsed command line arguments.
-//
+StringX
+readline(const HistoryManager& hist, const CommandRunner& runner, const PkPyEngine& py_engine, const char* user_inputs) noexcept
 {   // {{{
 
-    // Create parser instance.
-    cxxopts::Options options("nishiki", "NiShiKi - a simple shell wrapper\n");
-
-    // Configure parser.
-    options.add_options()
-        ("c,config",  "Path to config file",        cxxopts::value<std::string>()->default_value(std::string("auto")))
-        ("p,plugin",  "Launch plugin and exit",     cxxopts::value<std::string>()->default_value(std::string("")))
-        ("h,help",    "Show help message and exit", cxxopts::value<bool>())
-        ("v,version", "Show version info and exit", cxxopts::value<bool>());
-
-    // Parse and get results.
-    cxxopts::ParseResult result;
-    try
-    {
-        result = options.parse(argc, argv);
-    }
-    catch (const std::exception& err)
-    {
-        std::cout << "\033[33mNiShiKi: Error: " << __FILE__ << " L." << __LINE__ << ": parse_args(): " << err.what() << "\033[m" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    // Initialize output variable.
-    std::map<std::string, std::string> args;
-
-    // Option: -c,--config and -p,--plugin.
-    args["config"] = result["config"].as<std::string>();
-    args["plugin"] = result["plugin"].as<std::string>();
-
-    // Option: -h,--help and -v,--version.
-    if (result.count("help")   ) { std::cout << options.help() << std::endl; exit(EXIT_SUCCESS); }
-    if (result.count("version")) { std::cout << VERSION        << std::endl; exit(EXIT_SUCCESS); }
-
-    return args;
-
-}   // }}}
-
-static StringX
-readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner, const PkPyEngine& py_engine) noexcept
-// [Abstract]
-//   Read user input with rich interface.
-//
-// [Args]
-//   buffer    (TextBuffer&)    : Text buffer.
-//   hist      (HistoryManager&): History manager.
-//   luaman    (LuaManager&)    : Lua manager.
-//   runner    (CommandRunner&) : Command runner.
-//   py_engine (PkPyEngine&)    : PocketPy engine.
-//
-// [Returns]
-//   (std::map<std::string, std::string>): Parsed command line arguments.
-//
-{   // {{{
-
+    TextBuffer buffer;
     TermReader reader = TermReader();
     TermWriter writer = TermWriter(config.area_height - 1);
     EditHelper helper = EditHelper(config.area_height - 2);
 
-    // Create new buffer.
+    // Create new editing buffers.
+    for (const StringX& line : hist.get_histories())
+        buffer.create(StringX(""), line);
     buffer.create(runner.get_next_lhs(), runner.get_next_rhs());
 
     // Set editing mode to INSERT mode.
     buffer.set_mode(TextBuffer::Mode::INSERT);
 
-    // Update cache for history completions.
-    // This function should be called for every time when starting editing because
-    // previous editing result should be contained in the history cache.
-    hist.set_completion_cache(buffer.get_storage());
-
     // Get the prompt string 1.
     const std::string ps1 = py_engine.get_prompt(1);
+
+    // Get the copy of input string.
+    char* uin = const_cast<char*>(user_inputs);
 
     while (true)
     {
@@ -125,8 +54,12 @@ readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner, 
         // Re-draw terminal.
         writer.write(ps1, lhs, rhs, helper.candidate(lhs), hist.complete(lhs));
 
-        // Get user input.
-        const CharX cx = reader.getch();
+        // Get user input. Use user_inputs if exists.
+        const CharX cx = ((uin != nullptr) and (*uin != '\0')) ? CharX(uin) : reader.getch();
+
+        // Move the pointer forward if used.
+        if ((uin != nullptr) and (*uin != '\0'))
+            uin += cx.size;
 
         // Check if the given key is registered in the keybinds.
         // If true, then returns the NiShiKi-internal command.
@@ -175,7 +108,6 @@ readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner, 
             // Exit function if ENTER is pressed.
             case '\n':
             case '\r':
-                hist.append(lhs + rhs);
                 return (lhs + rhs);
 
             // Otherwise update editing buffer.
@@ -185,16 +117,9 @@ readline(TextBuffer& buffer, HistoryManager& hist, const CommandRunner& runner, 
 
 }   // }}}
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Public functions
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 int32_t
-nishiki_main(const int32_t argc, const char* argv[])
+nishiki_main(const std::map<std::string, std::string>& args) noexcept
 {   // {{{
-
-    // Parse command line arguments.
-    auto args = parse_args(argc, argv);
 
     // Create PkPyEngine instance which manages PocketPy engine.
     PkPyEngine py_engine;
@@ -203,28 +128,18 @@ nishiki_main(const int32_t argc, const char* argv[])
     py_engine.setup_config(&config);
 
     // Call plugin and exit if --plugin option is specified.
-    if      (args["plugin"] == "filechooser") choose_files_and_exit(StringX("."));
-    else if (args["plugin"] == "histchooser") choose_hists_and_exit();
-    else if (args["plugin"] == "procchooser") choose_procs_and_exit();
-    else if (args["plugin"] != ""           ) print_message_and_exit("NiShiKi: Error: unknown plugin");
+    if      (args.at("plugin") == "filechooser") choose_files_and_exit(StringX("."));
+    else if (args.at("plugin") == "histchooser") choose_hists_and_exit();
+    else if (args.at("plugin") == "procchooser") choose_procs_and_exit();
+    else if (args.at("plugin") != ""           ) print_message_and_exit("NiShiKi: Error: unknown plugin");
 
-    // Create Text buffer instance which stores text buffers.
-    TextBuffer buffer;
-
-    // Create History manager instance which manages command histories.
     HistoryManager hist;
-
-    // Create CommandRunner instance which runs user input command.
     CommandRunner runner;
 
     // Show welcome message.
     std::cout << "Welcome to ";
     std::cout << "\033[31mN \033[35mI \033[32mS \033[33mH \033[35mI \033[36mK \033[35mI\033[m !!";
     std::cout << std::endl;
-
-    // Append all histories to the editing buffer.
-    for (const StringX& line : hist.read_history_file())
-        buffer.create(StringX(""), line);
 
     while (true)
     {
@@ -233,7 +148,10 @@ nishiki_main(const int32_t argc, const char* argv[])
 
         // Read user input. Returns value is lhs and rhs.
         // Use command runner's lhs and rhs string as a initial editing string.
-        const StringX input = readline(buffer, hist, runner, py_engine);
+        const StringX input = readline(hist, runner, py_engine);
+
+        // Append the user input to the history.
+        hist.append(input);
 
         // Exit command loop if exit command is specified.
         if (input == StringX("exit") or input == StringX("^D"))
