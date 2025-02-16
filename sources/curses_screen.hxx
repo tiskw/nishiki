@@ -22,6 +22,8 @@ class CursesScreen
 
          CursesScreen(void);
         ~CursesScreen(void);
+        // [Abstract]
+        //   Default constructor and descructor of CursesScreen.
 };
 
 #endif

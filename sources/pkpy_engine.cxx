@@ -28,8 +28,8 @@ pkpy_os_getenv(const int32_t argc, py_Ref argv)
 //   C-implementation of the function "os.getenv" in PocketPy.
 //
 // [Args]
-//   argc (const int32_t): The number of arguments.
-//   argv (py_Ref)       : The argument values.
+//   argc (const int32_t): [IN] The number of arguments.
+//   argv (py_Ref)       : [IN] The argument values.
 //
 // [Returns]
 //   (bool): True if success.
@@ -55,8 +55,8 @@ pkpy_os_putenv(const int32_t argc, py_Ref argv)
 //   C-implementation of the function "os.putenv" in PocketPy.
 //
 // [Args]
-//   argc (const int32_t): The number of arguments.
-//   argv (py_Ref)       : The argument values.
+//   argc (const int32_t): [IN] The number of arguments.
+//   argv (py_Ref)       : [IN] The argument values.
 //
 // [Returns]
 //   (bool): True if success.
@@ -84,8 +84,8 @@ pkpy_re_sub(const int32_t argc, py_Ref argv)
 //   C-implementation of the function "re.sub" in PocketPy.
 //
 // [Args]
-//   argc (const int32_t): The number of arguments.
-//   argv (py_Ref)       : The argument values.
+//   argc (const int32_t): [IN] The number of arguments.
+//   argv (py_Ref)       : [IN] The argument values.
 //
 // [Returns]
 //   (bool): True if success.
@@ -119,8 +119,8 @@ pkpy_nishiki_check_output(const int32_t argc, py_Ref argv)
 //   similar to "os.system", but returns the contents of STDOUT as a string.
 //
 // [Args]
-//   argc (const int32_t): The number of arguments.
-//   argv (py_Ref)       : The argument values.
+//   argc (const int32_t): [IN] The number of arguments.
+//   argv (py_Ref)       : [IN] The argument values.
 //
 // [Returns]
 //   (bool): True if success.
@@ -165,8 +165,8 @@ pkpy_nishiki_get(const int32_t argc, py_Ref argv)
 // [Abstract]
 //
 // [Args]
-//   argc (const int32_t): The number of arguments.
-//   argv (py_Ref)       : The argument values.
+//   argc (const int32_t): [IN] The number of arguments.
+//   argv (py_Ref)       : [IN] The argument values.
 //
 // [Returns]
 //   (bool): True if success.
@@ -259,7 +259,7 @@ PkPyEngine::~PkPyEngine(void)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::string
-PkPyEngine::get_prompt(int16_t index) const noexcept
+PkPyEngine::get_prompt(const int16_t index) const noexcept
 {   // {{{
 
     // Evaluate the prompt function and capture the returned value.
@@ -304,6 +304,7 @@ PkPyEngine::setup_config(NishikiConfig* config) const noexcept
         switch (hash(target.c_str()))
         {
             // General settings.
+            case hash("max_hist_size"): config->max_hist_size = py_toint(py_retval()); break;
             case hash("area_height")  : config->area_height   = py_toint(py_retval()); break;
             case hash("column_margin"): config->column_margin = py_toint(py_retval()); break;
             case hash("datetime_pre") : config->datetime_pre  = py_tostr(py_retval()); break;
@@ -389,11 +390,11 @@ PkPyEngine::setup_config(NishikiConfig* config) const noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool
-PkPyEngine::exec(const char* s, py_CompileMode mode) const noexcept
+PkPyEngine::exec(const char* str, py_CompileMode mode) const noexcept
 {   // {{{
 
     // Run the specified string as a Python script using PocketPy.
-    bool is_success = py_exec(s, "<string>", mode, nullptr);
+    bool is_success = py_exec(str, "<string>", mode, nullptr);
 
     // Print exception if raised in the PocketPy.
     if (not is_success)

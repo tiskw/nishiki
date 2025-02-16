@@ -11,6 +11,7 @@
 #include <set>
 
 // Include the headers of custom modules.
+#include "config.hxx"
 #include "command_runner.hxx"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,8 +24,19 @@ HistoryManager::HistoryManager(void)
     // Determine the path to the history file.
     this->path = std::filesystem::path(getenv("HOME")) / ".config" / "nishiki" / "history.txt";
 
-    // Check that the history file can be exist.
-    this->can_exists = std::filesystem::exists(this->path.parent_path());
+    // Load the history file is exists.
+    if (std::filesystem::exists(this->path))
+    {
+        // Open the history file with read permission.
+        std::ifstream ifs(this->path.string());
+
+        // Read the history file and memorize it.
+        for (std::string line; getline(ifs, line); line.clear())
+            this->histories.emplace_back(StringX(line).strip());
+    }
+    // If the history file does not exists but can exists, create it.
+    else if (std::filesystem::exists(this->path.parent_path()))
+        std::ofstream{this->path.string()};
 
 }   // }}}
 
@@ -33,42 +45,26 @@ HistoryManager::HistoryManager(void)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<StringX>
-HistoryManager::read_history_file(void) const noexcept
-{   // {{{
-
-    // Initialize the returned vector.
-    std::vector<StringX> result;
-
-    // Do nothing if the history file cannot exists.
-    if (not this->can_exists) return result;
-
-    // Open the history file with read permission.
-    std::ifstream ifs(this->path.string());
-
-    // Read the history file and memorize it.
-    for (std::string line; getline(ifs, line); line.clear())
-        result.emplace_back(line);
-
-    return result;
-
-}   // }}}
+HistoryManager::get_histories(void) const noexcept
+{ return this->histories; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // HistoryManager: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-HistoryManager::append(const StringX& command) const noexcept
+HistoryManager::append(const StringX& cmd) noexcept
 {   // {{{
 
+    // Append to the history vector.
+    this->histories.emplace_back(cmd);
+
     // Do nothing if no need to add the given command to the history file.
-    if (not HistoryManager::is_history_target(command)) return;
+    if (not HistoryManager::is_history_target(cmd)) return;
 
-    // Open the history file as an append mode.
+    // Open the history file as an append mode and write the command.
     std::ofstream ofs(this->path.string(), std::ios_base::app);
-
-    // Write to the history file.
-    ofs << command.strip().string() << std::endl; 
+    ofs << cmd.strip().string() << std::endl; 
 
 }   // }}}
 
@@ -77,47 +73,37 @@ HistoryManager::normalize_and_write(void) const noexcept
 {   // {{{
 
     // Initialize a vector to store histories.
-    std::vector<StringX> histories;
+    std::vector<StringX> hists;
 
     // Open the history file with read permission.
     std::ifstream ifs(this->path.string());
 
     // Read the history file and memorize it.
     for (std::string line; getline(ifs, line); line.clear())
-        histories.push_back(StringX(line).strip());
+        hists.push_back(StringX(line).strip());
 
     // Close the file.
     ifs.close();
 
-    // Reverse the order of the histories and 
-    // create a vector to store deduplicated histories.
-    std::vector<StringX> histories_deduplicated;
-    for (auto iter = histories.rbegin(); iter != histories.rend(); ++iter)
-        if (not std::ranges::contains(histories_deduplicated, *iter))
-            histories_deduplicated.push_back(*iter);
+    // Reverse the order of the histories and create a vector to store deduplicated histories.
+    std::vector<StringX> hists_deduplicated;
+    for (auto iter = hists.rbegin(); iter != hists.rend(); ++iter)
+        if (not std::ranges::contains(hists_deduplicated, *iter))
+            hists_deduplicated.push_back(*iter);
 
     // Restore the order of the histories.
-    std::reverse(histories_deduplicated.begin(), histories_deduplicated.end());
+    std::reverse(hists_deduplicated.begin(), hists_deduplicated.end());
+
+    // Drop histories from the front if the size of the history is too large.
+    while (hists_deduplicated.size() > config.max_hist_size)
+        hists_deduplicated.erase(hists_deduplicated.begin());
 
     // Open the history file again with write permission.
     std::ofstream ofs(this->path.string());
 
     // Write to the history file.
-    for (const StringX& hist : histories_deduplicated)
+    for (const StringX& hist : hists_deduplicated)
         ofs << hist << std::endl;
-
-}   // }}}
-
-void
-HistoryManager::set_completion_cache(const std::vector<std::pair<StringX, StringX>>& storage) noexcept
-{   // {{{
-
-    // Clear the cache.
-    this->hist_cache.clear();
-
-    // Update the cache.
-    for (const auto& pair : storage)
-        this->hist_cache.push_back(pair.first + pair.second);
 
 }   // }}}
 
@@ -129,7 +115,7 @@ HistoryManager::complete(const StringX& lhs) const noexcept
     if (lhs.size() == 0) return StringX("");
 
     // Search the matched history from the end.
-    for (auto iter = this->hist_cache.rbegin(); iter != this->hist_cache.rend(); ++iter)
+    for (auto iter = this->histories.rbegin(); iter != this->histories.rend(); ++iter)
         if (iter->startswith(lhs))
             return iter->substr(lhs.size()).strip(false, true);
 
@@ -142,13 +128,13 @@ HistoryManager::complete(const StringX& lhs) const noexcept
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool
-HistoryManager::is_history_target(const StringX& command) noexcept
+HistoryManager::is_history_target(const StringX& cmd) noexcept
 {   // {{{
 
-    if      (command.size() == 0                           ) return false;  // Empty command
-    else if (command.startswith(StringX(NISHIKI_CMD_DELIM))) return false;  // NiShiKi command.
-    else if (command.startswith(StringX(" "))              ) return false;  // Black-started command.
-    else                                                     return true ;  // Others.
+    if      (cmd.size() == 0                           ) return false;  // Empty command
+    else if (cmd.startswith(StringX(NISHIKI_CMD_DELIM))) return false;  // NiShiKi command.
+    else if (cmd.startswith(StringX(" "))              ) return false;  // Black-started command.
+    else                                                 return true ;  // Others.
 
 }   // }}}
 

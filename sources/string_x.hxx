@@ -35,10 +35,30 @@ class StringX : public std::deque<CharX>
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         StringX(void);
-        StringX(const StringX& str);
+        // [Abstract]
+        //   Default constructor of StringX.
+ 
+        StringX(const StringX& sx);
+        // [Abstract]
+        //   Default constructor of StringX.
+        //
+        // [Args]
+        //   sx (const StringX&): [IN] Source string to be copied.
+ 
         explicit StringX(const char* ptr);
+        // [Abstract]
+        //   Constructor of StringX.
+        //
+        // [Args]
+        //   ptr (const char*): String to be copied.
+ 
         explicit StringX(const std::string& str);
-
+        // [Abstract]
+        //   Constructor of StringX.
+        //
+        // [Args]
+        //   ptr (const std::string&): String to be copied.
+ 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Operators
         ////////////////////////////////////////////////////////////////////////////////////////////

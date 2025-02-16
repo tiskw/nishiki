@@ -21,7 +21,7 @@
 StringX::StringX(void) : std::deque<CharX>()
 { /* Do nothing */ }
 
-StringX::StringX(const StringX& str) : std::deque<CharX>(str)
+StringX::StringX(const StringX& sx) : std::deque<CharX>(sx)
 { /* Do nothing */ }
 
 StringX::StringX(const char* ptr) : std::deque<CharX>()

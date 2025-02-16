@@ -27,6 +27,8 @@ class TermReader
 
          TermReader(void);
         ~TermReader(void);
+        // [Abstract]
+        //   Default constructor and destructor of TermReader.
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Member functions

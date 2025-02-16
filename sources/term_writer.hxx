@@ -27,7 +27,15 @@ class TermWriter
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         explicit TermWriter(uint16_t height);
+        // [Abstract]
+        //   Default constructor of TermWriter.
+        //
+        // [Args]
+        //   height (uint16_t): [IN] Height of drawing area.
+
         ~TermWriter(void);
+        // [Abstract]
+        //   Default destructor of TermWriter.
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Member functions

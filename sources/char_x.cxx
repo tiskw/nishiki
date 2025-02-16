@@ -18,7 +18,7 @@
 CharX::CharX(const CharX& cx) : value(cx.value), size(cx.size), width(cx.width)
 { /* Do nothing */ }
 
-CharX::CharX(uint64_t value, uint16_t size, uint16_t width) : value(value), size(size), width(width)
+CharX::CharX(const uint64_t value, const uint16_t size, const uint16_t width) : value(value), size(size), width(width)
 { /* Do nothing */ }
 
 CharX::CharX(const char* ptr) : value(0), size(0), width(0)
