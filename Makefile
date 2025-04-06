@@ -11,65 +11,49 @@
 #   - make uninstall   Uninstall NiShiKi (both binary and config files).
 ################################################################################
 
-.PHONY: gcc clang test check count clean
+.PHONY: test check count clean
 
 ################################################################################
 # Install path definitions and build options
 ################################################################################
 
-# Install directory of a binary file.
-BINDIR := $(HOME)/bin
+# Get all source files.
+SRC_FILES := $(shell find source -type f)
 
-# Install directory of config files and plugins.
-CFGDIR := $(HOME)/.config/nishiki
+# Get the number of CPUs.
+NUM_CPUS := $(shell cat /proc/cpuinfo | grep processor | wc -l)
 
 ################################################################################
 # Build commands
 ################################################################################
 
-gcc:
-	cd build; make gcc; cd ..
-
-clang:
-	cd build; make clang; cd ..
+build/nishiki: $(SRC_FILES) build/external/cxxopts.hpp
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	@echo "\033[38;5;140m// Start building NiShiKi\033[m"
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	cd build; $(MAKE) nishiki -j $(NUM_CPUS); cd ..
 
 ################################################################################
 # Test commands
 ################################################################################
 
 test:
-	cd tests; make; cd ..
-
-################################################################################
-# Install/uninstall commands
-################################################################################
-
-install:
-	mkdir -p $(BINDIR) $(CFGDIR)/plugins
-	cp -f build/nishiki $(BINDIR)
-	cp -n config.toml $(CFGDIR)/
-
-uninstall:
-	rm -f $(BINDIR)/nishiki
-
-purge:
-	rm -f $(BINDIR)/nishiki
-	rm -fr $(CFGDIR)
+	cd tests; $(MAKE) test -j $(NUM_CPUS); cd ..
 
 ################################################################################
 # Other utility commands
 ################################################################################
 
 check:
-	cppcheck --std=c++23 --enable=all -I./sources --library=posix \
-		--suppress=missingIncludeSystem --suppress=useStlAlgorithm \
-		sources/*.cxx
+	cppcheck --std=c++23 --enable=all -I./source --library=posix \
+		     --suppress=missingIncludeSystem --suppress=useStlAlgorithm \
+		     source/*.cxx
 
 clean:
 	cd build; make clean; cd ..
 	cd tests; make clean; cd ..
 
 count:
-	cloc --by-file sources/*.cxx sources/*.hxx
+	cloc --by-file $(shell find source -type f | grep -v config)
 
 # vim: noexpandtab shiftwidth=4 tabstop=4 fdm=marker

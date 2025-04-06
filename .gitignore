@@ -4,11 +4,16 @@
 # Ignore build cache files.
 /build/external
 /build/objects
+/build/nishiki
 
 # Ignore test outputs.
-/tests/build
 /tests/external
+/tests/objects
+/tests/run_nishiki
+/tests/test_nishiki
 /tests/lcov
 /tests/lcov.info
-/tests/src
-/tests/version.hxx
+
+# Ignore Python's virtual environment.
+venv
+.venv
