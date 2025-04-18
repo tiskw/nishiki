@@ -5,9 +5,6 @@
 // Include the primary header.
 #include "hist_manager.hxx"
 
-// Include the headers of STL.
-#include <fstream>
-
 // Include the headers of custom modules.
 #include "config.hxx"
 #include "dtypes.hxx"
@@ -16,8 +13,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // HistManager: Constructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include <iostream>
 
 HistManager::HistManager()
 {   // {{{

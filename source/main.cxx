@@ -8,7 +8,7 @@
 #include "main.hxx"
 
 // Include the headers of STL.
-#include <iostream>
+#include <cstdio>
 #include <regex>
 #include <signal.h>
 
@@ -119,9 +119,8 @@ int32_t main(int32_t argc, const char* argv[])
     Map<String, String> args = parse_args(argc, argv, VERSION);
 
     // Show welcome message.
-    std::cout << "Welcome to ";
-    std::cout << "\x1B[31mN \x1B[35mI \x1B[32mS \x1B[33mH \x1B[35mI \x1B[36mK \x1B[35mI\x1B[m !!";
-    std::cout << std::endl;
+    std::printf("Welcome to ");
+    std::printf("\x1B[31mN \x1B[35mI \x1B[32mS \x1B[33mH \x1B[35mI \x1B[36mK \x1B[35mI\x1B[m !!\n");
 
     // Initialize the left and right hand side strings.
     StringX lhs, rhs;
@@ -135,7 +134,7 @@ int32_t main(int32_t argc, const char* argv[])
         const auto [ps0, ps1i, ps1n, ps2] = get_prompt_strings();
 
         // Print the zero-th prompt.
-        std::cout << '\n' << ps0 << std::endl;
+        std::printf("\n%s\n", ps0.c_str());
 
         // Read user input. Returns value is lhs and rhs.
         // Use command runner's lhs and rhs string as a initial editing string.
@@ -155,24 +154,24 @@ int32_t main(int32_t argc, const char* argv[])
             histmn.append(input);
 
         // Erase the zero-th prompt.
-        std::cout << "\x1B[1F" << "\x1B[0K";
+        std::printf("\x1B[1F\x1B[0K");
 
         // Draw a horizontal line.
-        std::cout << config.horiz_line_color;
+        std::fputs(config.horizontal_line_color, stdout);
         for (uint16_t n = 0; n < (term_size.cols - 1); ++n)
-            std::cout << config.horiz_line_char;
-        std::cout << "\x1B[m\n";
+            std::fputs(config.horizontal_line_char, stdout);
+        std::fputs("\x1B[m\n", stdout);
 
         // Print command.
-        std::cout << config.datetime_pre << get_date() << " " << get_time() << config.datetime_post;
-        std::cout << " " << input.colorize() << std::endl;
+        std::printf("%s%s %s%s", config.datetime_pre, get_date().c_str(), get_time().c_str(), config.datetime_post);
+        std::printf(" %s\n", input.colorize().string().c_str());
 
         // Run command.
         std::tie(lhs, rhs) = runner.run(input);
     }
 
     // Show farewell message.
-    std::cout << "See you!" << std::endl;
+    std::printf("See you!\n");
 
     return EXIT_SUCCESS;
 

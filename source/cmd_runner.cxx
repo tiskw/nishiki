@@ -7,7 +7,6 @@
 
 // Include the headers of STL.
 #include <filesystem>
-#include <iostream>
 #include <unistd.h>
 #include <sys/wait.h>
 
@@ -80,7 +79,7 @@ Tuple<StringX, StringX> CommandRunner::command_alias(void) const noexcept
 
     // Print all aliases.
     for (const auto& pair : config.aliases)
-        std::cout << pair.first << '\t' << pair.second << std::endl;
+        std::printf("%s\t%s\n", pair.first.c_str(), pair.second.c_str());
 
     return {StringX(""), StringX("")};
 
@@ -103,7 +102,7 @@ Tuple<StringX, StringX> CommandRunner::command_cd(const Vector<StringX>& tokens)
     // If the target token is not a directory path, then show error message.
     if (not std::filesystem::is_directory(target))
     {
-        std::cout << "\033[33mNiShiKi: cd: not directory: " << target << "\033[m\n" << std::endl;
+        std::printf("\033[33mNiShiKi: cd: not directory: %s\033[m\n", target.c_str());
         return {StringX(""), StringX("")};
     }
 
@@ -145,12 +144,12 @@ Tuple<StringX, StringX> CommandRunner::command_plugin(const Vector<StringX>& tok
     // Generate command string by concatenating all tokens and run it.
     int32_t res = std::system(command.c_str());
     if (res != 0)
-        std::cout << "NiShiKi: Warning: Plugin command returns non-zero code: " << command << std::endl;
+        std::printf("NiShiKi: Warning: Plugin command returns non-zero code: %s\n", command.c_str());
 
     // Print error message and returns empty strings if no output file exists.
     if (not std::filesystem::exists(path_tmp))
     {
-        std::cout << "NiShiKi: Warning: The output file not found: " << path_tmp << std::endl;
+        std::printf("NiShiKi: Warning: The output file not found: %s\n", path_tmp.c_str());
         return {StringX(""), StringX("")};
     }
 
@@ -175,7 +174,7 @@ Tuple<StringX, StringX> CommandRunner::command_set(const std::vector<StringX>& t
     // Case 1: "set" => print all environment variables.
     if (tokens.size() == 1)
         for (char** env_ptr = environ; *env_ptr != nullptr; ++env_ptr)
-            std::cout << *env_ptr << std::endl;
+            std::puts(*env_ptr);
 
     // Case 2: "set -x NAME VALUE" => set as an environment variable.
     else if ((tokens.size() == 4) and ((tokens[1] == StringX("-x")) or (tokens[1] == StringX("--export"))))

@@ -5,11 +5,6 @@
 // Include the primary header.
 #include "read_cmd.hxx"
 
-// Include the headers of the standard libraries.
-#include <iostream>
-#include <cstring>
-#include <map>
-
 // Include the headers of custom modules.
 #include "config.hxx"
 #include "edit_helper.hxx"
@@ -111,7 +106,7 @@ readcmd(const StringX& lhs_ini, const StringX& rhs_ini, const Deque<StringX>& hi
 
             // History completion if Ctrl-N is pressed.
             case 0x0E:
-                buffer.set(lhs + histcmp.complete(lhs) + CharX(" "), rhs);
+                buffer.set(lhs + histcmp.complete(lhs) + CharX(' '), rhs);
                 break;
 
             // Exit function if ENTER is pressed.

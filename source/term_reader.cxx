@@ -8,7 +8,6 @@
 // Include the headers of STL.
 #include <csignal>
 #include <cstring>
-#include <iostream>
 
 // Include the headers of custom modules.
 #include "config.hxx"

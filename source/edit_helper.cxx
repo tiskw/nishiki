@@ -181,7 +181,7 @@ StringX EditHelper::complete(const StringX& lhs) const noexcept
     else if (num_cands == 1)
     {
         // Add extra white-space at the end if number of completion candidate is one.
-        return lhs_without_last_token + this->cands[0].first + CharX(" ");
+        return lhs_without_last_token + this->cands[0].first + CharX(' ');
     }
     else
     {
@@ -227,7 +227,7 @@ void EditHelper::cands_filepath(const Vector<StringX>& tokens) noexcept
     // [Returns]
     //   (String): Colorized token.
     {
-        return (token.size() > 0 and token.back() == '/') ? "\033[94m" + token + "\033[m" : token;
+        return (token.size() > 0 and token.back() == '/') ? "\x1B[94m" + token + "\x1B[m" : token;
     };
 
     // Split user input token to a tuple of:
@@ -353,10 +353,10 @@ void EditHelper::cands_preview(const Vector<StringX>& tokens) noexcept
 
         // Add extra white-space if the line is shorter than the half-width `w`.
         if (this->lines[idx].width() < w)
-            this->lines[idx] += CharX(" ") * (w - this->lines[idx].width());
+            this->lines[idx] += CharX(' ') * (w - this->lines[idx].width());
 
         // Append preview delimiter and line to the target line.
-        this->lines[idx] += StringX("\033[m") + preview_delim + preview_lines[idx];
+        this->lines[idx] += StringX("\x1B[m") + preview_delim + preview_lines[idx];
 
         // Clip the target line again.
         this->lines[idx] = this->lines[idx].clip(this->area.cols - 1);
@@ -420,7 +420,7 @@ void EditHelper::cands_subcmd(const Vector<StringX>& tokens, const String& optio
             if (elems.size() == 0) continue;
 
             // Get completion candidate.
-            StringX token1 = StringX("\033[32m") + elems[0] + StringX("\033[m");
+            StringX token1 = StringX("\x1B[32m") + elems[0] + StringX("\x1B[m");
 
             // Get description.
             StringX token2;
@@ -431,7 +431,7 @@ void EditHelper::cands_subcmd(const Vector<StringX>& tokens, const String& optio
             const uint16_t width_seperator = (elems.size() > 1) ? elems[1].size() : 0;
 
             // Create separator between completion candidate and description.
-            const StringX separator = StringX(" ") + CharX(".") * width_seperator + StringX(" ");
+            const StringX separator = StringX(" ") + CharX('.') * width_seperator + StringX(" ");
 
             this->cands.emplace_back(elems[0], token1 + separator + token2);
         }

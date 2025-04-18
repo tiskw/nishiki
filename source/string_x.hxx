@@ -310,17 +310,17 @@ class StringX : public Deque<CharX>
 // Other functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::ostream&
-operator << (std::ostream& stream, const StringX& str) noexcept;
-// [Abstract]
-//   Write the given string to the output stream.
-//
-// [Args]
-//   stream (std::ostream&) : [IN] The output stream to which the characters will be written.
-//   cx     (const StringX&): [IN] The character to be written.
-//
-// [Returns]
-//   (std::ostream&): The output stream.
+// std::ostream&
+// operator << (std::ostream& stream, const StringX& str) noexcept;
+// // [Abstract]
+// //   Write the given string to the output stream.
+// //
+// // [Args]
+// //   stream (std::ostream&) : [IN] The output stream to which the characters will be written.
+// //   cx     (const StringX&): [IN] The character to be written.
+// //
+// // [Returns]
+// //   (std::ostream&): The output stream.
 
 template<> struct std::hash<StringX>
 {

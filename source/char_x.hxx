@@ -53,19 +53,24 @@ class CharX
         //   size  (uint16_t): [IN] Size of the UTF8 character.
         //   width (uint16_t): [IN] Width of the UTF8 character.
 
+        explicit CharX(char c);
+        // [Abstract]
+        //   Constructor of CharX.
+        //
+        // [Args]
+        //   c (char): [IN] Source character.
+
         explicit CharX(const char* ptr);
         // [Abstract]
         //   Constructor of CharX.
         //
         // [Args]
-        //   ptr (const char*): [IN] Source string to be parsed as a character.
+        //   ptr (const char*&): [IN] Source string to be parsed as a character.
 
-        explicit CharX(std::istream& sin);
+        explicit CharX(const char* ptr, uint16_t& read_bytes);
         // [Abstract]
-        //   Constructor of CharX.
         //
         // [Args]
-        //   sin (std::istream&): [IN] Source stream to be parsed as a character.
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Operators
@@ -159,57 +164,47 @@ class CharX
         // [Returns]
         //   (uint8_t): Width of UTF8 character.
 
-        static void construct_from_char_pointer(CharX* cx, const char* sin) noexcept;
+        static const char* construct_from_char_pointer(CharX& cx, const char* str) noexcept;
         // [Abstract]
         //   Constructor from char pointer.
         //
         // [Args]
-        //   self (CharX*)     : [OUT] Myself (target of the constructor).
-        //   ptr  (const char*): [IN ] Input stream of the source.
+        //   cx  (CharX&)      : [OUT] Myself (target of the constructor).
+        //   str (const char*&): [IN ] Input stream of the source.
 
-        static void construct_from_string_stream(CharX* cx, std::istream& sin) noexcept;
-        // [Abstract]
-        //   Constructor from input stream.
-        //
-        // [Args]
-        //   self (CharX*)       : [OUT] Myself (target of the constructor).
-        //   sin  (std::istream&): [IN ] Input stream of the source.
-
-        static void construct_ansi_escseq(CharX* self, uint8_t c_first, std::istream& sin) noexcept;
+        static const char* construct_ansi_escseq(CharX& cx, const char* str) noexcept;
         // [Abstract]
         //   Constructor from input stream for ANSI escape sequences.
         //
         // [Args]
-        //   self    (CharX*)       : [OUT] Myself (target of the constructor).
-        //   c_first (uint8_t)      : [IN ] First character of the input stream.
-        //   sin     (std::istream&): [IN ] Input stream of the source (`c_first` is not contained).
+        //   cx  (CharX&)      : [OUT] Myself (target of the constructor).
+        //   str (const char*&): [IN ] Input stream of the source.
 
-        static void construct_normal_char(CharX* self, uint8_t c_first, std::istream& sin) noexcept;
+        static const char* construct_normal_char(CharX& cx, const char* str) noexcept;
         // [Abstract]
         //   Constructor from input stream for normal characters.
         //
         // [Args]
-        //   self    (CharX*)       : [OUT] Myself (target of the constructor).
-        //   c_first (uint8_t)      : [IN ] First character of the input stream.
-        //   sin     (std::istream&): [IN ] Input stream of the source (`c_first` is not contained).
+        //   cx  (CharX&)      : [OUT] Myself (target of the constructor).
+        //   str (const char*&): [IN ] Input stream of the source.
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Write the given character to the stream.
-std::ostream&
-operator << (std::ostream& stream, const CharX& cx) noexcept;
-// [Abstract]
-//   Write the given character to the output stream.
-//
-// [Args]
-//   stream (std::ostream&): [IN] The output stream to which the characters will be written.
-//   cx     (const CharX&) : [IN] The character to be written.
-//
-// [Returns]
-//   (std::ostream&): The output stream.
+// // Write the given character to the stream.
+// std::ostream&
+// operator << (std::ostream& stream, const CharX& cx) noexcept;
+// // [Abstract]
+// //   Write the given character to the output stream.
+// //
+// // [Args]
+// //   stream (std::ostream&): [IN] The output stream to which the characters will be written.
+// //   cx     (const CharX&) : [IN] The character to be written.
+// //
+// // [Returns]
+// //   (std::ostream&): The output stream.
 
 #endif
 
