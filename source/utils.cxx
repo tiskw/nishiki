@@ -15,6 +15,20 @@
 // Utility functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void append_text(const Path& path, const String& str) noexcept
+{   // {{{
+
+    // Open the file with append mode.
+    FILE *ofp = fopen(path.c_str(), "at");
+    if (ofp == NULL)
+        return;
+
+    // Write the given string.
+    fputs(str.c_str(), ofp);
+    fflush(ofp);
+
+}   // }}}
+
 Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t height, uint16_t margin) noexcept
 {   // {{{
 

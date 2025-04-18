@@ -150,7 +150,9 @@ int32_t main(int32_t argc, const char* argv[])
             break;
 
         // Append the user input to the history manager.
-        histmn.append(input);
+        // NOTE: Plugin commands (starts with "!") are ignored.
+        if ((input.size() > 0) and (input[0].value != '!'))
+            histmn.append(input);
 
         // Erase the zero-th prompt.
         std::cout << "\x1B[1F" << "\x1B[0K";

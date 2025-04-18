@@ -47,10 +47,11 @@ HistManager::~HistManager()
 void HistManager::append(const StringX& storage) noexcept
 {   // {{{
 
+    // Append to the member variable.
     this->hists.push_back(storage);
 
-    std::ofstream ofs(this->path.c_str(), std::ios::app);
-    ofs << storage << '\n';
+    // Append to the history file.
+    append_text(this->path, storage.string() + '\n');
 
 }   // }}}
 

@@ -302,16 +302,8 @@ class CursesScreen:
             self.grep_win = self.stdscr.subwin(3, w // 2, h // 2 - 1, w // 4)
 
         # Keybinds: move cursor.
-        elif key in {"k", "KEY_UP"}:
-            self.focus = max(0, self.focus - 1)
-        elif key in {"j", "KEY_DOWN"}:
-            self.focus = min(self.focus + 1, len(self.contents_filt) - 1)
-        elif key in {"^B"}:
-            self.focus = max(0, self.focus - h // 2)
-        elif key in {"^F"}:
-            self.focus = min(self.focus + h // 2, len(self.contents_filt) - 1)
-        elif key in {"0", "G"}:
-            self.focus = 0 if (key == "0") else (len(self.contents_filt) - 1)
+        elif key in {"k", "KEY_UP", "j", "KEY_DOWN", "^B", "^F", "0", "G"}:
+            self.move_cursor(key, h)
 
         # Item selection.
         elif key in {" "}:
@@ -322,6 +314,25 @@ class CursesScreen:
             return key
 
         return None
+
+    def move_cursor(self, key: str, h: int):
+        """
+        Move cursorf in the chooser.
+
+        Args:
+            k (str): Input key.
+            h (int): Height of window.
+        """
+        if key in {"k", "KEY_UP"}:
+            self.focus = max(0, self.focus - 1)
+        elif key in {"j", "KEY_DOWN"}:
+            self.focus = min(self.focus + 1, len(self.contents_filt) - 1)
+        elif key in {"^B"}:
+            self.focus = max(0, self.focus - h // 2)
+        elif key in {"^F"}:
+            self.focus = min(self.focus + h // 2, len(self.contents_filt) - 1)
+        elif key in {"0", "G"}:
+            self.focus = 0 if (key == "0") else (len(self.contents_filt) - 1)
 
     def preview(self, win: Window, rect: Rect, path: Path, name: str) -> None:
         """
@@ -673,7 +684,7 @@ def run_hist_chooser(path_hist: str = "", user_input: str = "") -> str:
 
     # Load history.
     with open(path_hist, "rt", encoding="utf-8") as ofp:
-        histories = list(reversed(line.strip() for line in ofp))
+        histories = list(reversed([line.strip() for line in ofp]))
 
     # Initialize locales, start curses, and returns the result.
     locale.setlocale(locale.LC_ALL, "")

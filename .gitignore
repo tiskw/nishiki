@@ -17,3 +17,7 @@
 # Ignore Python's virtual environment.
 venv
 .venv
+
+# Ignore cache files.
+__pycache__
+.mypy_cache

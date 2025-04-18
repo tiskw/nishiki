@@ -19,6 +19,15 @@
 // Utility functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void append_text(const Path& path, const String& str) noexcept;
+// [Abstract]
+//   Append a text to a file.
+//
+// [Args]
+//   path (const Path&)  : [IN] Path to target file.
+//   str  (const String&): [IN] string to write.
+
+
 Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t height, uint16_t margin = 3) noexcept;
 // [Abstract]
 //   Format strings in the column style.
