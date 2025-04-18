@@ -46,8 +46,8 @@ typedef struct
     const char* histhint_post = "\x1B[0m";
 
     // Horizontal line character and it's color.
-    const char* horiz_line_char = "⎯";
-    const char* horiz_line_color = "\x1B[38;2;112;120;128m";
+    const char* horizontal_line_char = "⎯";
+    const char* horizontal_line_color = "\x1B[38;2;112;120;128m";
 
     ////////////////////////////////////////////////////////////////////////////
     // Prompt strings.

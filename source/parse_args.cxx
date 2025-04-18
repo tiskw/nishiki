@@ -7,9 +7,6 @@
 // Include the primary header.
 #include "parse_args.hxx"
 
-// Include the headers of STL.
-#include <iostream>
-
 // Include the header of the cxxopts library.
 #include <cxxopts.hpp>
 
@@ -37,7 +34,7 @@ Map<String, String> parse_args(int32_t argc, const char* argv[], const char* ver
     }
     catch (const std::exception& err)
     {
-        std::cout << "\033[33mNiShiKi: Error: " << __FILE__ << " L." << __LINE__ << ": parse_args(): " << err.what() << "\033[m" << std::endl;
+        std::printf("\033[33mNiShiKi: Error: %s L. %d: parse_args(): %s\033[m\n", __FILE__, __LINE__, err.what());
         exit(EXIT_FAILURE);
     }
 
@@ -48,8 +45,8 @@ Map<String, String> parse_args(int32_t argc, const char* argv[], const char* ver
     args["input"] = result["input"].as<String>();
 
     // Option: -h,--help and -v,--version.
-    if (result.count("help")   ) { std::cout << options.help() << std::endl; exit(EXIT_SUCCESS); }
-    if (result.count("version")) { std::cout << version        << std::endl; exit(EXIT_SUCCESS); }
+    if (result.count("help")   ) { std::puts(options.help().c_str()); exit(EXIT_SUCCESS); }
+    if (result.count("version")) { std::puts(version);                exit(EXIT_SUCCESS); }
 
     return args;
 

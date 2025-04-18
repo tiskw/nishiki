@@ -21,11 +21,14 @@ CharX::CharX(const CharX& cx) : value(cx.value), size(cx.size), width(cx.width)
 CharX::CharX(uint64_t value, uint16_t size, uint16_t width) : value(value), size(size), width(width)
 { /* Do nothing, initializer lists only. */ }
 
-CharX::CharX(const char* ptr) : value(0), size(0), width(0)
-{ CharX::construct_from_char_pointer(this, ptr); }
+CharX::CharX(const char c) : value(c), size(1), width(0)
+{ /* Do nothing, initializer lists only. */ }
 
-CharX::CharX(std::istream& sin) : value(0), size(0), width(0)
-{ CharX::construct_from_string_stream(this, sin); }
+CharX::CharX(const char* ptr) : value(0), size(0), width(0)
+{ CharX::construct_from_char_pointer(*this, ptr); }
+
+CharX::CharX(const char* ptr, uint16_t& read_bytes) : value(0), size(0), width(0)
+{ read_bytes = CharX::construct_from_char_pointer(*this, ptr) - ptr; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CharX: Operators
@@ -74,12 +77,53 @@ StringX CharX::printable(void) const noexcept
 String CharX::string(void) const noexcept
 {   // {{{
 
-    String result;
+    char buffer[32];
+    int8_t index = 0;
 
-    for (uint16_t n = 0; n < this->size; ++n)
-        result += (char) ((this->value >> (8 * n)) & 0xFF);
+    // Print Control Sequence Introducer (CSI) commands.
+    if ((this->value & 0xFFFF) == 0x5B1B)
+    {
+        buffer[0] = 0x1B;
+        buffer[1] = 0x5B;
+        index = 2;
 
-    return result;
+        for (uint16_t n = 2; n < (this->size - 1); ++n)
+        {
+            // Get the target byte.
+            const int16_t x = (this->value >> (8 * n)) & 0xFF;
+
+            // Convert the byte to char array.
+            // NOTE: Use can use "std::to_string" or "itoa" functions instead,
+            //       but these functions are fataly slow.
+            if (x >= 100) { buffer[index++] = '0' + (x / 100) % 10; }
+            if (x >=  10) { buffer[index++] = '0' + (x / 10)  % 10; }
+            if (x >=   0) { buffer[index++] = '0' +  x        % 10; }
+
+            // Append semicolon if not the last number.
+            if (n != (this->size - 2))
+                buffer[index++] = ';';
+        }
+
+        // Appand the last charactor of CSI command.
+        if (this->size > 2)
+            buffer[index++] = (this->value >> (8 * (this->size - 1))) & 0xFF;
+
+        // Finalize the buffer.
+        buffer[index] = '\0';
+    }
+
+    // Print other character.
+    else
+    {
+        // Output the given character to the stream.
+        for (uint16_t n = 0; n < this->size; ++n)
+            buffer[index++] = (char) ((this->value >> (8 * n)) & 0xFF);
+
+        // Finalize the buffer.
+        buffer[index] = '\0';
+    }
+
+    return String(buffer);
 
 }   // }}}
 
@@ -119,57 +163,43 @@ uint8_t CharX::get_utf8_width(uint64_t val) noexcept
 
 }   // }}}
 
-void CharX::construct_from_char_pointer(CharX* cx, const char* ptr) noexcept
+const char* CharX::construct_from_char_pointer(CharX& cx, const char* str) noexcept
 {   // {{{
-
-    // Convert char pointer to a string stream.
-    std::stringstream ss(ptr);
-
-    // Construct CharX instance.
-    construct_from_string_stream(cx, ss);
-
-}   // }}}
-
-void CharX::construct_from_string_stream(CharX* cx, std::istream& sin) noexcept
-{   // {{{
-
-    // Read the first byte.
-    const uint8_t c_first = sin.get();
 
     // Do nothing.
-    if ((c_first == '\0') or (c_first == 255))
-        return;
+    if ((*str == '\0') or (*str == 127))
+        return str;
 
-    if (c_first == '\x1B') { CharX::construct_ansi_escseq(cx, c_first, sin); }
-    else                   { CharX::construct_normal_char(cx, c_first, sin); }
+    if (*str == '\x1B') { return CharX::construct_ansi_escseq(cx, str); }
+    else                { return CharX::construct_normal_char(cx, str); }
 
 }   // }}}
 
-void CharX::construct_ansi_escseq(CharX* self, uint8_t c_first, std::istream& sin) noexcept
+const char* CharX::construct_ansi_escseq(CharX& cx, const char* str) noexcept
 {   // {{{
 
-    constexpr auto process_csi = [](CharX* self, std::istream& sin) -> void
+    constexpr auto process_csi = [](CharX& cx, const char*& str) -> const char*
     // [Abstract]
     //   Process Control Sequence Introducer (CSI) commands.
     //
     // [Args]
-    //   self (CharX*)       : [OUT] Myself (target of the constructor).
-    //   sin  (std::istream&): [IN ] Input stream of the source.
+    //   self (CharX*)     : [OUT] Myself (target of the constructor).
+    //   str  (const char*): [IN ] Input stream of the source.
     {
         // Temporal buffer and it's index.
         char buffer[8];
         uint8_t idx = 0;
 
-        while (self->size <= 8)
+        while (cx.size <= 8)
         {
             // Get 1 byte.
-            const uint8_t c = sin.get();
+            const uint8_t c = *str++;
 
             if (c == ';')
             {
                 // Append the integer written in the buffer.
                 if (idx > 0)
-                    self->append_byte(atoi(buffer));
+                    cx.append_byte(atoi(buffer));
 
                 // Reset the index of the buffer.
                 idx = 0;
@@ -178,11 +208,11 @@ void CharX::construct_ansi_escseq(CharX* self, uint8_t c_first, std::istream& si
             {
                 // Append the integer written in the buffer.
                 if (idx > 0)
-                    self->append_byte(atoi(buffer));
+                    cx.append_byte(atoi(buffer));
 
                 // Append the last character and exit.
-                self->append_byte(c);
-                return;
+                cx.append_byte(c);
+                return str;
             }
             else
             {
@@ -190,97 +220,43 @@ void CharX::construct_ansi_escseq(CharX* self, uint8_t c_first, std::istream& si
                 buffer[++idx] = '\0';
             }
         }
+
+        return str;
     };
 
     // Initialize the value and size using the first byte of the input stream.
-    self->value = (uint64_t) c_first;
-    self->size  = 1;
+    cx.value = (uint64_t) *str++;
+    cx.size  = 1;
 
     // If there is no next character, do nothing.
-    if (sin.eof() == true)
-        return;
+    if (*str == '\0')
+        return str;
 
     // Get the next byte.
-    self->append_byte(sin.get());
+    cx.append_byte(*str++);
 
     // If the input value is (ESC + EOF) or (ESC + 255), replace it to ESC only.
-    if      (self->value == 0x1A1B) { *self = CharX(0x1B, 1, 0); }
-    else if (self->value == 0x5B1B) { process_csi(self, sin);    }
-    else if (self->value == 0xFF1B) { *self = CharX(0x1B, 1, 0); }
-    else                            { /* Do nothing */           }
+    if      (cx.value == 0x1A1B) { cx = CharX(0x1B, 1, 0); return str; }
+    else if (cx.value == 0xFF1B) { cx = CharX(0x1B, 1, 0); return str; }
+    else if (cx.value == 0x5B1B) { return process_csi(cx, str);        }
+    else                         { return str; /* Do nothing */        }
 
 }   // }}}
 
-void CharX::construct_normal_char(CharX* self, uint8_t c_first, std::istream& sin) noexcept
+const char* CharX::construct_normal_char(CharX& cx, const char* str) noexcept
 {   // {{{
 
     // Compute the byte size of the character.
-    self->size = CharX::get_utf8_byte_size(c_first);
-
-    // Initialize the value using the first byte of the input stream.
-    self->value = (uint64_t) c_first;
+    cx.size = CharX::get_utf8_byte_size(*str);
 
     // Read values and update the member variable.
-    for (uint16_t i = 1; i < self->size; ++i)
-        self->value |= (((uint64_t) sin.get()) << (8 * i));
+    for (uint16_t i = 0; (i < cx.size) and (*str != '\0'); ++i)
+        cx.value |= (((uint64_t) *str++) << (8 * i));
 
     // Compute the width of the character.
-    self->width = CharX::get_utf8_width(self->value);
+    cx.width = CharX::get_utf8_width(cx.value);
 
-}   // }}}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Other functions
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::ostream& operator << (std::ostream& stream, const CharX& cx) noexcept
-{   // {{{
-
-    // Print Control Sequence Introducer (CSI) commands.
-    if ((cx.value & 0xFFFF) == 0x5B1B)
-    {
-        char buffer[32] = {0x1B, 0x5B, 0x00};
-        int8_t index = 2;
-
-        for (uint16_t n = 2; n < (cx.size - 1); ++n)
-        {
-            // Get the target byte.
-            const int16_t x = (cx.value >> (8 * n)) & 0xFF;
-
-            // Convert the byte to char array.
-            // NOTE: Use can use "std::to_string" or "itoa" functions instead,
-            //       but these functions are fataly slow.
-            if (x >= 100) { buffer[index++] = '0' + (x / 100) % 10; }
-            if (x >=  10) { buffer[index++] = '0' + (x / 10)  % 10; }
-            if (x >=   0) { buffer[index++] = '0' +  x        % 10; }
-
-            // Append semicolon if not the last number.
-            if (n != (cx.size - 2))
-                buffer[index++] = ';';
-        }
-
-        // Appand the last charactor of CSI command.
-        if (cx.size > 2)
-            buffer[index++] = (cx.value >> (8 * (cx.size - 1))) & 0xFF;
-
-        // Finalize the buffer.
-        buffer[index] = '\0';
-
-        // Flush the buffer to the output stream.
-        stream << buffer;
-
-        return stream;
-    }
-
-    // Print other character.
-    else
-    {
-        // Output the given character to the stream.
-        for (uint16_t n = 0; n < cx.size; ++n)
-            stream << (char) ((cx.value >> (8 * n)) & 0xFF);
-    }
-
-    return stream;
+    return str;
 
 }   // }}}
 

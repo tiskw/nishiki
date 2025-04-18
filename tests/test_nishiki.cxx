@@ -94,15 +94,9 @@ static void test_CharX()
     assert(CharX("\x1B[38;2;12;34;56m").width == 0);
 
     // Test 4: Print escape sequence.
-    std::stringstream ss;
-    ss << CharX("\x1B[38;2;197;200;198m");
-    assert(ss.str() == "\x1B[38;2;197;200;198m");
-    ss.str("");
-    ss << CharX("\x1B[0m");
-    assert(ss.str() == "\x1B[0m");
-    ss.str("");
-    ss << CharX("\x1B[m");
-    assert(ss.str() == "\x1B[m");
+    assert(CharX("\x1B[38;2;197;200;198m").string() == "\x1B[38;2;197;200;198m");
+    assert(CharX("\x1B[0m").string() == "\x1B[0m");
+    assert(CharX("\x1B[m").string() == "\x1B[m");
 
     // Test 6: Escape sequence other than CSI.
     assert(CharX("\x1B").value == 0x1B);
@@ -230,23 +224,37 @@ static void test_StringX()
     assert(chunks[1] == StringX("江東区"));
     assert(chunks[2] == StringX("辰巳"));
 
-    // Test 8: print normal character.
-    StringX sx1 = StringX("a");
-    std::stringstream ss1;
-    clock_t t0 = clock();
-    for (int n = 0; n < 500; ++n)
-        ss1 << sx1;
-    clock_t t1 = clock();
-    std::cout << "Print normal character 500 times: " << diff_time(t1, t0) << " [sec]" << std::endl;
+    // // Test 8: print normal character.
+    // StringX sx1 = StringX("this is a pen");
+    // std::stringstream ss1;
+    // clock_t t0 = clock();
+    // for (int n = 0; n < 500; ++n)
+    //     // ss1 << std::string("this is a pen"); // sx1.string().c_str();
+    //     StringX("this is a pen");
+    // clock_t t1 = clock();
+    // std::cout << "Print normal character 500 times: " << diff_time(t1, t0) << " [sec]" << std::endl;
 
-    // Test 9: print ANSI escape sequence.
-    StringX sx2 = StringX("\x1B[38;2;197;200;198m");
-    std::stringstream ss2;
-    clock_t t2 = clock();
-    for (int n = 0; n < 500; ++n)
-        ss2 << sx2;
-    clock_t t3 = clock();
-    std::cout << "Print ANSI escape sequence 500 times: " << diff_time(t3, t2) << " [sec]" << std::endl;
+    // // Test 9: print ANSI escape sequence.
+    // StringX sx2 = StringX("\x1B[38;2;197;200;198m");
+    // std::stringstream ss2;
+    // clock_t t2 = clock();
+    // for (int n = 0; n < 500; ++n)
+    //     ss2 << sx2.string();
+    // clock_t t3 = clock();
+    // std::cout << "Print ANSI escape sequence 500 times: " << diff_time(t3, t2) << " [sec]" << std::endl;
+
+    // Test 10: consert ANSI escape sequence to string.
+    assert(StringX("\x1B[7m \x1B[0m").string().size() == 9);
+    assert(StringX("\x1B[7m \x1B[0m").string().c_str()[0] == '\x1B');
+    assert(StringX("\x1B[7m \x1B[0m").string().c_str()[1] == '[');
+    assert(StringX("\x1B[7m \x1B[0m").string().c_str()[2] == '7');
+    assert(StringX("\x1B[7m \x1B[0m").string().c_str()[3] == 'm');
+    assert(StringX("\x1B[7m \x1B[0m").string().c_str()[4] == ' ');
+    assert(StringX("\x1B[7m \x1B[0m").string().c_str()[5] == '\x1B');
+    assert(StringX("\x1B[7m \x1B[0m").string().c_str()[6] == '[');
+    assert(StringX("\x1B[7m \x1B[0m").string().c_str()[7] == '0');
+    assert(StringX("\x1B[7m \x1B[0m").string().c_str()[8] == 'm');
+    assert(StringX("\x1B[7m \x1B[0m").string().c_str()[9] == '\0');
 
 }   // }}}
 

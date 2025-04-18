@@ -237,10 +237,10 @@ StringX StringX::colorize(void) const noexcept
     StringX result;
     for (const StringX& token : this->tokenize())
     {
-        if      (set_commands.contains(token)) { result += StringX("\033[32m") + token + StringX("\033[m"); }  // Command color.
-        else if (set_keywords.contains(token)) { result += StringX("\033[33m") + token + StringX("\033[m"); }  // Keyword color.
-        else if (set_symbols.contains(token))  { result += StringX("\033[34m") + token + StringX("\033[m"); }  // Symbols color.
-        else if (is_string_token(token))       { result += StringX("\033[31m") + token + StringX("\033[m"); }  // Strings color.
+        if      (set_commands.contains(token)) { result += StringX("\x1B[32m") + token + StringX("\033[m"); }  // Command color.
+        else if (set_keywords.contains(token)) { result += StringX("\x1B[33m") + token + StringX("\033[m"); }  // Keyword color.
+        else if (set_symbols.contains(token))  { result += StringX("\x1B[34m") + token + StringX("\033[m"); }  // Symbols color.
+        else if (is_string_token(token))       { result += StringX("\x1B[31m") + token + StringX("\033[m"); }  // Strings color.
         else                                   { result +=                       token                    ; }  // Others.
     }
 
@@ -471,34 +471,16 @@ uint16_t StringX::width(void) const noexcept
 // StringX: Class static member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void StringX::construct_from_char_pointer(StringX* sx, const char* ptr) noexcept
+void StringX::construct_from_char_pointer(StringX* sx, const char* str) noexcept
 {   // {{{
 
-    // Convert char pointer to a string stream.
-    std::stringstream ss(ptr);
-
     // Read one CharX from the pointer, and incremant the pointer with read bytes.
-    while (not ss.eof())
-        sx->emplace_back(ss);
+    for (uint16_t read_bytes = 0; *str != '\0'; str += read_bytes)
+        sx->emplace_back(str, read_bytes);
 
     // Drop extra empty strings.
     while ((sx->size() > 0) and (sx->back().value == 0))
         sx->pop_back();
-
-}   // }}}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Other functions
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::ostream& operator << (std::ostream& stream, const StringX& sx) noexcept
-{   // {{{
-
-    // Output the given string to the stream.
-    for (const CharX& cx : sx)
-        stream << cx;
-
-    return stream;
 
 }   // }}}
 

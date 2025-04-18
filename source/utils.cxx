@@ -152,7 +152,7 @@ Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t he
 
         // Append texts to each line.
         for (uint16_t idx = idx_bgn; idx < idx_end; ++idx)
-            lines[idx % rows] += texts[idx] + CharX(" ") * (wid_max + margin - ws[idx]);
+            lines[idx % rows] += texts[idx] + CharX(' ') * (wid_max + margin - ws[idx]);
 
         // Update total width.
         width_total += wid_max + margin;
