@@ -101,10 +101,6 @@ void TermWriter::write(const StringX& lhs, const StringX& rhs, const StringX& ps
     // Compute the number of completion lines.
     const uint16_t n_clines = this->area.rows - eline_chunks.size();
 
-    for (uint16_t n = 0; n < (n_clines - 1); ++n)
-        std::fputs("\n", stdout);
-    return ;
-
     // Print the completion lines.
     for (uint16_t n = 0; n < n_clines; ++n)
     {

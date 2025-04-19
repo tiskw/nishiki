@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/// C++ header file: file_type.hxx                                                               ///
+/// C++ header file: parse_args.hxx                                                              ///
 ///                                                                                              ///
-/// This file defines the class `FileType` that can judge mime type of the given file.           ///
+/// Parse command line arguments.                                                                ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef FILE_TYPE_HXX

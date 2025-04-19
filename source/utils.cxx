@@ -27,40 +27,23 @@ void append_text(const Path& path, const String& str) noexcept
     fputs(str.c_str(), ofp);
     fflush(ofp);
 
+    // Close the file.
+    fclose(ofp);
+
 }   // }}}
 
 Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t height, uint16_t margin) noexcept
 {   // {{{
 
-    constexpr auto maximum = [](const Vector<uint16_t>& array, uint32_t idx_bgn, uint32_t idx_end) noexcept -> uint16_t
-    // [Abstract]
-    //   Returns maximum value of the given array.
-    //
-    // [Args]
-    //   array   (const Vector<uint16_t>&): Target vector.
-    //   idx_bgn (uint32_t)                    : Start index.
-    //   idx_end (uint32_t)                    : End index.
-    //
-    // [Returns]
-    //   (uint16_t): Maximum value of the given array.
-    {
-        uint16_t val_max = array[idx_bgn];
-
-        for (size_t idx = idx_bgn + 1; idx < idx_end; ++idx)
-            val_max = (val_max < array[idx]) ? array[idx] : val_max;
-
-        return val_max;
-    };
-
-    constexpr auto get_shape = [maximum](const Vector<uint16_t>& ws, uint16_t width, uint16_t margin, uint16_t row) noexcept -> std::pair<uint16_t, bool>
+    constexpr auto get_shape = [](const Vector<uint16_t>& ws, uint16_t width, uint16_t margin, uint16_t row) noexcept -> std::pair<uint16_t, bool>
     // [Abstract]
     //   Compute shape of column style display.
     //
     // [Args]
     //   ws     (const Vector<uint16_t>&): [IN] Length of each text.
-    //   width  (uint16_t)                    : [IN] Maximum width of display.
-    //   margin (uint16_t)                    : [IN] Minimum margin between each text.
-    //   row    (uint16_t)                    : [IN] Number of rows.
+    //   width  (uint16_t)               : [IN] Maximum width of display.
+    //   margin (uint16_t)               : [IN] Minimum margin between each text.
+    //   row    (uint16_t)               : [IN] Number of rows.
     //
     // [Returns]
     //   (std::pair<uint16_t, bool>): A pair of (number of columns, true if all texts can be shown).
@@ -75,7 +58,7 @@ Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t he
             const size_t idx_end = std::min(idx_bgn + row, ws.size());
 
             // Compute maximum width of texts used in the current column.
-            const uint16_t wid_max = maximum(ws, idx_bgn, idx_end);
+            const uint16_t wid_max = *std::max_element(ws.begin() + idx_bgn, ws.begin() + idx_end);
 
             // Increment of width by this column.
             const uint16_t wid_inc = ((col > 0) ? margin : 0) + wid_max;
@@ -99,9 +82,9 @@ Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t he
     //
     // [Args]
     //   texts  (const Vector<StringX>&): [IN] Input texts.
-    //   width  (uint16_t)                   : [IN] Maximum width of display.
-    //   height (uint16_t)                   : [IN] Maximum height of display.
-    //   margin (uint16_t)                   : [IN] Minimum margin between each text.
+    //   width  (uint16_t)              : [IN] Maximum width of display.
+    //   height (uint16_t)              : [IN] Maximum height of display.
+    //   margin (uint16_t)              : [IN] Minimum margin between each text.
     //
     // [Returns]
     //   (std::pair<uint16_t, uint16_t>): A pair of (rows of the optimal shape, columns of the optimal shape).
@@ -125,7 +108,7 @@ Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t he
     // Prepare output lines.
     Vector<StringX> lines;
     for (uint16_t row = 0; row < height; ++row)
-        lines.emplace_back("");
+        lines.emplace_back();
 
     // Do nothing if no text is given.
     if (texts.size() == 0)
@@ -148,7 +131,7 @@ Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t he
         const size_t idx_end = std::min(idx_bgn + rows, ws.size());
 
         // Compute maximum width of texts used in the current column.
-        const uint16_t wid_max = maximum(ws, idx_bgn, idx_end);
+        const uint16_t wid_max = *std::max_element(ws.begin() + idx_bgn, ws.begin() + idx_end);
 
         // Append texts to each line.
         for (uint16_t idx = idx_bgn; idx < idx_end; ++idx)
@@ -462,57 +445,24 @@ Vector<String> split(const String& str, const String& delim) noexcept
 
 }   // }}}
 
-String strip(const String& str) noexcept
+String strip(const String& str, bool left, bool right) noexcept
 {   // {{{
 
-    constexpr auto is_not_space = [](unsigned char ch) noexcept -> bool
-    // [Abstract]
-    //   Returns true if the given character is not whitespace.
-    //
-    // [Args]
-    //   ch (unsigned char): [IN] Target character.
-    //
-    // [Returns]
-    //   (bool): True if not a space.
-    {
-        return !std::isspace(ch);
-    };
+    // Define a function that returns true if the given character is not whitespace.
+    constexpr auto is_not_space = [](unsigned char ch) noexcept { return !std::isspace(ch); };
 
-    constexpr auto lstrip = [is_not_space](const String &src) noexcept -> String
-    // [Abstract]
-    //   Strip white-spaces from the front.
-    //
-    // [Args]
-    //   str (const String&): [IN] Target string to be stripped.
-    //
-    // [Returns]
-    //   (String): Stripped string.
-    {
-        String str = String(src);
+    // Create a copy of input string.
+    String sx = String(str);
 
-        str.erase(str.begin(), std::find_if(str.begin(), str.end(), is_not_space));
+    // Strip from the left side.
+    if (left == true)
+        sx.erase(sx.begin(), std::find_if(sx.begin(), sx.end(), is_not_space));
 
-        return str;
-    };
+    // Strip from the right side.
+    if (right == true)
+        sx.erase(std::find_if(sx.rbegin(), sx.rend(), is_not_space).base(), sx.end());
 
-    constexpr auto rstrip = [is_not_space](const String &src) noexcept -> String
-    // [Abstract]
-    //   Strip white-spaces from the end.
-    //
-    // [Args]
-    //   str (const String&): [IN] Target string to be stripped.
-    //
-    // [Returns]
-    //   (String): Stripped string.
-    {
-        String str = String(src);
-
-        str.erase(std::find_if(str.rbegin(), str.rend(), is_not_space).base(), str.end());
-
-        return str;
-    };
-
-    return rstrip(lstrip(str));
+    return sx;
 
 }   // }}}
 

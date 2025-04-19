@@ -45,21 +45,13 @@ class StringX : public Deque<CharX>
         // [Args]
         //   sx (const StringX&): [IN] Source string to be copied.
  
-        // Converting constructor.
         explicit StringX(const char* ptr);
         // [Abstract]
         //   Constructor of StringX.
         //
         // [Args]
         //   ptr (const char*): String to be copied.
- 
-        explicit StringX(const String& str);
-        // [Abstract]
-        //   Constructor of StringX.
-        //
-        // [Args]
-        //   ptr (const std::string&): String to be copied.
- 
+
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Operators
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,8 +150,7 @@ class StringX : public Deque<CharX>
         // [Returns]
         //   (StringX): Clipped string.
 
-        std::vector<StringX>
-        chunk(uint16_t chunk_size) const noexcept;
+        Vector<StringX> chunk(uint16_t chunk_size) const noexcept;
         // [Abstract]
         //   Split the string into fixed width chunks.
         //
@@ -167,7 +158,7 @@ class StringX : public Deque<CharX>
         //   chunk_size (uint16_t): [IN] Maximum width of each chunk.
         //
         // [Returns]
-        //   (StringX): Chunked strings.
+        //   (Vector<StringX>): Chunked strings.
 
         StringX colorize(void) const noexcept;
         // [Abstract]
@@ -221,8 +212,8 @@ class StringX : public Deque<CharX>
         //   Strip white-spaces.
         //
         // [Args]
-        //   left  (bool): Strip from left if true.
-        //   right (bool): Strip from right if true.
+        //   left  (bool): [IN] Strip from left if true.
+        //   right (bool): [IN] Strip from right if true.
         //
         // [Returns]
         //   (StringX): Stripped string.
@@ -232,15 +223,15 @@ class StringX : public Deque<CharX>
         //   Convert StringX to std::string.
         //
         // [Returns]
-        //   (std::string): Converted string.
+        //   (String): Converted string.
 
         StringX substr(uint32_t pos, uint32_t n = UINT32_MAX) const noexcept;
         // [Abstract]
         //   Returns sub-string.
         //
         // [Args]
-        //   pos (uint32_t): Position of the first character to include.
-        //   n   (uint32_t): Length of the sub-string
+        //   pos (uint32_t): [IN] Position of the first character to include.
+        //   n   (uint32_t): [IN] Length of the sub-string
         //
         // [Returns]
         //   (StringX): Sub-string.
@@ -258,25 +249,7 @@ class StringX : public Deque<CharX>
         //   where / is the seperator of the tokens.
         //
         // [Returns]
-        //   (std::vector<StringX>): Array of tokens.
-        //
-        // [Examples]
-        //   | // Define target string.
-        //   | StringX str = StringX("echo 'this is a pen' | grep 'pen'");
-        //   |
-        //   | // Tokenize.
-        //   | std::vector<StringX> tokens = str.tokenize();
-        //   |
-        //   | // Check tokenization result.
-        //   | assert(tokens[0] == StringX("echo"));
-        //   | assert(tokens[1] == StringX(" "));
-        //   | assert(tokens[2] == StringX("'this is a pen'"));
-        //   | assert(tokens[3] == StringX(" "));
-        //   | assert(tokens[4] == StringX("|"));
-        //   | assert(tokens[5] == StringX(" "));
-        //   | assert(tokens[6] == StringX("grep"));
-        //   | assert(tokens[7] == StringX(" "));
-        //   | assert(tokens[8] == StringX("'pen'"));
+        //   (Vector<StringX>): Array of tokens.
 
         StringX unquote(void) const noexcept;
         // [Abstract]
@@ -293,34 +266,29 @@ class StringX : public Deque<CharX>
         //   (uint16_t): Total width of the string.
 
         ////////////////////////////////////////////////////////////////////////////////////////////
+        // Static member variables
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        static const char* colorize_commands;
+        static const char* colorize_keywords;
+        static const char* colorize_symbols;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
         // Static functions
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Construct StringX from char pointer.
         static void construct_from_char_pointer(StringX* sx, const char* ptr) noexcept;
         // [Abstract]
         //   Construct StringX from char pointer.
         //
         // [Args]
-        //   sx  (StringX*)   : Construction target.
-        //   ptr (const char*): Source of a string.
+        //   sx  (StringX*)   : [OUT] Construction target.
+        //   ptr (const char*): [IN ] Source of a string.
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// std::ostream&
-// operator << (std::ostream& stream, const StringX& str) noexcept;
-// // [Abstract]
-// //   Write the given string to the output stream.
-// //
-// // [Args]
-// //   stream (std::ostream&) : [IN] The output stream to which the characters will be written.
-// //   cx     (const StringX&): [IN] The character to be written.
-// //
-// // [Returns]
-// //   (std::ostream&): The output stream.
 
 template<> struct std::hash<StringX>
 {

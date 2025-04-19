@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/// C++ source file: command_runner.cxx                                                          ///
+/// C++ source file: test_nishiki.cxx                                                          ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Include the headers of STL.
@@ -52,13 +52,6 @@ static void print_header(const char* message)
     std::cout << "------------------------------"   << std::endl;
     std::cout << "\033[33m" << message << "\033[0m" << std::endl;
     std::cout                                       << std::endl;
-
-}   // }}}
-
-static double diff_time(clock_t t1, clock_t t0)
-{   // {{{
-
-    return (double) (t1 - t0) / CLOCKS_PER_SEC * 1000;
 
 }   // }}}
 
@@ -224,26 +217,7 @@ static void test_StringX()
     assert(chunks[1] == StringX("江東区"));
     assert(chunks[2] == StringX("辰巳"));
 
-    // // Test 8: print normal character.
-    // StringX sx1 = StringX("this is a pen");
-    // std::stringstream ss1;
-    // clock_t t0 = clock();
-    // for (int n = 0; n < 500; ++n)
-    //     // ss1 << std::string("this is a pen"); // sx1.string().c_str();
-    //     StringX("this is a pen");
-    // clock_t t1 = clock();
-    // std::cout << "Print normal character 500 times: " << diff_time(t1, t0) << " [sec]" << std::endl;
-
-    // // Test 9: print ANSI escape sequence.
-    // StringX sx2 = StringX("\x1B[38;2;197;200;198m");
-    // std::stringstream ss2;
-    // clock_t t2 = clock();
-    // for (int n = 0; n < 500; ++n)
-    //     ss2 << sx2.string();
-    // clock_t t3 = clock();
-    // std::cout << "Print ANSI escape sequence 500 times: " << diff_time(t3, t2) << " [sec]" << std::endl;
-
-    // Test 10: consert ANSI escape sequence to string.
+    // Test 8: consert ANSI escape sequence to string.
     assert(StringX("\x1B[7m \x1B[0m").string().size() == 9);
     assert(StringX("\x1B[7m \x1B[0m").string().c_str()[0] == '\x1B');
     assert(StringX("\x1B[7m \x1B[0m").string().c_str()[1] == '[');

@@ -26,7 +26,7 @@ HistManager::HistManager()
     // Load file contents if exists.
     if (std::filesystem::exists(this->path))
         for (const String& line : read_lines(this->path.string()))
-            this->hists.emplace_back(line);
+            this->hists.emplace_back(line.c_str());
 
 }   // }}}
 

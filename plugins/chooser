@@ -10,6 +10,7 @@ Necessary arguments:
   --lhs STR      Left-hand-side string.
   --rhs STR      Right-hand-side string.
   --out PATH     Path to output file.
+  --hist PATH    Path to history file (used when '--mode hist').
 
 Other options:
   -s, --stdout   Print to STDOUT.

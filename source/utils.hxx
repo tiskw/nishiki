@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// C++ header file: utils.hxx                                                                   ///
 ///                                                                                              ///
-/// A collection of utility functions used in NiShiKi2.                                          ///
+/// A collection of utility functions used in NiShiKi.                                           ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef UTILS_HXX
@@ -184,12 +184,14 @@ Vector<String> split(const String& str, const String& delim) noexcept;
 // [Returns]
 //   (std::vector<std::string>): Split strings.
 
-String strip(const String &str) noexcept;
+String strip(const String &str, bool left = true, bool right = true) noexcept;
 // [Abstract]
 //   Strip white-spaces from both front and end of the given string.
 //
 // [Args]
-//   str (const String&): [IN] Target string to be stripped.
+//   str   (const String&): [IN] Target string to be stripped.
+//   left  (bool)         : [IN] Strip from left if true.
+//   right (bool)         : [IN] Strip from right if true.
 //
 // [Returns]
 //   (std::string): Stripped string.

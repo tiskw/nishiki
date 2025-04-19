@@ -66,7 +66,7 @@ external/cxxopts.hpp:
 #-------------------------------------------------------------------------------
 
 clean:
-	rm -f run_nishiki test_nishiki lcov.info
+	rm -f run_nishiki test_nishiki test_performance lcov.info
 	rm -fr objects ./lcov
 
 # vim: noexpandtab shiftwidth=4 tabstop=4 fdm=marker

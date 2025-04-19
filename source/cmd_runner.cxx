@@ -13,6 +13,7 @@
 // Include the headers of custom modules.
 #include "config.hxx"
 #include "utils.hxx"
+#include "variables.hxx"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CommandRunner: Constructors
@@ -40,7 +41,7 @@ Tuple<StringX, StringX> CommandRunner::run(const StringX& command) const noexcep
 
     // Apply alias.
     if (tokens.size() > 0 and config.aliases.find(tokens[0].string()) != config.aliases.end())
-        tokens[0] = StringX(config.aliases[tokens[0].string()]);
+        tokens[0] = StringX(config.aliases[tokens[0].string()].c_str());
 
     // Drop white-space tokens.
     drop_whitespace_tokens(tokens);
@@ -119,7 +120,8 @@ Tuple<StringX, StringX> CommandRunner::command_exec(const Vector<StringX>& token
     // Generate command string by concatenating all tokens and run it.
     int32_t res = std::system(StringX(" ").join(tokens).string().c_str());
 
-    // TODO: Append the result value to NiShiKi internal variables.
+    // Append the result value to NiShiKi internal variables.
+    variables["?"] = std::to_string(res);
 
     return {StringX(""), StringX("")};
 
@@ -158,8 +160,8 @@ Tuple<StringX, StringX> CommandRunner::command_plugin(const Vector<StringX>& tok
 
     // Set the first line of the output file to "rhs", and second line to "rhs".
     StringX lhs, rhs;
-    if (lines.size() > 0) { lhs = StringX(lines[0]); }
-    if (lines.size() > 1) { rhs = StringX(lines[1]); }
+    if (lines.size() > 0) { lhs = StringX(lines[0].c_str()); }
+    if (lines.size() > 1) { rhs = StringX(lines[1].c_str()); }
 
     return {lhs, rhs};
 

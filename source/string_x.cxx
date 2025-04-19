@@ -13,6 +13,11 @@
 #include "config.hxx"
 #include "utils.hxx"
 
+
+const char* StringX::colorize_commands = "cat,cd,chmod,chown,cp,echo,env,export,grep,let,ln,ls,make,mkdir,mv,rm,sed,set,tar,touch,umask,unset";
+const char* StringX::colorize_keywords = "case,do,done,elif,else,esac,exit,fi,for,function,if,in,local,read,return,select,shift,then,time,until,while";
+const char* StringX::colorize_symbols  = "&,|,>,<,&&,||,>>,<<";
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // StringX: Constructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,8 +31,8 @@ StringX::StringX(const StringX& sx) : Deque<CharX>(sx)
 StringX::StringX(const char* ptr) : Deque<CharX>()
 { StringX::construct_from_char_pointer(this, ptr); }
 
-StringX::StringX(const String& str) : Deque<CharX>()
-{ StringX::construct_from_char_pointer(this, str.c_str()); }
+// StringX::StringX(const String& str) : Deque<CharX>()
+// { StringX::construct_from_char_pointer(this, str.c_str()); }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // StringX: Operators
@@ -135,8 +140,8 @@ std::strong_ordering StringX::operator <=> (const StringX& str) const noexcept
 }   // }}}
 
 // Comparison operators derived from the spaceship operator.
-bool StringX::operator <  (const StringX& str) const noexcept { return (*this <=> str) <  0; }
-bool StringX::operator == (const StringX& str) const noexcept { return (*this <=> str) == 0; }
+bool StringX::operator <  (const StringX& sx) const noexcept { return (*this <=> sx) <  0; }
+bool StringX::operator == (const StringX& sx) const noexcept { return (*this <=> sx) == 0; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // StringX: Member functions
@@ -217,7 +222,7 @@ StringX StringX::colorize(void) const noexcept
     //   targets (const String&): [IN] Comma-seperated keyword strings.
     {
         for (const String& s : split(targets, ","))
-            set.emplace(StringX(s));
+            set.emplace(StringX(s.c_str()));
     };
 
     static bool is_initialized = false;
@@ -227,9 +232,9 @@ StringX StringX::colorize(void) const noexcept
 
     if (not is_initialized)
     {
-        create_stringx_set(set_commands, config.colorize_commands);
-        create_stringx_set(set_keywords, config.colorize_keywords);
-        create_stringx_set(set_symbols,  config.colorize_symbols);
+        create_stringx_set(set_commands, this->colorize_commands);
+        create_stringx_set(set_keywords, this->colorize_keywords);
+        create_stringx_set(set_symbols,  this->colorize_symbols);
         is_initialized = true;
     }
 
@@ -320,7 +325,7 @@ String StringX::string(void) const noexcept
 
     String result;
 
-    for (CharX cx : *this)
+    for (const CharX& cx : *this)
         result += cx.string();
 
     return result;
@@ -459,7 +464,7 @@ uint16_t StringX::width(void) const noexcept
 {   // {{{
 
     // Define a function to add the width of the given character.
-    const auto add_width = [](const uint16_t acc, const CharX& cx) { return acc + cx.width; };
+    constexpr auto add_width = [](const uint16_t acc, const CharX& cx) { return acc + cx.width; };
 
     // Accumurate width of each character.
     return std::accumulate(this->cbegin(), this->cend(), (uint16_t) 0, add_width);
@@ -474,9 +479,16 @@ uint16_t StringX::width(void) const noexcept
 void StringX::construct_from_char_pointer(StringX* sx, const char* str) noexcept
 {   // {{{
 
-    // Read one CharX from the pointer, and incremant the pointer with read bytes.
-    for (uint16_t read_bytes = 0; *str != '\0'; str += read_bytes)
+    uint16_t read_bytes;
+
+    while ((*str != '\0') and (*str != '\x1A') and (*str != '\xFF'))
+    {
+        // Construct a character and append to the end.
         sx->emplace_back(str, read_bytes);
+
+        // Move the string pointer.
+        str += read_bytes;
+    }
 
     // Drop extra empty strings.
     while ((sx->size() > 0) and (sx->back().value == 0))

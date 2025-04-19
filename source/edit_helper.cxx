@@ -227,7 +227,7 @@ void EditHelper::cands_filepath(const Vector<StringX>& tokens) noexcept
     // [Returns]
     //   (String): Colorized token.
     {
-        return (token.size() > 0 and token.back() == '/') ? "\x1B[94m" + token + "\x1B[m" : token;
+        return (token.size() > 0 and token.back() == '/') ? ("\x1B[94m" + token + "\x1B[m") : token;
     };
 
     // Split user input token to a tuple of:
@@ -245,12 +245,9 @@ void EditHelper::cands_filepath(const Vector<StringX>& tokens) noexcept
         if ((not show_dot) and (name[0] == '.'))
             continue;
 
-        //
+        // Append to the candidates (a pair of query string and display string).
         if (name.starts_with(query_key))
-        {
-            this->cands.emplace_back(StringX((query_dir / name).c_str()),  // Query string.
-                                     StringX(colorize_token(name)));       // Display string.
-        }
+            this->cands.emplace_back((query_dir / name).c_str(), colorize_token(name).c_str());
     }
 
 }   // }}}
@@ -279,7 +276,7 @@ void EditHelper::cands_option(const Vector<StringX>& tokens) noexcept
             // Strip whitespaces from the line.
             line = strip(line);
 
-            for (String elem : split(strip(line), " "))
+            for (String elem : split(line, " "))
             {
                 // Strip whitespaces from the token.
                 elem = strip(elem);
@@ -296,7 +293,7 @@ void EditHelper::cands_option(const Vector<StringX>& tokens) noexcept
 
                 // Both the token and line starts with '-', then register the option to the cache.
                 if ((elem.size() > 0 and elem[0] == '-') and (line.size() > 0 and line[0] == '-'))
-                    opt_cache[command][StringX(elem)] = StringX(line);
+                    opt_cache[command][StringX(elem.c_str())] = StringX(line.c_str());
             }
         }
     }
@@ -334,7 +331,7 @@ void EditHelper::cands_preview(const Vector<StringX>& tokens) noexcept
     };
 
     // Delimiter of the preview area.
-    const StringX preview_delim = StringX(config.preview_delim);
+    const StringX preview_delim = StringX(config.preview_delim.c_str());
 
     // Get the target file path that is a last non-white-space token.
     const StringX path = get_last_nonwhitespace_token(tokens);
@@ -379,11 +376,11 @@ void EditHelper::cands_shell(const Vector<StringX>& tokens, const String& option
         line = strip(line);
 
         // Get 1st token of each line.
-        const StringX line_1st_token = StringX(split(line, " ")[0]);
+        const StringX line_1st_token = StringX(split(line, " ")[0].c_str());
 
         // Register matched output lines.
         if (line_1st_token.startswith(token))
-            this->cands.emplace_back(line_1st_token, line);
+            this->cands.emplace_back(line_1st_token, line.c_str());
     }
 
 }   // }}}
@@ -406,7 +403,7 @@ void EditHelper::cands_subcmd(const Vector<StringX>& tokens, const String& optio
 
         // Run command and register each line.
         for (const String& line : split(run_command(option), "\n"))
-            subcmd_cache[option].push_back(StringX(line).strip());
+            subcmd_cache[option].push_back(StringX(line.c_str()).strip());
     }
 
     for (const StringX& line : subcmd_cache[option])

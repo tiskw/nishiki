@@ -52,11 +52,17 @@ check:
 		     --suppress=missingIncludeSystem --suppress=useStlAlgorithm \
 		     source/*.cxx
 	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
-	@echo "\033[38;5;140m// Check Plugins \033[m"
+	@echo "\033[38;5;140m// Check plugin - chooser \033[m"
 	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
 	pyflakes plugins/chooser
 	pylint plugins/chooser
 	mypy plugins/chooser
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	@echo "\033[38;5;140m// Check plugin - ext_cmd \033[m"
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	pyflakes plugins/ext_cmd
+	pylint plugins/ext_cmd
+	mypy plugins/ext_cmd
 
 clean:
 	cd build; make clean; cd ..

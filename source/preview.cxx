@@ -58,7 +58,7 @@ Vector<StringX> preview(const String& path, uint16_t width, uint16_t height) noe
         preview_lines[idx] = replace(preview_lines[idx], "\t", "    ");
 
         // Append to result list.
-        result.push_back(StringX(preview_lines[idx]).clip(width));
+        result.push_back(StringX(preview_lines[idx].c_str()).clip(width));
     }
 
     // Exit function if one preview procedure finished.

@@ -126,7 +126,7 @@ int32_t main(int32_t argc, const char* argv[])
     StringX lhs, rhs;
 
     // Prepare the input string.
-    StringX input_str = StringX(replace(args["input"], "\\n", "\n"));
+    StringX input_str = StringX(replace(args["input"], "\\n", "\n").c_str());
 
     while (true)
     {

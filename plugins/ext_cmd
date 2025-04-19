@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+"""
+Usage:
+    ext_cmd --cmd STR --lhs STR --rhs STR --out STR [-v] [-h]
+
+An interface to call external command.
+
+Necessary arguments:
+  --cmd STR      External command to run.
+  --lhs STR      Left-hand-side string.
+  --rhs STR      Right-hand-side string.
+  --out PATH     Path to output file.
+
+Other options:
+  -s, --stdout   Print to STDOUT.
+  -v, --version  Show version info and exit.
+  -h, --help     Show help message and exit.
+"""
+
+# Define version.
+__version__ = "2025.04.19"
+
+# Import standard libraries.
+import argparse
+import subprocess
+import sys
+
+
+#---------------------------------------------------------------------------------------------------
+# Utility functions
+#---------------------------------------------------------------------------------------------------
+
+def ext_cmd(args: argparse.Namespace) -> str:
+    """
+    Call external command.
+
+    Args:
+        args (argparse.Namespace): Parsed command line arguments.
+    """
+    # Get command string.
+    cmd: str = args.cmd.strip()
+
+    # Run the given command.
+    with subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as p:
+
+        # Get the output of the command.
+        return p.stdout.read().decode().strip() if (p.stdout is not None) else ""
+
+
+#---------------------------------------------------------------------------------------------------
+# Postprocessor of selected filepaths, process IDs, and command histories
+#---------------------------------------------------------------------------------------------------
+
+def postprocess(args: argparse.Namespace, text: str) -> None:
+    """
+    Post-process of chooser.
+
+    Args:
+        args (argparse.Namespace): Parsed command line arguments.
+        text (str)               : Selection result.
+    """
+    # Write the selection results.
+    lhs: str = args.lhs if (args.lhs is not None) else ""
+    rhs: str = args.rhs if (args.rhs is not None) else ""
+    out: str = lhs + text + "\n" + rhs + "\n"
+
+    if args.stdout:
+        sys.stdout.write(out)
+
+    else:
+        with open(args.out, "wt", encoding="utf-8") as ofp:
+            ofp.write(out)
+
+
+#---------------------------------------------------------------------------------------------------
+# Main function of this script
+#---------------------------------------------------------------------------------------------------
+
+def parse_args() -> argparse.Namespace:
+    """
+    Parse command line arguments.
+
+    Returns:
+        (argparse.Namespace): Parsed command line arguments.
+    """
+    parser = argparse.ArgumentParser(prog="chooser", add_help=False)
+    parser.add_argument("--cmd", metavar="STR", type=str, default=None)
+    parser.add_argument("--lhs", metavar="STR", type=str, default=None)
+    parser.add_argument("--rhs", metavar="STR", type=str, default=None)
+    parser.add_argument("--out", metavar="STR", type=str, default=None)
+    parser.add_argument("-s", "--stdout", action="store_true")
+    parser.add_argument("-v", "--version", action="store_true")
+    parser.add_argument("-h", "--help", action="store_true")
+    return parser.parse_args()
+
+
+def main(args: argparse.Namespace) -> None:
+    """
+    Entrypoint of this script.
+
+    Args:
+        args (argparse.Namespace): Parsed command line arguments.
+    """
+    if args.version:
+        print("chooser", __version__)
+        print("Copyright (C) Tetsuya Ishikawa")
+        print("This software is released under the MIT License")
+
+    elif args.help or (args.cmd is None):
+        print(__doc__.strip())
+
+    else:
+        postprocess(args, text=ext_cmd(args))
+
+
+if __name__ == "__main__":
+    main(parse_args())
+
+
+# vim: expandtab tabstop=4 shiftwidth=4 fdm=marker

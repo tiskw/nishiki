@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/// C++ header file: char_x.hxx                                                                ///
+/// C++ header file: char_x.hxx                                                                  ///
 ///                                                                                              ///
-/// Extended character class and it's iterator class.                                               ///
+/// Extended character class and it's iterator class.                                            ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef CHAR_X_HXX
@@ -188,23 +188,6 @@ class CharX
         //   cx  (CharX&)      : [OUT] Myself (target of the constructor).
         //   str (const char*&): [IN ] Input stream of the source.
 };
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Other functions
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// // Write the given character to the stream.
-// std::ostream&
-// operator << (std::ostream& stream, const CharX& cx) noexcept;
-// // [Abstract]
-// //   Write the given character to the output stream.
-// //
-// // [Args]
-// //   stream (std::ostream&): [IN] The output stream to which the characters will be written.
-// //   cx     (const CharX&) : [IN] The character to be written.
-// //
-// // [Returns]
-// //   (std::ostream&): The output stream.
 
 #endif
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/// C++ source file: char_x.cxx                                                                ///
+/// C++ source file: char_x.cxx                                                                  ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Include the primary header.
@@ -22,7 +22,7 @@ CharX::CharX(uint64_t value, uint16_t size, uint16_t width) : value(value), size
 { /* Do nothing, initializer lists only. */ }
 
 CharX::CharX(const char c) : value(c), size(1), width(0)
-{ /* Do nothing, initializer lists only. */ }
+{ this->width = CharX::get_utf8_width(this->value); }
 
 CharX::CharX(const char* ptr) : value(0), size(0), width(0)
 { CharX::construct_from_char_pointer(*this, ptr); }
@@ -77,7 +77,7 @@ StringX CharX::printable(void) const noexcept
 String CharX::string(void) const noexcept
 {   // {{{
 
-    char buffer[32];
+    char buffer[16];
     int8_t index = 0;
 
     // Print Control Sequence Introducer (CSI) commands.
@@ -107,9 +107,6 @@ String CharX::string(void) const noexcept
         // Appand the last charactor of CSI command.
         if (this->size > 2)
             buffer[index++] = (this->value >> (8 * (this->size - 1))) & 0xFF;
-
-        // Finalize the buffer.
-        buffer[index] = '\0';
     }
 
     // Print other character.
@@ -118,10 +115,10 @@ String CharX::string(void) const noexcept
         // Output the given character to the stream.
         for (uint16_t n = 0; n < this->size; ++n)
             buffer[index++] = (char) ((this->value >> (8 * n)) & 0xFF);
-
-        // Finalize the buffer.
-        buffer[index] = '\0';
     }
+
+    // Finalize the buffer.
+    buffer[index] = '\0';
 
     return String(buffer);
 
@@ -134,7 +131,7 @@ String CharX::string(void) const noexcept
 void CharX::append_byte(uint8_t c) noexcept
 {   // {{{
 
-    this->value |= (((uint64_t) c) << (8 * this->size));
+    this->value |= ((static_cast<uint64_t>(0) | c) << (8 * this->size));
     this->size++;
 
 }   // }}}
@@ -166,8 +163,8 @@ uint8_t CharX::get_utf8_width(uint64_t val) noexcept
 const char* CharX::construct_from_char_pointer(CharX& cx, const char* str) noexcept
 {   // {{{
 
-    // Do nothing.
-    if ((*str == '\0') or (*str == 127))
+    // Do nothing if the .
+    if ((*str == '\0') or (*str == '\x1A') or (*str == '\xff'))
         return str;
 
     if (*str == '\x1B') { return CharX::construct_ansi_escseq(cx, str); }
@@ -251,7 +248,7 @@ const char* CharX::construct_normal_char(CharX& cx, const char* str) noexcept
 
     // Read values and update the member variable.
     for (uint16_t i = 0; (i < cx.size) and (*str != '\0'); ++i)
-        cx.value |= (((uint64_t) *str++) << (8 * i));
+        cx.value |= ((static_cast<uint64_t>(0) | (uint8_t) *str++) << (8 * i));
 
     // Compute the width of the character.
     cx.width = CharX::get_utf8_width(cx.value);
