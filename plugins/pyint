@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+"""
+Usage:
+    pyint [--pr PATH] [--pw PATH] [-v] [-h]
+
+Python interface for NiShiKi.
+
+Necessary arguments:
+  -r, --pr PATH  Named pipe for reading input.   [default: ~/.local/share/nishiki/pyint_pr]
+  -w, --pw PATH  Named pipe for writing output.  [default: ~/.local/share/nishiki/pyint_pw]
+
+Other options:
+  -v, --version  Show version info and exit.
+  -h, --help     Show help message and exit.
+"""
+
+# Define version.
+__version__ = "2025.04.20"
+
+# Import standard libraries.
+import argparse
+import code
+import os
+import pathlib
+
+
+#---------------------------------------------------------------------------------------------------
+# Define code to run in the new interpreter
+#---------------------------------------------------------------------------------------------------
+
+preload = r"""
+def dump_to_nishiki(text: str):
+    with open("{path_pipe_w}", "w") as ofp:
+        ofp.write(text + "\n")
+        ofp.flush()
+""".strip()
+
+
+#---------------------------------------------------------------------------------------------------
+# Main function of this script
+#---------------------------------------------------------------------------------------------------
+
+def parse_args() -> argparse.Namespace:
+    """
+    Parse command line arguments.
+
+    Returns:
+        (argparse.Namespace): Parsed command line arguments.
+    """
+    parser = argparse.ArgumentParser(prog="chooser", add_help=False)
+    parser.add_argument("-r", "--pr", type=str, default="~/.local/share/nishiki/pyint_pr")
+    parser.add_argument("-w", "--pw", type=str, default="~/.local/share/nishiki/pyint_pw")
+    parser.add_argument("-v", "--version", action="store_true")
+    parser.add_argument("-h", "--help", action="store_true")
+    return parser.parse_args()
+
+
+def main_loop(engine: code.InteractiveInterpreter, path_pipe_r: pathlib.Path, path_pipe_w: pathlib.Path) -> bool:
+    """
+    Main loop of pyint.
+
+    Args:
+        engine      (code.InteractiveInterpreter): Python interpreter engine.
+        path_pipe_r (pathlib.Path)               : Path to the named pipe for reading.
+        path_pipe_w (pathlib.Path)               : Path to the named pipe for writing.
+
+    Returns:
+        (bool): False means exit from the main loop.
+    """
+    # Read input string from the named pipe.
+    with path_pipe_r.open("rt") as pipe_r:
+        text = pipe_r.read().strip()
+
+    # If the inut code is "exit" then exit from the loop.
+    if text.strip() == "exit":
+        return False
+
+    # Run the code.
+    engine.runsource(text, symbol="exec")
+
+    return True
+
+
+def pyint(args: argparse.Namespace) -> None:
+    """
+    Python interface for NiShiKi.
+
+    Args:
+        args (argparse.Namespace): Parsed command line arguments.
+    """
+    # Define paths for the named pipe for reading and writing.
+    path_pipe_r: pathlib.Path = pathlib.Path(args.pr).expanduser().resolve()
+    path_pipe_w: pathlib.Path = pathlib.Path(args.pw).expanduser().resolve()
+
+    # Create an instance of Python interpreter.
+    engine: code.InteractiveInterpreter = code.InteractiveInterpreter(locals=locals())
+
+    # Run the preload code.
+    engine.runsource(preload.format(path_pipe_w=str(path_pipe_w)), symbol="exec")
+
+    # Prepare the named pipes.
+    if not path_pipe_r.exists():
+        os.mkfifo(path_pipe_r)
+    if not path_pipe_w.exists():
+        os.mkfifo(path_pipe_w)
+
+    # Start the main loop.
+    while main_loop(engine, path_pipe_r, path_pipe_w):
+        pass
+
+    # Remove the named pipes.
+    if not path_pipe_r.exists():
+        os.remove(path_pipe_r)
+    if not path_pipe_w.exists():
+        os.remove(path_pipe_w)
+
+
+def main(args: argparse.Namespace) -> None:
+    """
+    Entrypoint of this script.
+
+    Args:
+        args (argparse.Namespace): Parsed command line arguments.
+    """
+    if args.version:
+        print("pyint", __version__)
+        print("Copyright (C) Tetsuya Ishikawa")
+        print("This software is released under the MIT License")
+
+    elif args.help:
+        print(__doc__.strip())
+
+    else:
+        pyint(args)
+ 
+
+if __name__ == "__main__":
+    main(parse_args())
+
+
+# vim: expandtab tabstop=4 shiftwidth=4 fdm=marker
