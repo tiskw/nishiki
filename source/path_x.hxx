@@ -32,18 +32,32 @@ class PathX : public Path
         //   Constructor of PathX.
         //
         // [Args]
-        //   path (const std::filesystem::path&): [IN] Source path to be copied.
+        //   path (const std::filesystem::path&): [IN] File path.
 
         explicit PathX(const char* path);
         // [Abstract]
         //   Constructor of PathX.
         //
         // [Args]
-        //   path (const char*): [IN] Source path to be copied.
+        //   path (const char*): [IN] File path.
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Member functions
         ////////////////////////////////////////////////////////////////////////////////////////////
+
+        PathX operator / (const String& name) const noexcept;
+        // [Abstract]
+        //
+        // [Args]
+        //
+        // [Returns]
+
+        bool exists(void) const noexcept;
+        // [Abstract]
+        //   Returns true if the filepath exists.
+        //
+        // [Returns]
+        //   (bool): True if the filepath exists.
 
         Vector<String> listdir(uint32_t n_max_items = 128) const noexcept;
         // [Abstract]

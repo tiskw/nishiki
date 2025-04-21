@@ -15,15 +15,35 @@
 // PathX: Constructors and destructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PathX::PathX(const std::filesystem::path& path) : std::filesystem::path(path)
+PathX::PathX(const Path& path) : Path(path)
 { /* Do nothing */ }
 
-PathX::PathX(const char* path) : std::filesystem::path(path)
+PathX::PathX(const char* path) : Path(replace(path, "~", getenv("HOME")))
 { /* Do nothing */ }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PathX: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+PathX PathX::operator / (const String& str) const noexcept
+{   // {{{
+
+    // Make a copy of myself.
+    PathX path = PathX(*this);
+
+    // Append the given string.
+    path.append(str);
+
+    return path;
+
+}   // }}}
+
+bool PathX::exists(void) const noexcept
+{   // {{{
+
+    return std::filesystem::exists(*this);
+
+}   // }}}
 
 Vector<String> PathX::listdir(uint32_t n_max_items) const noexcept
 {   // {{{

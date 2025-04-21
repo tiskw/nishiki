@@ -12,6 +12,7 @@
 
 // Include the headers of custom modules.
 #include "config.hxx"
+#include "path_x.hxx"
 #include "utils.hxx"
 #include "variables.hxx"
 
@@ -132,10 +133,10 @@ Tuple<StringX, StringX> CommandRunner::command_plugin(const Vector<StringX>& tok
 
     // Compute the path of the specified plugin.
     // Note that the "!" at the beginning of the first token should be removed.
-    Path path = Path(replace(config.path_plugins, "~", getenv("HOME"))) / tokens[0].string().substr(1);
+    PathX path = PathX(config.path_plugins) / tokens[0].string().substr(1);
 
     // Compute the temporary file path.
-    Path path_tmp = Path("/tmp") / (get_random_string(16) + ".txt");
+    PathX path_tmp = PathX("/tmp") / (get_random_string(16) + ".txt");
 
     // Get the tokens except the first token.
     Vector<StringX> sub_tokens = {tokens.begin() + 1, tokens.end()};
@@ -149,7 +150,7 @@ Tuple<StringX, StringX> CommandRunner::command_plugin(const Vector<StringX>& tok
         std::printf("NiShiKi: Warning: Plugin command returns non-zero code: %s\n", command.c_str());
 
     // Print error message and returns empty strings if no output file exists.
-    if (not std::filesystem::exists(path_tmp))
+    if (not path_tmp.exists())
     {
         std::printf("NiShiKi: Warning: The output file not found: %s\n", path_tmp.c_str());
         return {StringX(""), StringX("")};

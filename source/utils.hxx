@@ -72,13 +72,6 @@ String get_date(void) noexcept;
 // [Returns]
 //   (String): Date string.
 
-String get_git_info(void) noexcept;
-// [Abstract]
-//   Get git status info as a string.
-//
-// [Returns]
-//   (String): Git branch information.
-
 String get_random_string(int16_t length) noexcept;
 // [Abstract]
 //   Returns random string.

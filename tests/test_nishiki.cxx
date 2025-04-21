@@ -339,6 +339,16 @@ static void test_readcmd()
     assert(run_test_readcmd("ls \x1B\x1A k\n", "previous input", ""));
     assert(run_test_readcmd("ls \x1B\x1A \x1b\x5b\x41\x1b\x5b\x42\n", "ls ", ""));
 
+    // History completions.
+    assert(run_test_readcmd("previ\x0E\n", "previous input ", ""));
+
+    // Ctrl-C and Ctrl-D.
+    assert(run_test_readcmd("\x03", "", ""));
+    assert(run_test_readcmd("\x04", "^D", ""));
+
+    // Try keybind (Ctrl-F).
+    run_test_readcmd("\x06", "", "");
+
 }   // }}}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

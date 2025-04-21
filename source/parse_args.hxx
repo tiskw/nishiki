@@ -14,7 +14,7 @@
 // Public functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Map<String, String> parse_args(int32_t argc, const char* argv[], const char* version);
+Map<String, String> parse_args(int32_t argc, char* const argv[], const char* version);
 // [Abstract]
 //   Parse command line arguments.
 //

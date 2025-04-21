@@ -34,11 +34,14 @@ class TermReader
         // Member functions
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        CharX getch(void) noexcept;
+        CharX getch(bool& is_not_interrupted) noexcept;
         // [Abstract]
         //   Get valid UTF-8 character from STDIN and returns it. If the acquired character is
         //   registered in the keybind, convert the character to a binded string (most of the
         //   binded string will be added to the stack).
+        //
+        // [Args]
+        //   is_not_interrupted (bool): This variable will be false if interrupted.
         //
         // [Returns]
         //   (CharX): Captured character.

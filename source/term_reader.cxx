@@ -30,7 +30,7 @@ TermReader::TermReader(void) : fd(STDIN_FILENO)
     term_cpy.c_lflag    |= ISIG;
     term_cpy.c_iflag    &= ~ICRNL;
     term_cpy.c_cc[VMIN]  = 0;
-    term_cpy.c_cc[VTIME] = 10;
+    term_cpy.c_cc[VTIME] = 2;
 
     // NOTE: termios.c_cc[VMIN] and termios.c_cc[VTIME].
     //       <https://manpages.debian.org/bookworm/manpages-dev/termios.3.en.html>
@@ -76,7 +76,7 @@ TermReader::~TermReader(void)
 // TermReader: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CharX TermReader::getch(void) noexcept
+CharX TermReader::getch(bool& is_not_interrupted) noexcept
 {   // {{{
 
     // Read new characters from STDIN of no data remained in the buffer.
@@ -88,7 +88,7 @@ CharX TermReader::getch(void) noexcept
         // Read characters from STDIN. Note that:
         //   * The terminal attributes are changed by the constructor of this class.
         //   * The last byte of the buffer should be kept as zero.
-        while (read(STDIN_FILENO, buffer, this->buffer_size - 1) == 0)
+        while (is_not_interrupted and (read(STDIN_FILENO, buffer, this->buffer_size - 1) == 0))
         { /* Do nothing, just repeat the "read" function if timed out. */ }
     }
 

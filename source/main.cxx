@@ -10,13 +10,13 @@
 // Include the headers of STL.
 #include <cstdio>
 #include <regex>
-#include <signal.h>
 
 // Include the headers of custom modules.
 #include "config.hxx"
 #include "cmd_runner.hxx"
 #include "hist_manager.hxx"
 #include "parse_args.hxx"
+#include "path_x.hxx"
 #include "read_cmd.hxx"
 #include "utils.hxx"
 
@@ -54,7 +54,6 @@ static Tuple<String, String, String, String> get_prompt_strings()
             case hash("{cwd}") : var_cache[target] = get_cwd();         break;
             case hash("{date}"): var_cache[target] = get_date();        break;
             case hash("{host}"): var_cache[target] = getenv("NAME");    break;
-            case hash("{git}") : var_cache[target] = get_git_info();    break;
             case hash("{time}"): var_cache[target] = get_time();        break;
             case hash("{user}"): var_cache[target] = getenv("LOGNAME"); break;
             default            : var_cache[target] = "???";             break;
@@ -102,13 +101,10 @@ static Tuple<String, String, String, String> get_prompt_strings()
 // Main function
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int32_t main(int32_t argc, const char* argv[])
+int32_t main(int32_t argc, char* const argv[])
 {   // {{{
 
-    // Ignore Ctrl-C signal.
-    if (signal(SIGINT, SIG_IGN) == SIG_ERR)
-        exit(-1);
-
+    // Instanciate necessary classes.
     HistManager   histmn;
     CommandRunner runner;
 
@@ -119,8 +115,9 @@ int32_t main(int32_t argc, const char* argv[])
     Map<String, String> args = parse_args(argc, argv, VERSION);
 
     // Show welcome message.
-    std::printf("Welcome to ");
-    std::printf("\x1B[31mN \x1B[35mI \x1B[32mS \x1B[33mH \x1B[35mI \x1B[36mK \x1B[35mI\x1B[m !!\n");
+    PathX path_welcome = PathX(config.path_plugins) / "welcome";
+    if (path_welcome.exists()) std::printf("%s\n", run_command(path_welcome.string(), true).c_str());
+    else                       std::printf("%s\n", "Welcome to NiShiKi!");
 
     // Initialize the left and right hand side strings.
     StringX lhs, rhs;

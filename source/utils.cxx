@@ -238,19 +238,6 @@ String get_date(void) noexcept
 
 }   // }}}
 
-String get_git_info(void) noexcept
-{   // {{{
-
-    // Get git branch and status information.
-    const String branch = run_command("git rev-parse --abbrev-ref HEAD");
-    const String status = run_command("git status --porcelain");
-
-    if      ((branch.size() > 0) and (status.size() > 0)) return ("\033[33m" + branch + "!\033[m");
-    else if ( branch.size() > 0                         ) return ("\033[32m" + branch +  "\033[m");
-    else                                                  return branch;
-
-}   // }}}
-
 String get_random_string(int16_t length) noexcept
 {   // {{{
 

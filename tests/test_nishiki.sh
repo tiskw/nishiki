@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Help and version.
+./run_nishiki --help
+./run_nishiki --version
+
 # Run a normal command.
 ./run_nishiki --input "ls\n#ls\nexit\n"
 
@@ -17,6 +21,9 @@
 
 # Erroneous command line option.
 ./run_nishiki --erroneous_option
+
+# Try plugins.
+./run_nishiki --input "!welcome\nexit\n"
 
 # Manual user input.
 ./run_nishiki --input "exit"

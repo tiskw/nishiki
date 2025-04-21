@@ -6,45 +6,58 @@
 #include "parse_args.hxx"
 
 // Include the header of the cxxopts library.
-#include <cxxopts.hpp>
+#include <getopt.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Public functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Map<String, String> parse_args(int32_t argc, const char* argv[], const char* version)
+Map<String, String> parse_args(int32_t argc, char* const argv[], const char* version)
 {   // {{{
-
-    // Create parser instance.
-    cxxopts::Options options("nishiki", "NiShiKi - a simple shell wrapper\n");
-
-    // Configure parser.
-    options.add_options()
-        ("i,input",   "Use the given string instead of user input", cxxopts::value<String>()->default_value(""))
-        ("h,help",    "Show help message and exit",                 cxxopts::value<bool>())
-        ("v,version", "Show version info and exit",                 cxxopts::value<bool>());
-
-    // Parse and get results.
-    cxxopts::ParseResult result;
-    try
-    {
-        result = options.parse(argc, argv);
-    }
-    catch (const std::exception& err)
-    {
-        std::printf("\033[33mNiShiKi: Error: %s L. %d: parse_args(): %s\033[m\n", __FILE__, __LINE__, err.what());
-        exit(EXIT_FAILURE);
-    }
 
     // Initialize output variable.
     Map<String, String> args;
 
-    // Option: -c,--command.
-    args["input"] = result["input"].as<String>();
+    // Define short options.
+    const char* opt_string = "hi:v";
 
-    // Option: -h,--help and -v,--version.
-    if (result.count("help")   ) { std::puts(options.help().c_str()); exit(EXIT_SUCCESS); }
-    if (result.count("version")) { std::puts(version);                exit(EXIT_SUCCESS); }
+    // Define option details.
+    constexpr struct option long_opts[] = {
+        {"input",   required_argument, NULL, 'i'},
+        {"help",    no_argument,       NULL, 'h'},
+        {"version", no_argument,       NULL, 'v'},
+        {NULL,      0,                 NULL,  0 }
+    };
+
+    // Define help message.
+    const char* help_message =
+        "NiShiKi - a simple shell wrapper\n"
+        "\n"
+        "Usage:\n"
+        "  nishiki [OPTION...]\n"
+        "\n"
+        "  -i, --input arg  Use the given string instead of user input (default: '')\n"
+        "  -h, --help       Show help message and exit\n"
+        "  -v, --version    Show version info and exit";
+
+    while (true)
+    {
+        // Declare index for long option parsing.
+        int32_t long_index = 0;
+
+        // Parse a command line argument and returns it's short option name.
+        int32_t c = getopt_long(argc, argv, opt_string, long_opts, &long_index);
+        if (c == -1)
+            break;
+
+        switch (c)
+        {
+            case 'i': args["input"] = optarg;   break;
+            case 'h': std::puts(help_message);  exit(EXIT_SUCCESS);
+            case 'v': std::puts(version);       exit(EXIT_SUCCESS);
+            default : std::puts(help_message);  exit(EXIT_FAILURE);
+        }
+    }
 
     return args;
 

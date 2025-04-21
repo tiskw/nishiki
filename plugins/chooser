@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Usage:
-    chooser --mode {file,hist,proc} --lhs STR --rhs STR --out STR [-v] [-h]
+    chooser --mode {file,hist,proc} --lhs STR --rhs STR --out STR [input STR] [-v] [-h]
 
 An interface to choose filepaths, process IDs or command histories.
 
@@ -10,7 +10,10 @@ Necessary arguments:
   --lhs STR      Left-hand-side string.
   --rhs STR      Right-hand-side string.
   --out PATH     Path to output file.
+
+Optional arguments:
   --hist PATH    Path to history file (used when '--mode hist').
+  --input STR    User input.
 
 Other options:
   -s, --stdout   Print to STDOUT.
@@ -730,10 +733,11 @@ def parse_args() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(prog="chooser", add_help=False)
     parser.add_argument("--mode", choices=["file", "hist", "proc"], default=None)
-    parser.add_argument("--lhs", metavar="STR", type=str, default=None)
-    parser.add_argument("--rhs", metavar="STR", type=str, default=None)
-    parser.add_argument("--out", metavar="STR", type=str, default=None)
+    parser.add_argument("--lhs", metavar="STR", type=str, required=True, default=None)
+    parser.add_argument("--rhs", metavar="STR", type=str, required=True, default=None)
+    parser.add_argument("--out", metavar="STR", type=str, required=True, default=None)
     parser.add_argument("--hist", metavar="STR", type=str, default=None)
+    parser.add_argument("--input", metavar="STR", type=str, default="")
     parser.add_argument("-s", "--stdout", action="store_true")
     parser.add_argument("-v", "--version", action="store_true")
     parser.add_argument("-h", "--help", action="store_true")
@@ -756,13 +760,13 @@ def main(args: argparse.Namespace) -> None:
         print(__doc__.strip())
 
     elif args.mode == "file":
-        postprocess(args, run_file_chooser(path_str=".", user_input=""))
+        postprocess(args, run_file_chooser(path_str=".", user_input=args.input))
 
     elif args.mode == "hist":
-        postprocess(args, run_hist_chooser(path_hist=args.hist, user_input=""))
+        postprocess(args, run_hist_chooser(path_hist=args.hist, user_input=args.input))
 
     elif args.mode == "proc":
-        postprocess(args, run_proc_chooser(user_input=""))
+        postprocess(args, run_proc_chooser(user_input=args.input))
 
 
 if __name__ == "__main__":

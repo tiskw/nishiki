@@ -27,7 +27,7 @@ NUM_CPUS := $(shell cat /proc/cpuinfo | grep processor | wc -l)
 # Build commands
 ################################################################################
 
-build/nishiki: $(SRC_FILES) build/external/cxxopts.hpp
+build/nishiki: $(SRC_FILES)
 	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
 	@echo "\033[38;5;140m// Start building NiShiKi\033[m"
 	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"

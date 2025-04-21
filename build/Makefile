@@ -14,7 +14,7 @@
 
 SOFTWARE := nishiki
 
-CC := g++ -std=c++23 -Ofast -Wall -Wextra -I../sources -I./external
+CC := g++ -std=c++23 -Ofast -Wall -Wextra -I../sources
 
 SRC_DIR   := ../source
 OBJ_DIR   := objects
@@ -25,7 +25,7 @@ OBJ_FILES := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(patsubst %.cxx,%.obj,$(SRC_F
 # Build commands
 #-------------------------------------------------------------------------------
 
-$(SOFTWARE): external/cxxopts.hpp $(OBJ_DIR) $(OBJ_FILES)
+$(SOFTWARE): $(OBJ_DIR) $(OBJ_FILES)
 	$(CC) -o $(SOFTWARE) $(OBJ_FILES)
 
 $(OBJ_DIR):
@@ -33,10 +33,6 @@ $(OBJ_DIR):
 
 $(OBJ_DIR)/%.obj: $(SRC_DIR)/%.cxx $(SRC_DIR)/%.hxx
 	$(CC) -c -o $(@) $(<)
-
-external/cxxopts.hpp:
-	mkdir -p external
-	wget -q -O external/cxxopts.hpp https://raw.githubusercontent.com/jarro2783/cxxopts/master/include/cxxopts.hpp --no-check-certificate
 
 #-------------------------------------------------------------------------------
 # Other utility commands

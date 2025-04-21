@@ -106,7 +106,7 @@ def parse_args() -> argparse.Namespace:
     Returns:
         (argparse.Namespace): Parsed command line arguments.
     """
-    parser = argparse.ArgumentParser(prog="chooser", add_help=False)
+    parser = argparse.ArgumentParser(prog="welcome", add_help=False)
     parser.add_argument("-v", "--version", action="store_true")
     parser.add_argument("-h", "--help", action="store_true")
     return parser.parse_args()

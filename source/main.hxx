@@ -17,7 +17,7 @@
 // Main function
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int32_t main(int32_t argc, const char* argv[]);
+int32_t main(int32_t argc, char* const argv[]);
 // [Abstract]
 //   Main function of NiShiKi.
 //
