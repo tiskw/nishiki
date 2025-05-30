@@ -34,6 +34,12 @@ $(OBJ_DIR):
 $(OBJ_DIR)/%.obj: $(SRC_DIR)/%.cxx $(SRC_DIR)/%.hxx
 	$(CC) -c -o $(@) $(<)
 
+external/cxxopts.hpp:
+	wget -O external/cxxopts.hpp https://github.com/p-ranav/argparse/blob/master/include/argparse/argparse.hpp
+
+external/json.hpp:
+	wget -O - https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz | unxz -k - > external/json.hpp
+
 #-------------------------------------------------------------------------------
 # Other utility commands
 #-------------------------------------------------------------------------------

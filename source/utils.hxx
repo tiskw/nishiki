@@ -19,15 +19,6 @@
 // Utility functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void append_text(const Path& path, const String& str) noexcept;
-// [Abstract]
-//   Append a text to a file.
-//
-// [Args]
-//   path (const Path&)  : [IN] Path to target file.
-//   str  (const String&): [IN] string to write.
-
-
 Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t height, uint16_t margin = 3) noexcept;
 // [Abstract]
 //   Format strings in the column style.
@@ -47,16 +38,6 @@ void drop_whitespace_tokens(Vector<StringX>& tokens) noexcept;
 //
 // [Args]
 //   tokens (Vector<StringX>&): [IN/OUT] Target list of tokens.
-
-StringX get_common_substring(const std::vector<StringX>& texts) noexcept;
-// [Abstract]
-//   Get common substring of the given strings.
-//
-// [Args]
-//   texts (const std::vector<StringX>&): [IN] List of strings.
-//
-// [Returns]
-//   (StringX): Common string in the given list of strings.
 
 String get_cwd(void) noexcept;
 // [Abstract]
@@ -102,36 +83,6 @@ std::vector<StringX> get_system_commands(void) noexcept;
 //
 // [Returns]
 //   (std::vector<StringX>): List of available command names.
-
-static constexpr uint64_t hash(const char* str)
-// [Abstract]
-//   Compute hash value of the given string.
-//
-// [Args]
-//   str (const char*): The target string.
-//
-// [Returns]
-//   (uint64_t): Hash value of the given string.
-//
-// [Notes]
-//   This is FNV-1a algorithm, a simple non-cryptographic hash function.
-//   FNV-1a is fast and simple to implement, but has a higher collision rate than sha1/md5.
-//
-{   // {{{
-
-    // Define the prime value.
-    constexpr uint64_t prime = 0x100000001b3;
-
-    // Initialize the hash value.
-    uint64_t hash_value = 0xcbf29ce484222325;
-
-    // Update the hash value.
-    for (size_t idx = 0; str[idx] != '\0'; ++idx)
-        hash_value = prime * (hash_value ^ str[idx]);
-
-    return hash_value;
-
-}   // }}}
 
 Vector<String> read_lines(const String& path) noexcept;
 // [Abstract]

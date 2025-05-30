@@ -76,7 +76,7 @@ TermReader::~TermReader(void)
 // TermReader: Member functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CharX TermReader::getch(bool& is_not_interrupted) noexcept
+CharX TermReader::getch(const bool& is_not_interrupted) noexcept
 {   // {{{
 
     // Read new characters from STDIN of no data remained in the buffer.

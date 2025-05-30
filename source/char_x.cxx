@@ -5,9 +5,6 @@
 // Include the primary header.
 #include "char_x.hxx"
 
-// Include the headers of STL.
-#include <sstream>
-
 // Include the headers of custom modules.
 #include "utils.hxx"
 
@@ -69,7 +66,7 @@ StringX CharX::printable(void) const noexcept
 
     if (this->value == 0x7F)
         return StringX("^?");
- 
+
     return StringX("") + *this;
 
 }   // }}}
@@ -96,7 +93,7 @@ String CharX::string(void) const noexcept
             // NOTE: Use can use "std::to_string" or "itoa" functions instead,
             //       but these functions are fataly slow.
             if (x >= 100) { buffer[index++] = '0' + (x / 100) % 10; }
-            if (x >=  10) { buffer[index++] = '0' + (x / 10)  % 10; }
+            if (x >=  10) { buffer[index++] = '0' + (x /  10) % 10; }
             if (x >=   0) { buffer[index++] = '0' +  x        % 10; }
 
             // Append semicolon if not the last number.
@@ -112,7 +109,7 @@ String CharX::string(void) const noexcept
     // Print other character.
     else
     {
-        // Output the given character to the stream.
+        // Output the given character to the buffer.
         for (uint16_t n = 0; n < this->size; ++n)
             buffer[index++] = (char) ((this->value >> (8 * n)) & 0xFF);
     }
@@ -131,7 +128,7 @@ String CharX::string(void) const noexcept
 void CharX::append_byte(uint8_t c) noexcept
 {   // {{{
 
-    this->value |= ((static_cast<uint64_t>(0) | c) << (8 * this->size));
+    this->value |= (static_cast<uint64_t>(c) << (8 * this->size));
     this->size++;
 
 }   // }}}
@@ -164,7 +161,7 @@ const char* CharX::construct_from_char_pointer(CharX& cx, const char* str) noexc
 {   // {{{
 
     // Do nothing if the .
-    if ((*str == '\0') or (*str == '\x1A') or (*str == '\xff'))
+    if ((*str == '\0') or (*str == '\x1A') or (*str == '\xFF'))
         return str;
 
     if (*str == '\x1B') { return CharX::construct_ansi_escseq(cx, str); }
@@ -181,7 +178,7 @@ const char* CharX::construct_ansi_escseq(CharX& cx, const char* str) noexcept
     //
     // [Args]
     //   self (CharX*)     : [OUT] Myself (target of the constructor).
-    //   str  (const char*): [IN ] Input stream of the source.
+    //   str  (const char*): [IN ] Input string.
     {
         // Temporal buffer and it's index.
         char buffer[8];
@@ -221,7 +218,7 @@ const char* CharX::construct_ansi_escseq(CharX& cx, const char* str) noexcept
         return str;
     };
 
-    // Initialize the value and size using the first byte of the input stream.
+    // Initialize the value and size using the first byte of the input.
     cx.value = (uint64_t) *str++;
     cx.size  = 1;
 
@@ -248,7 +245,7 @@ const char* CharX::construct_normal_char(CharX& cx, const char* str) noexcept
 
     // Read values and update the member variable.
     for (uint16_t i = 0; (i < cx.size) and (*str != '\0'); ++i)
-        cx.value |= ((static_cast<uint64_t>(0) | (uint8_t) *str++) << (8 * i));
+        cx.value |= (static_cast<uint64_t>((uint8_t) *str++) << (8 * i));
 
     // Compute the width of the character.
     cx.width = CharX::get_utf8_width(cx.value);

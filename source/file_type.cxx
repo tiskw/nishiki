@@ -58,7 +58,7 @@ String FileType::mime(const String& path) const noexcept
         return "inode/directory";
 
     // Get file name as a preprocessing for pattern matching.
-    const String name = std::filesystem::path(path).filename();
+    const String name = Path(path).filename();
 
     // Returns if matched item found.
     for (const auto& pair : *this)

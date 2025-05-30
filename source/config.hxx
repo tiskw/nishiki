@@ -28,7 +28,7 @@ typedef struct
     // Height of the drawing area.
     uint8_t area_height = 6;
 
-    // Margin of column display (in the completion list).
+    // Margin of column display in the completion list.
     uint16_t column_margin = 3;
 
     // Path to history file.
@@ -54,20 +54,16 @@ typedef struct
     ////////////////////////////////////////////////////////////////////////////
 
     // Zero-th prompt string.
-    const char* ps0 = "\x1B[38;2;204;102;102m{user} \x1B[38;2;197;200;198m: "
-                      "\x1B[38;2;181;189;104m{host} \x1B[38;2;197;200;198m: "
-                      "\x1B[38;2;240;198;116m{date} \x1B[38;2;197;200;198m: "
-                      "\x1B[38;2;129;162;190m{time} \x1B[38;2;197;200;198m: "
-                      "\x1B[38;2;178;148;187m{cwd}\x1B[0m";
+    const char* ps0 = "";
 
     // First prompt string when insert mode.
-    const char* ps1i = "\x1B[38;2;197;200;198m==>\x1B[0m ";
+    const char* ps1i = "=>> ";
 
     // First prompt string when normal mode.
-    const char* ps1n = "\x1B[38;2;197;200;198m<<=\x1B[0m ";
+    const char* ps1n = "<<= ";
 
     // Second prompt string.
-    const char* ps2 = "\x1B[38;2;197;200;198m...\x1B[0m ";
+    const char* ps2 = "... ";
 
     ////////////////////////////////////////////////////////////////////////////
     // Alias settings.

@@ -15,27 +15,10 @@
 // Utility functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void append_text(const Path& path, const String& str) noexcept
-{   // {{{
-
-    // Open the file with append mode.
-    FILE *ofp = fopen(path.c_str(), "at");
-    if (ofp == NULL)
-        return;
-
-    // Write the given string.
-    fputs(str.c_str(), ofp);
-    fflush(ofp);
-
-    // Close the file.
-    fclose(ofp);
-
-}   // }}}
-
 Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t height, uint16_t margin) noexcept
 {   // {{{
 
-    constexpr auto get_shape = [](const Vector<uint16_t>& ws, uint16_t width, uint16_t margin, uint16_t row) noexcept -> std::pair<uint16_t, bool>
+    constexpr auto get_shape = [](const Vector<uint16_t>& ws, uint16_t width, uint16_t margin, uint16_t row) noexcept -> Pair<uint16_t, bool>
     // [Abstract]
     //   Compute shape of column style display.
     //
@@ -46,7 +29,7 @@ Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t he
     //   row    (uint16_t)               : [IN] Number of rows.
     //
     // [Returns]
-    //   (std::pair<uint16_t, bool>): A pair of (number of columns, true if all texts can be shown).
+    //   (Pair<uint16_t, bool>): A pair of (number of columns, true if all texts can be shown).
     {
         uint16_t wid_total = 0;
 
@@ -65,18 +48,18 @@ Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t he
 
             // Exit if the current width exceeds the maximum width.
             if ((wid_total + wid_inc) >= width)
-                return std::make_pair(std::max((uint16_t) 1, col), false);
+                return Pair(std::max((uint16_t) 1, col), false);
 
             // Exit if all text was used.
             if (idx_end == ws.size())
-                return std::make_pair((uint16_t) (col + 1), true);
+                return Pair((uint16_t) (col + 1), true);
 
             // Update current width.
             wid_total += wid_inc;
         }
     };
 
-    constexpr auto get_optimal_height = [get_shape](const Vector<uint16_t>& ws, uint16_t width, uint16_t height, uint16_t margin) noexcept -> std::pair<uint16_t, int16_t>
+    constexpr auto get_optimal_height = [get_shape](const Vector<uint16_t>& ws, uint16_t width, uint16_t height, uint16_t margin) noexcept -> Pair<uint16_t, int16_t>
     // [Abstract]
     //   Compute optimal shape (rows and columns) of column style display.
     //
@@ -87,7 +70,7 @@ Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t he
     //   margin (uint16_t)              : [IN] Minimum margin between each text.
     //
     // [Returns]
-    //   (std::pair<uint16_t, uint16_t>): A pair of (rows of the optimal shape, columns of the optimal shape).
+    //   (Pair<uint16_t, uint16_t>): A pair of (rows of the optimal shape, columns of the optimal shape).
     {
         for (uint16_t row = 1; row < height; ++row)
         {
@@ -96,13 +79,13 @@ Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t he
 
             // Immediately determine optimal shape if all texts can be shown.
             if (finished)
-                return std::make_pair(row, col);
+                return Pair(row, col);
         }
 
         // Compute column if row is equal with the maximum height.
         const auto& [col, _] = get_shape(ws, width, margin, height);
 
-        return std::make_pair(height, col);
+        return Pair(height, col);
     };
 
     // Prepare output lines.
@@ -168,59 +151,6 @@ void drop_whitespace_tokens(Vector<StringX>& tokens) noexcept
     tokens.erase(std::remove_if(tokens.begin(), tokens.end(), is_whitespace_token), tokens.cend());
 
 };  // }}}
-
-StringX get_common_substring(const Vector<StringX>& texts) noexcept
-{   // {{{
-
-    // Initialize output string.
-    StringX result;
-
-    // Returns empty string if the size of the given text list is zero.
-    if (texts.size() == 0)
-        return result;
-
-    // Find minimul length of the given texts.
-    uint32_t min_size = texts[0].size();
-    for (uint32_t n = 1; n < texts.size(); ++n)
-        min_size = std::min(min_size, static_cast<uint32_t>(texts[n].size()));
-
-    // Check consistency for each character and append to the result string.
-    for (uint32_t m = 0; m < min_size; ++m)
-    {
-        // Check the character consistency.
-        for (uint32_t n = 1; n < texts.size(); ++n)
-            if (texts[n][m].value != texts[0][m].value)
-                return result;
-
-        // Append to the result string.
-        result += texts[0][m];
-    }
-
-    return result;
-
-}   // }}}
-
-String get_cwd(void) noexcept
-{   // {{{
-
-    try
-    {
-        // Get the current directory.
-        String cwd = std::filesystem::absolute(std::filesystem::current_path());
-
-        // Replace home directory to "~".
-        String home = getenv("HOME");
-        if (cwd.starts_with(home))
-            cwd = replace(cwd, home, "~");
-
-        return cwd;
-    }
-    catch (...)
-    {
-        return "???";
-    }
-
-}   // }}}
 
 String get_date(void) noexcept
 {   // {{{

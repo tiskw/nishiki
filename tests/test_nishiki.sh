@@ -19,6 +19,9 @@
 # Try set command.
 ./run_nishiki --input "set\nset -x HOGE hoge\nset -e HOGE\nexit\n"
 
+# Try file chooser.
+./run_nishiki --input "!chooser --lhs 'echo ' --rhs '' --mode file\n\nexit\n"
+
 # Erroneous command line option.
 ./run_nishiki --erroneous_option
 

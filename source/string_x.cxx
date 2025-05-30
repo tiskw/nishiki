@@ -7,12 +7,14 @@
 
 // Include the headers of STL.
 #include <numeric>
-#include <sstream>
 
 // Include the headers of custom modules.
 #include "config.hxx"
 #include "utils.hxx"
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// StringX: Static member variables
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const char* StringX::colorize_commands = "cat,cd,chmod,chown,cp,echo,env,export,grep,let,ln,ls,make,mkdir,mv,rm,sed,set,tar,touch,umask,unset";
 const char* StringX::colorize_keywords = "case,do,done,elif,else,esac,exit,fi,for,function,if,in,local,read,return,select,shift,then,time,until,while";
@@ -30,9 +32,6 @@ StringX::StringX(const StringX& sx) : Deque<CharX>(sx)
 
 StringX::StringX(const char* ptr) : Deque<CharX>()
 { StringX::construct_from_char_pointer(this, ptr); }
-
-// StringX::StringX(const String& str) : Deque<CharX>()
-// { StringX::construct_from_char_pointer(this, str.c_str()); }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // StringX: Operators
@@ -175,7 +174,7 @@ Vector<StringX> StringX::chunk(uint16_t chunk_size) const noexcept
 {   // {{{
 
     // Initialize the output chunks.
-    std::vector<StringX> chunks;
+    Vector<StringX> chunks;
 
     // Initialize the starting position of the current chunk.
     uint32_t pos = 0;
@@ -242,10 +241,10 @@ StringX StringX::colorize(void) const noexcept
     StringX result;
     for (const StringX& token : this->tokenize())
     {
-        if      (set_commands.contains(token)) { result += StringX("\x1B[32m") + token + StringX("\033[m"); }  // Command color.
-        else if (set_keywords.contains(token)) { result += StringX("\x1B[33m") + token + StringX("\033[m"); }  // Keyword color.
-        else if (set_symbols.contains(token))  { result += StringX("\x1B[34m") + token + StringX("\033[m"); }  // Symbols color.
-        else if (is_string_token(token))       { result += StringX("\x1B[31m") + token + StringX("\033[m"); }  // Strings color.
+        if      (set_commands.contains(token)) { result += StringX("\x1B[32m") + token + StringX("\x1B[m"); }  // Command color.
+        else if (set_keywords.contains(token)) { result += StringX("\x1B[33m") + token + StringX("\x1B[m"); }  // Keyword color.
+        else if (set_symbols.contains(token))  { result += StringX("\x1B[34m") + token + StringX("\x1B[m"); }  // Symbols color.
+        else if (is_string_token(token))       { result += StringX("\x1B[31m") + token + StringX("\x1B[m"); }  // Strings color.
         else                                   { result +=                       token                    ; }  // Others.
     }
 

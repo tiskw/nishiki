@@ -42,6 +42,28 @@ HistManager::~HistManager()
 void HistManager::append(const StringX& storage) noexcept
 {   // {{{
 
+    constexpr auto append_text = [](const Path& path, const String& str) noexcept -> void
+    // [Abstract]
+    //   Append a text to a file.
+    //
+    // [Args]
+    //   path (const Path&)  : [IN] Path to target file.
+    //   str  (const String&): [IN] string to write.
+    {
+        // Open the file with append mode.
+        FILE *ofp = fopen(path.c_str(), "at");
+        if (ofp == NULL)
+            return;
+
+        // Write the given string.
+        fputs(str.c_str(), ofp);
+        fflush(ofp);
+
+        // Close the file.
+        fclose(ofp);
+
+    };
+
     // Append to the member variable.
     this->hists.push_back(storage);
 

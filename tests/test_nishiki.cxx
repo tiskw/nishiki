@@ -68,10 +68,12 @@ static void test_CharX()
     // Test 1: character binary size.
     assert(CharX("a").size == 1);
     assert(CharX("東").size == 3);
+    assert(CharX("𡚴").size == 4);
 
     // Test 2: character width.
     assert(CharX("a").width == 1);
     assert(CharX("東").width == 2);
+    assert(CharX("𡚴").width == 2);
 
     // Test 3: ANSI color code parsing.
     assert(CharX("\x1B[m").value == 0x6D5B1B);
@@ -90,6 +92,10 @@ static void test_CharX()
     assert(CharX("\x1B[38;2;197;200;198m").string() == "\x1B[38;2;197;200;198m");
     assert(CharX("\x1B[0m").string() == "\x1B[0m");
     assert(CharX("\x1B[m").string() == "\x1B[m");
+
+    // Test 5: Printable expression.
+    assert(CharX("\t").printable() == StringX("^I"));
+    assert(CharX("\x7F").printable() == StringX("^?"));
 
     // Test 6: Escape sequence other than CSI.
     assert(CharX("\x1B").value == 0x1B);
@@ -248,23 +254,13 @@ static void test_utils()
     values1.push_back(StringX("辰巳"));
     assert(column(values1, 20, 3, 2)[0] == StringX("Tokyo    江東区   "));
 
-    // Test 2: get_common_substring function.
-    std::vector<StringX> values2;
-    std::vector<StringX> values3;
-    std::vector<StringX> values4;
-    values2.push_back(StringX("apple"));
-    values2.push_back(StringX("april"));
-    values2.push_back(StringX("api"));
-    values2.push_back(StringX("apparel"));
-    values4.push_back(StringX(""));
-    values4.push_back(StringX(""));
-    assert(get_common_substring(values2) == StringX("ap"));
-    assert(get_common_substring(values3) == StringX(""));
-    assert(get_common_substring(values4) == StringX(""));
-
-    // Test 3: split function.
+    // Test 2: split function.
     assert(split("this,is,csv", ",").size() == 3);
     assert(split("this is csv", "").size() == 1);
+
+    // Test 3: strip function.
+    assert(strip(" hello ", true, false) == "hello ");
+    assert(strip(" hello ", false, true) == " hello");
 
 }   // }}}
 

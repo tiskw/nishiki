@@ -34,7 +34,7 @@ class TermReader
         // Member functions
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        CharX getch(bool& is_not_interrupted) noexcept;
+        CharX getch(const bool& is_not_interrupted) noexcept;
         // [Abstract]
         //   Get valid UTF-8 character from STDIN and returns it. If the acquired character is
         //   registered in the keybind, convert the character to a binded string (most of the

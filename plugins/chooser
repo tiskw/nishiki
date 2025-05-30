@@ -352,7 +352,7 @@ class CursesScreen:
             self.preview_cache[target] = list(get_file_contents(target, rect.h))
 
         for row, line in enumerate(self.preview_cache[target][:rect.h]):
-            win.addstr(rect.y + row, rect.x, clipstr(line, rect.w))
+            win.addstr(rect.y + row, rect.x, clipstr(line.rstrip(), rect.w))
 
     def update_filtered(self) -> None:
         """
@@ -469,7 +469,7 @@ def run_file_chooser(path_str: str = ".", user_input: str = "") -> str:
             # Compute the width of each window.
             w1: int = int(w * width_ratio[0]) - 1
             w2: int = int(w * width_ratio[1]) - 1
-            w3: int = w - w1 - w2 - 3
+            w3: int = w - w1 - w2 - 4
 
             # Compute the x location of each window.
             x1: int = 1

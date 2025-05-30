@@ -47,7 +47,7 @@ void TextBuffer::set_mode(TextBuffer::Mode mode) noexcept
 { this->mode = mode; };
 
 // Getter for "storage".
-const std::vector<std::pair<StringX, StringX>>&
+const Vector<Pair<StringX, StringX>>&
 TextBuffer::get_storage(void) const noexcept
 { return this->storage; };
 

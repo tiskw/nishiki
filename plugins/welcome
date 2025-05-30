@@ -41,6 +41,60 @@ class Color(enum.StrEnum):
     NONE   = "\x1B[0m"
 
 
+def get_username():
+    """
+    Returns user name.
+    """
+    return {"user": getpass.getuser()}
+
+
+def get_system_info():
+    """
+    Returns system info.
+    """
+    names = ["sys_name", "node_name", "kernel_info", "kernel_version", "march"]
+    return dict(zip(names, os.uname()))
+
+
+def get_cpu_info():
+    """
+    Returns CPU info.
+    """
+    n_cpus = 0
+    for line in subprocess.check_output("cat /proc/cpuinfo", shell=True).decode().split("\n"):
+        if "model name" in line:
+            cpu_name = re.sub( ".*model name.*:", "", line.strip(), 1)
+            n_cpus += 1
+    return {"cpu_name": cpu_name, "n_cpus": n_cpus}
+
+
+def get_disk_info():
+    """
+    Returns disk info.
+    """
+    disk_total, disk_used, *_ = shutil.disk_usage("/")
+    disk_used_perc = 100 * disk_used / disk_total
+    disk_total_gb = disk_total / 2**30
+    return {"disk_total_gb": disk_total_gb, "disk_used_perc": disk_used_perc}
+
+
+def get_mem_info():
+    """
+    Returns memory info.
+    """
+    mem_total, mem_used, *_ = map(int, os.popen("free -t -m").readlines()[1].split()[1:])
+    mem_used_perc = 100 * mem_used / mem_total
+    mem_total_gb = mem_total / 2**10
+    return {"mem_total_gb": mem_total_gb, "mem_used_perc": mem_used_perc}
+
+
+def get_uptime():
+    """
+    Returns uptime.
+    """
+    return {"uptime": os.popen("uptime -p").readlines()[0].strip()[2:]}
+
+
 #---------------------------------------------------------------------------------------------------
 # Welcome message function
 #---------------------------------------------------------------------------------------------------
@@ -54,45 +108,49 @@ def welcome():
     colored_nishiki += f"{Color.BLUE}K {Color.PURPLE}i"
     colored_nishiki += f"{Color.NONE}"
 
+    # Define colors.
+    info = {"RED"   : Color.RED,
+            "GREEN" : Color.GREEN,
+            "YELLOW": Color.YELLOW,
+            "BLUE"  : Color.BLUE,
+            "PURPLE": Color.PURPLE,
+            "CYAN"  : Color.CYAN,
+            "GRAY"  : Color.GRAY,
+            "NONE"  : Color.NONE}
+
     # Get user name.
-    user = getpass.getuser()
+    info |= get_username()
 
     # Get system name and kernel name.
-    sys_name, node_name, kernel_info, kernel_version, march = os.uname()
+    info |= get_system_info()
 
     # Get cpu info.
-    n_cpus = 0
-    for line in subprocess.check_output("cat /proc/cpuinfo", shell=True).decode().split("\n"):
-        if "model name" in line:
-            cpu_name = re.sub( ".*model name.*:", "", line.strip(), 1)
-            n_cpus += 1
+    info |= get_cpu_info()
 
     # Get disk info.
-    disk_total, disk_used, disk_free = shutil.disk_usage("/")
-    disk_used_ratio = disk_used / disk_total
+    info |= get_disk_info()
 
     # Get memory info.
-    mem_total, mem_used, mem_free, *_ = map(int, os.popen("free -t -m").readlines()[1].split()[1:])
-    mem_used_ratio = mem_used / mem_total
+    info |= get_mem_info()
 
     # Get uptime info.
-    uptime = os.popen("uptime -p").readlines()[0].strip()[2:]
+    info |= get_uptime()
 
-    print(f"Welcome to {colored_nishiki}!")
-    print(f"")
-    print(f"{Color.RED}{user} {Color.NONE}@ {Color.GREEN}{node_name}{Color.NONE}")
-    print(f"-" * (len(user) + len(node_name) + 3))
-    print(f"{Color.BLUE}OS{Color.NONE}: {sys_name}")
-    print(f"{Color.BLUE}Kernel{Color.NONE}: {kernel_info}")
-    print(f"{Color.BLUE}Arch{Color.NONE}: {march}")
-    print(f"{Color.BLUE}CPU{Color.NONE}: {cpu_name} x {n_cpus}")
-    print(f"{Color.BLUE}Disk{Color.NONE}: {disk_total/2**30:,.1f} GB ({100*disk_used_ratio:.1f}% used)")
-    print(f"{Color.BLUE}Memory{Color.NONE}: {mem_total/2**10:,.1f} GB ({100*mem_used_ratio:.1f}% used)")
-    print(f"{Color.BLUE}Uptime{Color.NONE}: {uptime}")
-    print("")
-    print(f"Copyright (C) Tetsuya Ishikawa")
-    print(f"This software is released under the MIT License")
-    print(f"")
+    print("Welcome to", colored_nishiki, "!")
+    print()
+    print("{RED}{user}{NONE} @ {GREEN}{node_name}{NONE}".format(**info))
+    print("-" * (len(info["user"]) + len(info["node_name"]) + 3))
+    print("{BLUE}OS{NONE}: {sys_name}".format(**info))
+    print("{BLUE}Kernel{NONE}: {kernel_info}".format(**info))
+    print("{BLUE}Arch{NONE}: {march}".format(**info))
+    print("{BLUE}CPU{NONE}: {cpu_name} x {n_cpus}".format(**info))
+    print("{BLUE}Disk{NONE}: {disk_total_bg:,.1f} GB ({disk_used_perc:.1f}% used)".format(**info))
+    print("{BLUE}Memory{NONE}: {mem_total_gb:,.1f} GB ({mem_used_perc:.1f}% used)".format(**info))
+    print("{BLUE}Uptime{NONE}: {uptime}".format(**info))
+    print()
+    print("Copyright (C) Tetsuya Ishikawa")
+    print("This software is released under the MIT License")
+    print()
 
 
 #---------------------------------------------------------------------------------------------------
@@ -129,7 +187,7 @@ def main(args: argparse.Namespace) -> None:
 
     else:
         welcome()
- 
+
 
 if __name__ == "__main__":
     main(parse_args())

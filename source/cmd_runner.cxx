@@ -33,12 +33,12 @@ Tuple<StringX, StringX> CommandRunner::run(const StringX& command) const noexcep
     // Clear next editing buffer.
     StringX lhs_next, rhs_next;
 
-    // Do nothing if the given command is just a comment.
-    if (command.strip().startswith(StringX("#")))
+    // Do nothing if the given command is Ctrl-C or just a comment.
+    if ((command == StringX("^C")) or command.strip().startswith(StringX("#")))
         return {lhs_next, rhs_next};
 
     // Split user input to tokens.
-    std::vector<StringX> tokens = command.strip().tokenize();
+    Vector<StringX> tokens = command.strip().tokenize();
 
     // Apply alias.
     if (tokens.size() > 0 and config.aliases.find(tokens[0].string()) != config.aliases.end())
@@ -145,8 +145,7 @@ Tuple<StringX, StringX> CommandRunner::command_plugin(const Vector<StringX>& tok
     const String command = path.string() + " " + StringX(" ").join(sub_tokens).string() + " --out " + path_tmp.string();
 
     // Generate command string by concatenating all tokens and run it.
-    int32_t res = std::system(command.c_str());
-    if (res != 0)
+    if (std::system(command.c_str()) != 0)
         std::printf("NiShiKi: Warning: Plugin command returns non-zero code: %s\n", command.c_str());
 
     // Print error message and returns empty strings if no output file exists.
@@ -168,7 +167,7 @@ Tuple<StringX, StringX> CommandRunner::command_plugin(const Vector<StringX>& tok
 
 }   // }}}
 
-Tuple<StringX, StringX> CommandRunner::command_set(const std::vector<StringX>& tokens) const noexcept
+Tuple<StringX, StringX> CommandRunner::command_set(const Vector<StringX>& tokens) const noexcept
 {   // {{{
 
     // Declare the use of global variable.

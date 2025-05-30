@@ -153,6 +153,43 @@ Vector<StringX> EditHelper::candidate(const StringX& lhs) noexcept
 StringX EditHelper::complete(const StringX& lhs) const noexcept
 {   // {{{
 
+    constexpr auto get_common_substr = [](const Vector<StringX>& texts) noexcept -> StringX
+    // [Abstract]
+    //   Get common substring of the given strings.
+    //
+    // [Args]
+    //   texts (const Vector<StringX>&): [IN] List of strings.
+    //
+    // [Returns]
+    //   (StringX): Common string in the given list of strings.
+    {
+        // Initialize output string.
+        StringX result;
+
+        // Returns empty string if the size of the given text list is zero.
+        if (texts.size() == 0)
+            return result;
+
+        // Find minimul length of the given texts.
+        uint32_t min_size = texts[0].size();
+        for (uint32_t n = 1; n < texts.size(); ++n)
+            min_size = std::min(min_size, static_cast<uint32_t>(texts[n].size()));
+
+        // Check consistency for each character and append to the result string.
+        for (uint32_t m = 0; m < min_size; ++m)
+        {
+            // Check the character consistency.
+            for (uint32_t n = 1; n < texts.size(); ++n)
+                if (texts[n][m].value != texts[0][m].value)
+                    return result;
+
+            // Append to the result string.
+            result += texts[0][m];
+        }
+
+        return result;
+    };
+
     // Split the given text (left hand side of the cursor) to tokens.
     Vector<StringX> tokens = lhs.tokenize();
 
@@ -186,10 +223,10 @@ StringX EditHelper::complete(const StringX& lhs) const noexcept
     else
     {
         // Create an array of completion strings.
-        constexpr auto get_first = [](const std::pair<StringX, StringX>& pair) noexcept -> StringX { return pair.first; };
-        Vector<StringX> keys = transform<std::pair<StringX, StringX>, StringX>(this->cands, get_first);
+        constexpr auto get_first = [](const Pair<StringX, StringX>& pair) noexcept -> StringX { return pair.first; };
+        Vector<StringX> keys = transform<Pair<StringX, StringX>, StringX>(this->cands, get_first);
 
-        return lhs_without_last_token + get_common_substring(keys);
+        return lhs_without_last_token + get_common_substr(keys);
     }
 
 }   // }}}
@@ -217,7 +254,7 @@ void EditHelper::cands_command(const Vector<StringX>& tokens, const String& opti
 void EditHelper::cands_filepath(const Vector<StringX>& tokens) noexcept
 {   // {{{
 
-    constexpr auto colorize_token = [](const String& token) noexcept -> String
+    constexpr auto colorize_token = [](const PathX& dir, const String& token) noexcept -> String
     // [Abstract]
     //   Colorize the given token.
     //
@@ -227,7 +264,16 @@ void EditHelper::cands_filepath(const Vector<StringX>& tokens) noexcept
     // [Returns]
     //   (String): Colorized token.
     {
-        return (token.size() > 0 and token.back() == '/') ? ("\x1B[94m" + token + "\x1B[m") : token;
+        // Case 1: directory.
+        if (token.size() > 0 and token.back() == '/')
+            return "\x1B[94m" + token + "\x1B[m";
+
+        // Case 2: executable.
+        std::filesystem::perms perms = std::filesystem::status(dir / token).permissions();
+        if (static_cast<int>(perms) & static_cast<int>(std::filesystem::perms::owner_exec))
+            return "\x1B[92m" + token + "\x1B[m";
+
+        return token;
     };
 
     // Split user input token to a tuple of:
@@ -247,7 +293,7 @@ void EditHelper::cands_filepath(const Vector<StringX>& tokens) noexcept
 
         // Append to the candidates (a pair of query string and display string).
         if (name.starts_with(query_key))
-            this->cands.emplace_back((query_dir / name).c_str(), colorize_token(name).c_str());
+            this->cands.emplace_back((query_dir / name).c_str(), colorize_token(query_dir, name).c_str());
     }
 
 }   // }}}
@@ -256,7 +302,7 @@ void EditHelper::cands_option(const Vector<StringX>& tokens) noexcept
 {   // {{{
 
     // Cache of the command options.
-    static std::map<StringX, std::map<StringX, StringX>> opt_cache;
+    static Map<StringX, Map<StringX, StringX>> opt_cache;
 
     // Get the target command.
     StringX command = (tokens.size() > 0) ? tokens[0].strip() : StringX("");
@@ -265,7 +311,7 @@ void EditHelper::cands_option(const Vector<StringX>& tokens) noexcept
     if (not opt_cache.contains(command))
     {
         // Create new map instance.
-        opt_cache[command] = std::map<StringX, StringX>();
+        opt_cache[command] = Map<StringX, StringX>();
 
         // Run the given command with "--help" option.
         const String output = run_command(command.string() + " --help");
@@ -282,12 +328,12 @@ void EditHelper::cands_option(const Vector<StringX>& tokens) noexcept
                 elem = strip(elem);
 
                 // Remove after comma if exists.
-                std::string::size_type pos_comma = elem.find(',');
+                String::size_type pos_comma = elem.find(',');
                 if (pos_comma != String::npos)
                     elem.erase(pos_comma);
 
                 // Remove after equal sign if exists.
-                std::string::size_type pos_equal = elem.find('=');
+                String::size_type pos_equal = elem.find('=');
                 if (pos_equal != String::npos)
                     elem.erase(pos_equal);
 
@@ -392,7 +438,7 @@ void EditHelper::cands_subcmd(const Vector<StringX>& tokens, const String& optio
     const StringX token = (tokens.size() > 0) ? tokens.back().strip() : StringX("");
 
     // Cache of the command options.
-    static std::map<String, Vector<StringX>> subcmd_cache;
+    static Map<String, Vector<StringX>> subcmd_cache;
 
     // Run the given command and add the result to the cache
     // if the given command is not registered in the cache.
@@ -436,12 +482,12 @@ void EditHelper::cands_subcmd(const Vector<StringX>& tokens, const String& optio
 
 }   // }}}
 
-void EditHelper::lines_from_cands(const Vector<std::pair<StringX, StringX>>& cands) noexcept
+void EditHelper::lines_from_cands(const Vector<Pair<StringX, StringX>>& cands) noexcept
 {   // {{{
 
     // Get descriptions of the completion candidates.
-    constexpr auto get_second = [](const std::pair<StringX, StringX>& pair) noexcept -> StringX { return pair.second; };
-    Vector<StringX> texts = transform<std::pair<StringX, StringX>, StringX>(cands, get_second);
+    constexpr auto get_second = [](const Pair<StringX, StringX>& pair) noexcept -> StringX { return pair.second; };
+    Vector<StringX> texts = transform<Pair<StringX, StringX>, StringX>(cands, get_second);
 
     // Format descriptions in a column style.
     this->lines.clear();

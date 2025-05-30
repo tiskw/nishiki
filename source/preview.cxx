@@ -35,7 +35,7 @@ Vector<StringX> preview(const String& path, uint16_t width, uint16_t height) noe
     const String mime_type = filetype.mime(path);
 
     // The predicate function for the "std::find_if" below.
-    const auto predicate = [mime_type](const std::pair<String, String>& pv)
+    const auto predicate = [mime_type](const Pair<String, String>& pv)
     { return regex_match(mime_type, std::regex(pv.first)); };
 
     // Find matched preview method.

@@ -33,67 +33,29 @@ static Tuple<String, String, String, String> get_prompt_strings()
 //
 {   // {{{
 
-    constexpr auto get_value = [](const String& target, Map<String, String>& var_cache) noexcept -> String
-    // [Abstract]
-    //   Get the specified value.
-    //
-    // [Args]
-    //   target    (String)             : Query string.
-    //   var_cache (Map<String, String>): Cache of the values.
-    //
-    // [Returns]
-    //   (String): Value corresponding to the query.
-    {
-        // Returns the corresponding value immediately if it exists in the "var_cache".
-        if (var_cache.contains(target))
-            return var_cache[target];
+    // Initialize prompt strings.
+    String ps0  = config.ps0;
+    String ps1i = config.ps1i;
+    String ps1n = config.ps1n;
+    String ps2  = config.ps2;
 
-        // Get the corresponding value and store it inside the "var_cache".
-        switch (hash(target.c_str()))
-        {
-            case hash("{cwd}") : var_cache[target] = get_cwd();         break;
-            case hash("{date}"): var_cache[target] = get_date();        break;
-            case hash("{host}"): var_cache[target] = getenv("NAME");    break;
-            case hash("{time}"): var_cache[target] = get_time();        break;
-            case hash("{user}"): var_cache[target] = getenv("LOGNAME"); break;
-            default            : var_cache[target] = "???";             break;
-        }
+    // Compute path to the "getpstr" plugin.
+    PathX path_getpstr = PathX(config.path_plugins) / "getpstr";
 
-        // Returns the corresponding value.
-        return var_cache[target];
-    };
+    // Use the config values if "getpstr" does not exist.
+    if (not path_getpstr.exists())
+        return {ps0, ps1i, ps1n, ps2};
 
-    constexpr auto process_ps = [get_value](const String& ps, Map<String, String>& var_cache) noexcept -> String
-    // [Abstract]
-    //   Process one prompt string.
-    //
-    // [Args]
-    //   ps        (String)             : Base prompt string.
-    //   var_cache (Map<String, String>): Cache of values.
-    //
-    // [Returns]
-    //   (String): Prompt string.
-    {
-        // Make a copy of the input prompt string.
-        String str = ps;
+    // Run the "getpstr" plugin and get it's outputs.
+    Vector<String> lines = split(strip(run_command(path_getpstr.string())), "\n");
 
-        // Define the pattern of variables in the prompt strings.
-        std::regex pattern("\\{[\\w]+\\}");
+    // Replace the config values.
+    if (lines.size() > 0) ps0  = lines[0];
+    if (lines.size() > 1) ps1i = lines[1];
+    if (lines.size() > 2) ps1n = lines[2];
+    if (lines.size() > 3) ps2  = lines[3];
 
-        // Replace the variables in the prompt string to the actual values.
-        for (std::sregex_iterator iter(ps.begin(), ps.end(), pattern), end; iter != end; ++iter)
-            str = replace(str, iter->str(), get_value(iter->str(), var_cache));
-
-        return str;
-    };
-
-    // Define a cache of variables in the prompt strings.
-    Map<String, String> var_cache;
-
-    return {process_ps(config.ps0,  var_cache),
-            process_ps(config.ps1i, var_cache),
-            process_ps(config.ps1n, var_cache),
-            process_ps(config.ps2,  var_cache)};
+    return {ps0, ps1i, ps1n, ps2};
 
 }   // }}}
 
@@ -131,7 +93,9 @@ int32_t main(int32_t argc, char* const argv[])
         const auto [ps0, ps1i, ps1n, ps2] = get_prompt_strings();
 
         // Print the zero-th prompt.
-        std::printf("\n%s\n", ps0.c_str());
+        std::puts("");
+        if (ps0.size() > 0)
+            std::puts(ps0.c_str());
 
         // Read user input. Returns value is lhs and rhs.
         // Use command runner's lhs and rhs string as a initial editing string.
@@ -151,7 +115,8 @@ int32_t main(int32_t argc, char* const argv[])
             histmn.append(input);
 
         // Erase the zero-th prompt.
-        std::printf("\x1B[1F\x1B[0K");
+        if (ps0.size() > 0)
+            std::printf("\x1B[1F\x1B[0K");
 
         // Draw a horizontal line.
         std::fputs(config.horizontal_line_color, stdout);

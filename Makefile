@@ -52,17 +52,35 @@ check:
 		     --suppress=missingIncludeSystem --suppress=useStlAlgorithm \
 		     source/*.cxx
 	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
-	@echo "\033[38;5;140m// Check plugin - chooser \033[m"
+	@echo "\033[38;5;140m// Check C++ plugin \033[m"
 	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
-	pyflakes plugins/chooser
+	cppcheck --std=c++23 --enable=all -I./source --library=posix \
+		     --suppress=missingIncludeSystem --suppress=useStlAlgorithm \
+		     plugins/*.cxx
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	@echo "\033[38;5;140m// Check Python plugin - chooser \033[m"
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	pyflakes3 plugins/chooser
 	pylint plugins/chooser
-	mypy plugins/chooser
+	python3 -m mypy plugins/chooser
 	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
-	@echo "\033[38;5;140m// Check plugin - ext_cmd \033[m"
+	@echo "\033[38;5;140m// Check Python plugin - callcmd \033[m"
 	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
-	pyflakes plugins/ext_cmd
-	pylint plugins/ext_cmd
-	mypy plugins/ext_cmd
+	pyflakes3 plugins/callcmd
+	pylint plugins/callcmd
+	python3 -m mypy plugins/callcmd
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	@echo "\033[38;5;140m// Check Python plugin - getpstr \033[m"
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	pyflakes3 plugins/getpstr
+	pylint plugins/getpstr
+	python3 -m mypy plugins/getpstr
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	@echo "\033[38;5;140m// Check Python plugin - welcome \033[m"
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	pyflakes3 plugins/welcome
+	pylint plugins/welcome
+	python3 -m mypy plugins/welcome
 
 clean:
 	cd build; make clean; cd ..
