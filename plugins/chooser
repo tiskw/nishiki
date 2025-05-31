@@ -30,7 +30,6 @@ import curses
 import dataclasses
 import itertools
 import locale
-import mimetypes
 import os
 import pathlib
 import re
@@ -135,9 +134,24 @@ def get_file_contents(target: Path, num_max: int) -> Iterator[str]:
         yield from takewhile(sorted(p.name for p in target.iterdir()), num_max)
 
     else:
-        mtype, _ = mimetypes.guess_type(target)
-        if (mtype is not None) and mtype.startswith("text/"):
-            yield from takewhile(target.open("rt"), num_max)
+        if is_text(target):
+            command: str = f"highlight {target} -O ANSI | head -n {num_max}"
+            output: bytes = subprocess.check_output(command, shell=True)
+            yield from output.decode().split("\n")
+
+
+def is_text(target: Path) -> bool:
+    """
+    Returns True if the target file is a text file.
+
+    Args:
+        target (Path): [IN] Target file to judge.
+
+    Returns:
+        (bool): True if the target file is a text file.
+    """
+    with open(target, "rb") as ifp:
+        return 0x00 not in ifp.read(8000)
 
 
 def strwidth(text: str) -> int:
@@ -352,7 +366,7 @@ class CursesScreen:
             self.preview_cache[target] = list(get_file_contents(target, rect.h))
 
         for row, line in enumerate(self.preview_cache[target][:rect.h]):
-            win.addstr(rect.y + row, rect.x, clipstr(line.rstrip(), rect.w))
+            self.addcstr(win, rect.y + row, rect.x, line.rstrip(), rect.w)
 
     def update_filtered(self) -> None:
         """
@@ -360,6 +374,39 @@ class CursesScreen:
         """
         self.contents_filt = [item for item in self.contents_main if self.grep_str in item.left]
         self.focus = 0
+
+    @staticmethod
+    def addcstr(win: Window, y: int, x: int, text: str, w: int) -> None:
+        """
+        A variant of the "addstr" function that supports ANSI escape sequences.
+
+        Args:
+            win  (Window): [IN] Target window to write the text.
+            y    (int)   : [IN] Y position of the text in the target window.
+            x    (int)   : [IN] X position of the text in the target window.
+            text (str)   : [IN] The text decorated by ANSI escape sequence to write.
+            w    (int)   : [IN] Max width of the text to write.
+        """
+        # Compute the max X position.
+        x_max: int = x + w
+
+        # Initialize text attribute.
+        attr: int = curses.A_NORMAL
+
+        for token in re.split("(\x1B\\[[0-9;]*m)", text):
+
+            if token.startswith("\x1B"):
+                for num_str in token[2:-1].split(";"):
+                    if num_str and (30 <= int(num_str) <= 38):
+                        attr = curses.color_pair(int(num_str) - 30)
+
+            elif token:
+                token = clipstr(token, x_max - x)
+                win.addstr(y, x, token, attr)
+                x += strwidth(token)
+
+            if x >= x_max:
+                return
 
     @staticmethod
     def rectbox_with_vlines(win: Window, cols_vline: list[int]) -> None:
@@ -688,7 +735,7 @@ def run_hist_chooser(path_hist: str = "", user_input: str = "") -> str:
 
     # Load history.
     with open(path_hist, "rt", encoding="utf-8") as ofp:
-        histories = list(reversed([line.strip() for line in ofp]))
+        histories: list[str] = list(reversed([line.strip() for line in ofp]))
 
     # Initialize locales, start curses, and returns the result.
     locale.setlocale(locale.LC_ALL, "")
@@ -716,8 +763,7 @@ def postprocess(args: argparse.Namespace, text: str) -> None:
         sys.stdout.write(out)
 
     else:
-        with open(args.out, "wt", encoding="utf-8") as ofp:
-            ofp.write(out)
+        Path(args.out).write_text(out, encoding="utf-8")
 
 
 #---------------------------------------------------------------------------------------------------
@@ -733,9 +779,9 @@ def parse_args() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(prog="chooser", add_help=False)
     parser.add_argument("--mode", choices=["file", "hist", "proc"], default=None)
-    parser.add_argument("--lhs", metavar="STR", type=str, required=True, default=None)
-    parser.add_argument("--rhs", metavar="STR", type=str, required=True, default=None)
-    parser.add_argument("--out", metavar="STR", type=str, required=True, default=None)
+    parser.add_argument("--lhs", metavar="STR", type=str, default=None)
+    parser.add_argument("--rhs", metavar="STR", type=str, default=None)
+    parser.add_argument("--out", metavar="STR", type=str, default=None)
     parser.add_argument("--hist", metavar="STR", type=str, default=None)
     parser.add_argument("--input", metavar="STR", type=str, default="")
     parser.add_argument("-s", "--stdout", action="store_true")
@@ -756,7 +802,22 @@ def main(args: argparse.Namespace) -> None:
         print("Copyright (C) Tetsuya Ishikawa")
         print("This software is released under the MIT License")
 
-    elif args.help or (args.mode not in {"file", "hist", "proc"}):
+    elif args.help:
+        print(__doc__.strip())
+
+    elif args.mode not in {"file", "hist", "proc"}:
+        print("chooser: Error: --mode must be chosen from 'file', 'hist', or 'proc'.")
+        print()
+        print(__doc__.strip())
+
+    elif (args.lhs is None) or (args.rhs is None) or (args.out is None):
+        print("chooser: Error: all of --lhs, --rhs, and --out should be specified.")
+        print()
+        print(__doc__.strip())
+
+    elif (args.mode == "hist") and (args.hist is None):
+        print("chooser: Error: History chooser requires --hist option.")
+        print()
         print(__doc__.strip())
 
     elif args.mode == "file":
