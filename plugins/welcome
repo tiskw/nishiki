@@ -144,7 +144,7 @@ def welcome():
     print("{BLUE}Kernel{NONE}: {kernel_info}".format(**info))
     print("{BLUE}Arch{NONE}: {march}".format(**info))
     print("{BLUE}CPU{NONE}: {cpu_name} x {n_cpus}".format(**info))
-    print("{BLUE}Disk{NONE}: {disk_total_bg:,.1f} GB ({disk_used_perc:.1f}% used)".format(**info))
+    print("{BLUE}Disk{NONE}: {disk_total_gb:,.1f} GB ({disk_used_perc:.1f}% used)".format(**info))
     print("{BLUE}Memory{NONE}: {mem_total_gb:,.1f} GB ({mem_used_perc:.1f}% used)".format(**info))
     print("{BLUE}Uptime{NONE}: {uptime}".format(**info))
     print()

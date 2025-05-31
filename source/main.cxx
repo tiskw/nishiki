@@ -24,7 +24,7 @@
 // Static functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static Tuple<String, String, String, String> get_prompt_strings()
+static Tuple<String, String, String, String> get_prompt_strings(const TermSize& term_size)
 // [Abstract]
 //   Get prompt strings after filling placeholders.
 //
@@ -42,12 +42,15 @@ static Tuple<String, String, String, String> get_prompt_strings()
     // Compute path to the "getpstr" plugin.
     PathX path_getpstr = PathX(config.path_plugins) / "getpstr";
 
+    // Compute a command to call.
+    String command = path_getpstr.string() + " --width " + std::to_string(term_size.cols);
+
     // Use the config values if "getpstr" does not exist.
     if (not path_getpstr.exists())
         return {ps0, ps1i, ps1n, ps2};
 
     // Run the "getpstr" plugin and get it's outputs.
-    Vector<String> lines = split(strip(run_command(path_getpstr.string())), "\n");
+    Vector<String> lines = split(strip(run_command(command)), "\n");
 
     // Replace the config values.
     if (lines.size() > 0) ps0  = lines[0];
@@ -90,7 +93,7 @@ int32_t main(int32_t argc, char* const argv[])
     while (true)
     {
         // Get prompt strings.
-        const auto [ps0, ps1i, ps1n, ps2] = get_prompt_strings();
+        const auto [ps0, ps1i, ps1n, ps2] = get_prompt_strings(term_size);
 
         // Print the zero-th prompt.
         std::puts("");

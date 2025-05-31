@@ -22,7 +22,7 @@ Other options:
 """
 
 # Define version.
-__version__ = "2025.04.13"
+__version__ = "2025.05.31"
 
 # Import standard libraries.
 import argparse

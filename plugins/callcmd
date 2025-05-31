@@ -18,10 +18,11 @@ Other options:
 """
 
 # Define version.
-__version__ = "2025.04.19"
+__version__ = "2025.05.31"
 
 # Import standard libraries.
 import argparse
+import pathlib
 import subprocess
 import sys
 
@@ -53,7 +54,7 @@ def callcmd(args: argparse.Namespace) -> str:
 
 def postprocess(args: argparse.Namespace, text: str) -> None:
     """
-    Post-process of chooser.
+    Post-process of callcmd.
 
     Args:
         args (argparse.Namespace): Parsed command line arguments.
@@ -68,8 +69,7 @@ def postprocess(args: argparse.Namespace, text: str) -> None:
         sys.stdout.write(out)
 
     else:
-        with open(args.out, "wt", encoding="utf-8") as ofp:
-            ofp.write(out)
+        pathlib.Path(args.out).write_text(out, encoding="utf-8")
 
 
 #---------------------------------------------------------------------------------------------------
@@ -107,6 +107,11 @@ def main(args: argparse.Namespace) -> None:
         print("This software is released under the MIT License")
 
     elif args.help or (args.cmd is None):
+        print(__doc__.strip())
+
+    elif (args.lhs is None) or (args.rhs is None) or (args.out is None):
+        print("chooser: Error: all of --lhs, --rhs, and --out should be specified.")
+        print()
         print(__doc__.strip())
 
     else:

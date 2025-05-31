@@ -17,66 +17,10 @@
 #include "variables.hxx"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// CommandRunner: Constructors
+// Static functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CommandRunner::CommandRunner(void)
-{ /* Do nothing */ }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// CommandRunner: Member functions
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-Tuple<StringX, StringX> CommandRunner::run(const StringX& command) const noexcept
-{   // {{{
-
-    // Clear next editing buffer.
-    StringX lhs_next, rhs_next;
-
-    // Do nothing if the given command is Ctrl-C or just a comment.
-    if ((command == StringX("^C")) or command.strip().startswith(StringX("#")))
-        return {lhs_next, rhs_next};
-
-    // Split user input to tokens.
-    Vector<StringX> tokens = command.strip().tokenize();
-
-    // Apply alias.
-    if (tokens.size() > 0 and config.aliases.find(tokens[0].string()) != config.aliases.end())
-        tokens[0] = StringX(config.aliases[tokens[0].string()].c_str());
-
-    // Drop white-space tokens.
-    drop_whitespace_tokens(tokens);
-
-    // Do nothing if the given command has no token.
-    if (tokens.size() == 0)
-        return {lhs_next, rhs_next};
-
-    // Process command "alias": list up all aliases.
-    else if (tokens[0] == StringX("alias"))
-        return this->command_alias();
-
-    // Process command "cd": change directory.
-    else if (tokens[0] == StringX("cd"))
-        return this->command_cd(tokens);
-
-    // Process command "set": set environment.
-    else if (tokens[0] == StringX("set"))
-        return this->command_set(tokens);
-
-    // Process plugin command: call plugin command and modify buffer strings.
-    else if (tokens[0].startswith(StringX("!")))
-        return this->command_plugin(tokens);
-
-    // Process other commands: call external command.
-    else return this->command_exec(tokens);
-
-}   // }}}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// CommandRunner: Private member functions
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-Tuple<StringX, StringX> CommandRunner::command_alias(void) const noexcept
+Tuple<StringX, StringX> command_alias(void) noexcept
 {   // {{{
 
     // Print all aliases.
@@ -87,7 +31,7 @@ Tuple<StringX, StringX> CommandRunner::command_alias(void) const noexcept
 
 }   // }}}
 
-Tuple<StringX, StringX> CommandRunner::command_cd(const Vector<StringX>& tokens) const noexcept
+Tuple<StringX, StringX> command_cd(const Vector<StringX>& tokens) noexcept
 {   // {{{
 
     // A variable to store a path to move.
@@ -115,7 +59,7 @@ Tuple<StringX, StringX> CommandRunner::command_cd(const Vector<StringX>& tokens)
 
 }   // }}}
 
-Tuple<StringX, StringX> CommandRunner::command_exec(const Vector<StringX>& tokens) const noexcept
+Tuple<StringX, StringX> command_exec(const Vector<StringX>& tokens) noexcept
 {   // {{{
 
     // Generate command string by concatenating all tokens and run it.
@@ -128,7 +72,7 @@ Tuple<StringX, StringX> CommandRunner::command_exec(const Vector<StringX>& token
 
 }   // }}}
 
-Tuple<StringX, StringX> CommandRunner::command_plugin(const Vector<StringX>& tokens) const noexcept
+Tuple<StringX, StringX> command_plugin(const Vector<StringX>& tokens) noexcept
 {   // {{{
 
     // Compute the path of the specified plugin.
@@ -167,7 +111,7 @@ Tuple<StringX, StringX> CommandRunner::command_plugin(const Vector<StringX>& tok
 
 }   // }}}
 
-Tuple<StringX, StringX> CommandRunner::command_set(const Vector<StringX>& tokens) const noexcept
+Tuple<StringX, StringX> command_set(const Vector<StringX>& tokens) noexcept
 {   // {{{
 
     // Declare the use of global variable.
@@ -187,6 +131,105 @@ Tuple<StringX, StringX> CommandRunner::command_set(const Vector<StringX>& tokens
         unsetenv(tokens[2].string().c_str());
 
     return {StringX(""), StringX("")};
+
+}   // }}}
+
+Tuple<StringX, StringX> command_var(const Vector<StringX>& tokens) noexcept
+{   // {{{
+
+    // Case 1: "var" => print all environment variables.
+    if (tokens.size() == 1)
+    {
+        // Get sorted keys of the variable map.
+        Vector<String> keys;
+        for (const auto& var : variables)
+            keys.push_back(var.first);
+        std::sort(keys.begin(), keys.end());
+
+        for (const String& key : keys)
+            std::printf("%s = %s\n", key.c_str(), variables[key].c_str());
+    }
+
+    // Case 2: "set NAME VALUE" => set the variable.
+    else if (tokens.size() == 3)
+        variables[tokens[1].string()] = tokens[2].string();
+
+    return {StringX(""), StringX("")};
+
+}   // }}}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// CommandRunner: Constructors
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+CommandRunner::CommandRunner(void)
+{ /* Do nothing */ }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// CommandRunner: Member functions
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Tuple<StringX, StringX> CommandRunner::run(const StringX& command) const noexcept
+{   // {{{
+
+    // Clear next editing buffer.
+    StringX lhs_next, rhs_next;
+
+    // Do nothing if the given command is Ctrl-C or just a comment.
+    if ((command == StringX("^C")) or command.strip().startswith(StringX("#")))
+        return {lhs_next, rhs_next};
+
+    // Split user input to tokens.
+    Vector<StringX> tokens = command.strip().tokenize();
+
+    // Replace variable names to their values.
+    for (Vector<StringX>::size_type idx = 0; idx < tokens.size(); ++idx)
+    {
+        // Ignore if the token is not a variable.
+        if ((tokens[idx].front().value != '{') or (tokens[idx].back().value != '}'))
+            continue;
+
+        // Get the variable name.
+        String name = tokens[idx].substr(1, tokens[idx].size() - 2).string();
+
+        // Replace to the variable name to it's value.
+        if (variables.contains(name))
+            tokens[idx] = StringX(variables[name].c_str());
+    }
+
+    // Apply alias.
+    if (tokens.size() > 0 and config.aliases.find(tokens[0].string()) != config.aliases.end())
+        tokens[0] = StringX(config.aliases[tokens[0].string()].c_str());
+
+    // Drop white-space tokens.
+    drop_whitespace_tokens(tokens);
+
+    // Do nothing if the given command has no token.
+    if (tokens.size() == 0)
+        return {lhs_next, rhs_next};
+
+    // Process command "alias": list up all aliases.
+    else if (tokens[0] == StringX("alias"))
+        return command_alias();
+
+    // Process command "cd": change directory.
+    else if (tokens[0] == StringX("cd"))
+        return command_cd(tokens);
+
+    // Process command "set": set environment.
+    else if (tokens[0] == StringX("set"))
+        return command_set(tokens);
+
+    // Process command "set": set environment.
+    else if (tokens[0] == StringX("var"))
+        return command_var(tokens);
+
+    // Process plugin command: call plugin command and modify buffer strings.
+    else if (tokens[0].startswith(StringX("!")))
+        return command_plugin(tokens);
+
+    // Process other commands: call external command.
+    else return command_exec(tokens);
 
 }   // }}}
 

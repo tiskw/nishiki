@@ -27,6 +27,7 @@ OBJ_FILES := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(patsubst %.cxx,%.obj,$(SRC_F
 
 $(SOFTWARE): $(OBJ_DIR) $(OBJ_FILES)
 	$(CC) -o $(SOFTWARE) $(OBJ_FILES)
+	strip $(SOFTWARE)
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
