@@ -1,0 +1,224 @@
+#!/usr/bin/env python3
+"""
+Usage:
+    get_prompt_strings [-v] [-h]
+
+Get prompt strings.
+
+Options:
+  -v, --version  Show version info and exit.
+  -h, --help     Show help message and exit.
+"""
+
+# Define version.
+__version__ = "2025.04.23"
+
+# Import standard libraries.
+import argparse
+import datetime
+import enum
+import os
+import re
+import shutil
+import subprocess
+import unicodedata
+
+
+#---------------------------------------------------------------------------------------------------
+# Utility functions and classes
+#---------------------------------------------------------------------------------------------------
+
+class Color(enum.StrEnum):
+    """
+    ANSI Escape sequence for colors.
+    """
+    RED    = "\x1B[38;2;204;102;102m"
+    GREEN  = "\x1B[38;2;181;189;104m"
+    YELLOW = "\x1B[38;2;240;198;116m"
+    BLUE   = "\x1B[38;2;129;162;190m"
+    PURPLE = "\x1B[38;2;178;148;187m"
+    CYAN   = "\x1B[38;2;138;190;183m"
+    GRAY   = "\x1B[38;2;197;200;198m"
+    NONE   = "\x1B[0m"
+
+
+def check_output(command: str) -> str:
+    """
+    Run a shell command and capture the result of the command.
+
+    Args:
+        command (str): [IN] Command string.
+
+    Returns:
+        (str): Output string of the command.
+    """
+    return subprocess.run(command.strip() + " 2>/dev/null", shell=True, executable="/bin/sh",
+                          check=False, stdout=subprocess.PIPE).stdout.decode()
+
+
+def get_current_directory() -> str:
+    """
+    Get current directory.
+
+    Returns:
+        (str): A string of current directory.
+    """
+    cwd: str = os.getcwd()
+
+    if cwd.startswith(os.environ["HOME"]):
+        cwd = cwd.replace(os.environ["HOME"], "~")
+
+    return cwd
+
+
+def get_git_branch_info() -> str:
+    """
+    Get git branch and status information and return as a colored string.
+
+    Returns:
+        (str): Colored string of git information.
+    """
+    # Returns empty string if not a Git directory.
+    if not os.path.exists(".git"):
+        return ""
+
+    # Get git branch and status information.
+    branch: str = check_output("git rev-parse --abbrev-ref HEAD").strip()
+    status: str = check_output("git status --porcelain").strip()
+
+    if branch and status:
+        return "\x1b[33m" + branch + "!\x1b[m"
+
+    if branch:
+        return "\x1b[32m" + branch +  "\x1b[m"
+
+    return branch
+
+
+def strwidth(text: str) -> int:
+    """
+    Computes width of the given text and returns width of the text. For example, the input text is
+    all composed of alphabets, this function returns a list where all elements are 1 and the length
+    of the list matches the length of the input text. The function "unicodedata.east_asian_width()"
+    is used to calculate character widths.
+
+    Args:
+        text (str): [IN] Input text.
+
+    Returns:
+        (int): Width of the input text.
+    """
+    # Ignroe ANSI SGR.
+    if "\x1B" in text:
+        text = re.sub("\x1b\\[[0-9]*m", "", text)
+
+    # The function "unicodedata.east_asian_width()" just returns the identifier of characters that
+    # can be used to determine the character width, it does not return the actual width. Here, we
+    # regard the identifiers F, W, and A to width 2, and width 1 for the others (default value).
+    char_width = {"F": 2, "W": 2, "A": 2}
+
+    # Compute a list of character width.
+    return sum(char_width.get(unicodedata.east_asian_width(c), 1) for c in text)
+
+
+#---------------------------------------------------------------------------------------------------
+# Get prompt strings.
+#---------------------------------------------------------------------------------------------------
+
+def get_ps0(width: int | None) -> str:
+    """
+    Returns ps0.
+    """
+    # Get width of the current terminal window.
+    if width is None:
+        width = shutil.get_terminal_size().columns
+
+    # Get the current time.
+    now: datetime.datetime = datetime.datetime.now()
+
+    # Get necessary variables.
+    user: str = os.environ.get("LOGNAME", "")
+    host: str = os.environ.get("NAME", "")
+    date: str = now.strftime("%Y/%m/%d")
+    time: str = now.strftime("%H:%M:%S")
+    cdir: str = get_current_directory()
+    last: str = get_git_branch_info()
+
+    # Compute the total length.
+    total_len: int = sum(strwidth(text) for text in [user, host, date, time, cdir, last]) + 12
+
+    # Shorten the string of current dir path if necessary.
+    if total_len >= (width - 2):
+        cdir = ".." + cdir[(total_len - width + 4):]
+
+    # Compute the whitespace used for padding.
+    whitespaces: str = " " * max(2, width - total_len - 1)
+
+    # Compute PS0.
+    ps0  = Color.RED    + user + Color.GRAY + " : "
+    ps0 += Color.GREEN  + host + Color.GRAY + " : "
+    ps0 += Color.YELLOW + date + Color.GRAY + " : "
+    ps0 += Color.BLUE   + time + Color.GRAY + " : "
+    ps0 += Color.PURPLE + cdir + Color.NONE
+    ps0 += whitespaces  + last
+
+    return ps0
+
+
+def get_prompt_strings(width: int | None) -> tuple[str, str, str, str]:
+    """
+    Returns prompt strings.
+    """
+    ps0 : str = get_ps0(width)
+    ps1i: str = "=>> "
+    ps1n: str = "<<= "
+    ps2 : str = "... "
+    return (ps0, ps1i, ps1n, ps2)
+
+
+#---------------------------------------------------------------------------------------------------
+# Main function of this script
+#---------------------------------------------------------------------------------------------------
+
+def parse_args() -> argparse.Namespace:
+    """
+    Parse command line arguments.
+
+    Returns:
+        (argparse.Namespace): Parsed command line arguments.
+    """
+    parser = argparse.ArgumentParser(prog="welcome", add_help=False)
+    parser.add_argument("-w", "--width", type=int, default=None)
+    parser.add_argument("-v", "--version", action="store_true")
+    parser.add_argument("-h", "--help", action="store_true")
+    return parser.parse_args()
+
+
+def main(args: argparse.Namespace) -> None:
+    """
+    Entrypoint of this script.
+
+    Args:
+        args (argparse.Namespace): Parsed command line arguments.
+    """
+    if args.version:
+        print("get_prompt_strings", __version__)
+        print("Copyright (C) Tetsuya Ishikawa")
+        print("This software is released under the MIT License")
+
+    elif args.help:
+        print(__doc__.strip())
+
+    else:
+        ps0, ps1i, ps1n, ps2 = get_prompt_strings(args.width)
+        print(ps0)
+        print(ps1i)
+        print(ps1n)
+        print(ps2)
+
+
+if __name__ == "__main__":
+    main(parse_args())
+
+
+# vim: expandtab tabstop=4 shiftwidth=4 fdm=marker

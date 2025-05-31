@@ -8,7 +8,7 @@ NiShiKi - a simple shell wrapper
 <p align="center">
     <img src="https://img.shields.io/badge/C++-23-blue?stype=for-the-badge" /> &nbsp;
     <img src="https://img.shields.io/badge/license-MIT-orange?stype=for-the-badge" /> &nbsp;
-    <img src="https://img.shields.io/badge/coverage-97.3%25-green?stype=for-the-badge" />
+    <img src="https://img.shields.io/badge/coverage-97.1%25-green?stype=for-the-badge" />
 </p><p align="center">
     <a href="#features">Features</a> &nbsp;&bull;&nbsp;
     <a href="#installation">Installation</a> &nbsp;&bull;&nbsp;

@@ -11,65 +11,82 @@
 #   - make uninstall   Uninstall NiShiKi (both binary and config files).
 ################################################################################
 
-.PHONY: gcc clang test check count clean
+.PHONY: test check count clean
 
 ################################################################################
 # Install path definitions and build options
 ################################################################################
 
-# Install directory of a binary file.
-BINDIR := $(HOME)/bin
+# Get all source files.
+SRC_FILES := $(shell find source -type f)
 
-# Install directory of config files and plugins.
-CFGDIR := $(HOME)/.config/nishiki
+# Get the number of CPUs.
+NUM_CPUS := $(shell cat /proc/cpuinfo | grep processor | wc -l)
 
 ################################################################################
 # Build commands
 ################################################################################
 
-gcc:
-	cd build; make gcc; cd ..
-
-clang:
-	cd build; make clang; cd ..
+build/nishiki: $(SRC_FILES)
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	@echo "\033[38;5;140m// Start building NiShiKi\033[m"
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	cd build; $(MAKE) nishiki -j $(NUM_CPUS); cd ..
 
 ################################################################################
 # Test commands
 ################################################################################
 
 test:
-	cd tests; make; cd ..
-
-################################################################################
-# Install/uninstall commands
-################################################################################
-
-install:
-	mkdir -p $(BINDIR) $(CFGDIR)/plugins
-	cp -f build/nishiki $(BINDIR)
-	cp -n config.toml $(CFGDIR)/
-
-uninstall:
-	rm -f $(BINDIR)/nishiki
-
-purge:
-	rm -f $(BINDIR)/nishiki
-	rm -fr $(CFGDIR)
+	cd tests; $(MAKE) test -j $(NUM_CPUS); cd ..
 
 ################################################################################
 # Other utility commands
 ################################################################################
 
 check:
-	cppcheck --std=c++23 --enable=all -I./sources --library=posix \
-		--suppress=missingIncludeSystem --suppress=useStlAlgorithm \
-		sources/*.cxx
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	@echo "\033[38;5;140m// Check C++ code \033[m"
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	cppcheck --std=c++23 --enable=all -I./source --library=posix \
+		     --suppress=missingIncludeSystem --suppress=useStlAlgorithm \
+		     source/*.cxx
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	@echo "\033[38;5;140m// Check C++ plugin \033[m"
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	cppcheck --std=c++23 --enable=all -I./source --library=posix \
+		     --suppress=missingIncludeSystem --suppress=useStlAlgorithm \
+		     plugins/*.cxx
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	@echo "\033[38;5;140m// Check Python plugin - chooser \033[m"
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	pyflakes3 plugins/chooser
+	pylint plugins/chooser
+	python3 -m mypy plugins/chooser
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	@echo "\033[38;5;140m// Check Python plugin - callcmd \033[m"
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	pyflakes3 plugins/callcmd
+	pylint plugins/callcmd
+	python3 -m mypy plugins/callcmd
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	@echo "\033[38;5;140m// Check Python plugin - getpstr \033[m"
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	pyflakes3 plugins/getpstr
+	pylint plugins/getpstr
+	python3 -m mypy plugins/getpstr
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	@echo "\033[38;5;140m// Check Python plugin - welcome \033[m"
+	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
+	pyflakes3 plugins/welcome
+	pylint plugins/welcome
+	python3 -m mypy plugins/welcome
 
 clean:
 	cd build; make clean; cd ..
 	cd tests; make clean; cd ..
 
 count:
-	cloc --by-file sources/*.cxx sources/*.hxx
+	cloc --by-file $(shell find source -type f | grep -v config)
 
 # vim: noexpandtab shiftwidth=4 tabstop=4 fdm=marker

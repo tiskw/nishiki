@@ -1,0 +1,837 @@
+#!/usr/bin/env python3
+"""
+Usage:
+    chooser --mode {file,hist,proc} --lhs STR --rhs STR --out STR [input STR] [-v] [-h]
+
+An interface to choose filepaths, process IDs or command histories.
+
+Necessary arguments:
+  --mode STR     Mode of chooser (file, hist, or proc).
+  --lhs STR      Left-hand-side string.
+  --rhs STR      Right-hand-side string.
+  --out PATH     Path to output file.
+
+Optional arguments:
+  --hist PATH    Path to history file (used when '--mode hist').
+  --input STR    User input.
+
+Other options:
+  -s, --stdout   Print to STDOUT.
+  -v, --version  Show version info and exit.
+  -h, --help     Show help message and exit.
+"""
+
+# Define version.
+__version__ = "2025.05.31"
+
+# Import standard libraries.
+import argparse
+import curses
+import dataclasses
+import itertools
+import locale
+import os
+import pathlib
+import re
+import shlex
+import subprocess
+import sys
+import unicodedata
+
+# For type hints.
+from typing          import Any, TypeAlias
+from collections.abc import Iterable, Iterator
+
+
+#---------------------------------------------------------------------------------------------------
+# Data type declaration
+#---------------------------------------------------------------------------------------------------
+
+# Type alias of pathlib.Path.
+Path: TypeAlias = pathlib.Path
+
+# Type alias of curses.window.
+Window: TypeAlias = curses.window
+
+
+@dataclasses.dataclass
+class ListItem:
+    """
+    Item of list used in the Curses screen classes.
+    """
+    left : str  = ""               # Left-side string.
+    right: str  = ""               # Right-side string.
+    attr : int  = curses.A_NORMAL  # Attribute of this item.
+    star : bool = False            # True if selected (= starred).
+
+
+@dataclasses.dataclass
+class Rect:
+    """
+    Rectangle information.
+    """
+    x: int = 0  # Left-top coordinate of a rectangle.
+    y: int = 0  # Right-bottom coordinate of a rectangle.
+    w: int = 0  # Width of a rectangle.
+    h: int = 0  # Height of a rectangle.
+
+
+#---------------------------------------------------------------------------------------------------
+# Utility functions
+#---------------------------------------------------------------------------------------------------
+
+def clip(x: Any, x_min: Any, x_max: Any) -> Any:
+    """
+    Clip (limit) the value.
+
+    Args:
+        x     (Any): [IN] The targe value.
+        x_min (Any): [IN] Minimum value.
+        x_max (Any): [IN] Maximum value.
+
+    Returns:
+        (Any): Clipped value.
+    """
+    return max(x_min, min(x, x_max))
+
+
+def clipstr(text: str, width: int) -> str:
+    """
+    This function limits the input text to a specified width. If the width of the input text is
+    longer than the specified width, the input text is returned as is. The function "strwidths()"
+    is used to calculate the character width.
+
+    Args:
+        text  (str): [IN] Input text to be clipped.
+        width (int): [IN] Maximum width of the clipped text.
+
+    Returns:
+        (str): Clipped text.
+    """
+    # Obtain a list of character widths for the input text, then calculate the cumulative list.
+    char_widths: list[int] = strwidths(text)
+
+    # Calculate the delimiter positions.
+    idx_allowable = [i for i, w in enumerate(itertools.accumulate(char_widths)) if w <= width]
+    idx_cut_pos   = max(idx_allowable) + 1 if len(idx_allowable) > 0 else 0
+
+    # Returns the clipped text.
+    return text[:idx_cut_pos]
+
+
+def get_file_contents(target: Path, num_max: int) -> Iterator[str]:
+    """
+    Get the contents of the target file or directory.
+
+    Args:
+        target  (Path): [IN] The target file/directory path.
+        num_max (int) : [IN] The number of lines of the contents.
+
+    Yields:
+        (str): Contents of the target directory.
+    """
+    if target.is_dir():
+        yield from takewhile(sorted(p.name for p in target.iterdir()), num_max)
+
+    else:
+        if is_text(target):
+            command: str = f"highlight {target} -O ANSI | head -n {num_max}"
+            output: bytes = subprocess.check_output(command, shell=True)
+            yield from output.decode().split("\n")
+
+
+def is_text(target: Path) -> bool:
+    """
+    Returns True if the target file is a text file.
+
+    Args:
+        target (Path): [IN] Target file to judge.
+
+    Returns:
+        (bool): True if the target file is a text file.
+    """
+    with open(target, "rb") as ifp:
+        return 0x00 not in ifp.read(8000)
+
+
+def strwidth(text: str) -> int:
+    """
+    Computes width of the given text.
+    The function "unicodedata.east_asian_width()" is used to calculate character widths.
+
+    Args:
+        text (str): [IN] Input text.
+
+    Returns:
+        (int): Width of the input text.
+    """
+    # Ignroe ANSI SGR.
+    text = re.sub("\x1b\\[[0-9]*m", "", text)
+
+    # Compute text widths.
+    return sum(strwidths(text))
+
+
+def strwidths(text: str) -> list[int]:
+    """
+    Computes width of the given text and returns a list of width for each character. For example,
+    the input text is all composed of alphabets, this function returns a list where all elements
+    are 1 and the length of the list matches the length of the input text.
+    The function "unicodedata.east_asian_width()" is used to calculate character widths.
+
+    Args:
+        text (str): [IN] Input text.
+
+    Returns:
+        (list[int]): Width of each character in the input text.
+    """
+    # The function "unicodedata.east_asian_width()" just returns the identifier of characters that
+    # can be used to determine the character width, it does not return the actual width. Here, we
+    # regard the identifiers F, W, and A to width 2, and width 1 for the others (default value).
+    char_width = {"F": 2, "W": 2, "A": 2}
+
+    # Compute a list of character width.
+    return [char_width.get(unicodedata.east_asian_width(c), 1) for c in text]
+
+
+def takewhile(generator: Iterable[Any], num_take: int) -> Iterator[Any]:
+    """
+    Take specified number of values from generator.
+
+    Args:
+        generator (Generator[Any]): [IN] Base generator.
+        num_take  (int)           : [IN] Number of values to take.
+
+    Yields:
+        (Any): Value of the generator.
+    """
+    for idx, value in enumerate(generator):
+        if idx == num_take:
+            return
+        yield value
+
+
+#---------------------------------------------------------------------------------------------------
+# Base class for Curses interface
+#---------------------------------------------------------------------------------------------------
+
+class CursesScreen:
+    """
+    Base class for Curses-based CUI interface class.
+    """
+    COLORS: list[str] = ["WHITE", "RED", "GREEN", "BLUE", "CYAN", "MAGENTA", "YELLOW", "BLACK"]
+
+    def __init__(self, stdscr: Window) -> None:
+        """
+        Constructor.
+
+        Args:
+            stdscr (Window): [IN] Standard screen of Curses.
+        """
+        # Main screen window.
+        self.stdscr: Window = stdscr
+
+        # Hide cursor.
+        curses.curs_set(0)
+
+        # Enables keypad.
+        self.stdscr.keypad(True)
+
+        # Initialize colors.
+        # NOTE: Background color -1 means transparent.
+        curses.start_color()
+        curses.use_default_colors()
+        for idx, color_name in enumerate(CursesScreen.COLORS):
+            curses.init_pair(idx, getattr(curses, f"COLOR_{color_name}"), -1)
+
+        # Variables for filter items.
+        self.grep_str: str = ""
+        self.grep_win: Window | None = None
+
+        # Position of the focus.
+        self.focus: int = 0
+
+        # Contents of main list window before/after filtering.
+        self.contents_main: list[ListItem] = []
+        self.contents_filt: list[ListItem] = []
+
+        # Cache of preview contents.
+        self.preview_cache: dict[Path, list[str]] = {}
+
+    def __getitem__(self, idx: int | None) -> ListItem:
+        """
+        Returns contents.
+
+        Args:
+            idx (int): [IN] Item index to be returned.
+
+        Returns:
+            (ListItem): A contents of list.
+        """
+        return self.contents_filt[self.focus if idx is None else idx]
+
+    def draw_grep_win(self) -> None:
+        """
+        Draw grep window (if exists).
+        """
+        if self.grep_win is not None:
+            self.grep_win.erase()
+            self.rectbox_with_vlines(self.grep_win, cols_vline=[])
+            self.grep_win.addstr(1, 1, self.grep_str)
+
+    def get_key_and_process(self, k: str | None, w: int, h: int) -> str | None:
+        """
+        Get a keycode from stdscr.
+
+        Args:
+            k (str): [IN] User input.
+            w (int): [IN] Width of the screen.
+            h (int): [IN] Height of the screen.
+
+        Returns:
+            (str | None): String expression of the received keycode.
+        """
+        # If given key is ";", then convert it to ENTER.
+        if (k is not None) and (k == ";"):
+            k = "^J"
+
+        # Get a user input if the argument "k" is empty or None.
+        key = k if k else curses.keyname(self.stdscr.getch()).decode()
+
+        if (self.grep_win is not None) and (key in {"^J"}):
+
+            # Delete grep window.
+            del self.grep_win
+            self.grep_win = None
+
+            # Update the list contents.
+            self.contents_filt = [item for item in self.contents_main if self.grep_str in item.left]
+            self.focus = 0
+
+        # Otherwise, edit the grep string.
+        elif self.grep_win is not None:
+            if key in {"KEY_BACKSPACE"}:
+                self.grep_str = self.grep_str[:-1]
+            else:
+                self.grep_str = self.grep_str + key
+
+        # Create a new grep window.
+        elif key in {"/"}:
+            self.grep_win = self.stdscr.subwin(3, w // 2, h // 2 - 1, w // 4)
+
+        # Keybinds: move cursor.
+        elif key in {"k", "KEY_UP", "j", "KEY_DOWN", "^B", "^F", "0", "G"}:
+            self.move_cursor(key, h)
+
+        # Item selection.
+        elif key in {" "}:
+            self.contents_filt[self.focus].star = not self.contents_filt[self.focus].star
+            self.focus = min(self.focus + 1, len(self.contents_filt) - 1)
+
+        else:
+            return key
+
+        return None
+
+    def move_cursor(self, key: str, h: int):
+        """
+        Move cursorf in the chooser.
+
+        Args:
+            k (str): Input key.
+            h (int): Height of window.
+        """
+        if key in {"k", "KEY_UP"}:
+            self.focus = max(0, self.focus - 1)
+        elif key in {"j", "KEY_DOWN"}:
+            self.focus = min(self.focus + 1, len(self.contents_filt) - 1)
+        elif key in {"^B"}:
+            self.focus = max(0, self.focus - h // 2)
+        elif key in {"^F"}:
+            self.focus = min(self.focus + h // 2, len(self.contents_filt) - 1)
+        elif key in {"0", "G"}:
+            self.focus = 0 if (key == "0") else (len(self.contents_filt) - 1)
+
+    def preview(self, win: Window, rect: Rect, path: Path, name: str) -> None:
+        """
+        A function to draw a preview window.
+
+        Args:
+            win  (Window): [IN] Target window to write the preview.
+            rect (Rect)  : [IN] Area on the window to write the preview.
+            path (Path)  : [IN] Path to parent directory of the file to be previewed.
+            name (str)   : [IN] Name of the file to be previewed.
+        """
+        if (target := (path / name).resolve()) not in self.preview_cache:
+            self.preview_cache[target] = list(get_file_contents(target, rect.h))
+
+        for row, line in enumerate(self.preview_cache[target][:rect.h]):
+            self.addcstr(win, rect.y + row, rect.x, line.rstrip(), rect.w)
+
+    def update_filtered(self) -> None:
+        """
+        Update the filtered contents.
+        """
+        self.contents_filt = [item for item in self.contents_main if self.grep_str in item.left]
+        self.focus = 0
+
+    @staticmethod
+    def addcstr(win: Window, y: int, x: int, text: str, w: int) -> None:
+        """
+        A variant of the "addstr" function that supports ANSI escape sequences.
+
+        Args:
+            win  (Window): [IN] Target window to write the text.
+            y    (int)   : [IN] Y position of the text in the target window.
+            x    (int)   : [IN] X position of the text in the target window.
+            text (str)   : [IN] The text decorated by ANSI escape sequence to write.
+            w    (int)   : [IN] Max width of the text to write.
+        """
+        # Compute the max X position.
+        x_max: int = x + w
+
+        # Initialize text attribute.
+        attr: int = curses.A_NORMAL
+
+        for token in re.split("(\x1B\\[[0-9;]*m)", text):
+
+            if token.startswith("\x1B"):
+                for num_str in token[2:-1].split(";"):
+                    if num_str and (30 <= int(num_str) <= 38):
+                        attr = curses.color_pair(int(num_str) - 30)
+
+            elif token:
+                token = clipstr(token, x_max - x)
+                win.addstr(y, x, token, attr)
+                x += strwidth(token)
+
+            if x >= x_max:
+                return
+
+    @staticmethod
+    def rectbox_with_vlines(win: Window, cols_vline: list[int]) -> None:
+        """
+        Draw border lines on the window and vertical lines in the specified columns.
+
+        Args:
+            win        (Window)   : [IN] Target Curses window.
+            cols_vline (list[int]): [IN] Columns to draw vertical lines.
+        """
+        # Get the window size.
+        h, _ = win.getmaxyx()
+
+        # Draw the box.
+        win.box()
+
+        # Draw tees and vertical lines.
+        for col in cols_vline:
+            win.addch(0,     col, curses.ACS_TTEE)
+            win.addch(h - 1, col, curses.ACS_BTEE)
+            win.vline(1, col, curses.ACS_VLINE, h - 2)
+
+    @staticmethod
+    def listbox(win: Window, rect: Rect, contents: list[ListItem], focus: int) -> None:
+        """
+        A function to draw a list box, with the focused area inverted.
+        The contents should be a list of (string, attribute) tuples.
+
+        Args:
+            win      (Window)        : [IN] Target winow to draw a listbox.
+            rect     (Rect)          : [IN] Area to draw a listbox on the target window.
+            contents (list[ListItem]): [IN] Contents of the list.
+            focus    (int)           : [IN] Index of the focus of the listbox.
+        """
+        # Clip the focus value (just for safety).
+        focus = int(clip(0, focus, len(contents) - 1))
+
+        # Give a shorter name to the number of contents.
+        n: int = len(contents)
+
+        # Compute the default cursor position.
+        c0: int = rect.h // 2
+
+        # calculate the display area from the standard cursor position and focus position.
+        idx_bgn: int = clip(focus - c0, 0, n - rect.h)
+        idx_end: int = clip(focus - c0 + rect.h, rect.h, n)
+
+        # Trim the contents based on the display area calculated avobe.
+        contents = contents[idx_bgn:idx_end]
+        focus   -= idx_bgn
+
+        # The actual drawing work is performed below.
+        for row, item in enumerate(contents):
+
+            # The string is formatted based on the width information. Please be careful that
+            # the drawing area does not go beyond the rect, and that the string length matches
+            # the width of the drawing area so that the inversion affects the right end of
+            # the screen.
+            line = clipstr(item.left, rect.w - strwidth(item.right) - 4)
+            line = line + " " * (rect.w - strwidth(line) - strwidth(item.right) - 4)
+            line = "  " + line + "  " + item.right
+
+            # Initialize attributes.
+            attr = item.attr
+
+            # Invert the line color if the current line is the cursor position.
+            if row == focus:
+                attr |= curses.A_REVERSE
+
+            # Add decoration character if stared.
+            if item.star:
+                line = "* " + line[2:]
+
+            # Draw the current line.
+            win.addstr(rect.y + row, rect.x, line, attr)
+
+
+#---------------------------------------------------------------------------------------------------
+# Runner functions
+#---------------------------------------------------------------------------------------------------
+
+def run_file_chooser(path_str: str = ".", user_input: str = "") -> str:
+    """
+    Run file chooser and returns a list of selected file paths.
+
+    Args:
+        path_str   (str): [IN] Initial direcotry path.
+        user_input (str): [IN] User input.
+
+    Returns:
+        (str): A list of selected file paths.
+    """
+    def file_chooser_main(stdscr: Window, path: Path, user_input: str) -> list[str]:
+        """
+        Main procedure of file chooser.
+        """
+        def draw(stdscr: Window):
+            """
+            Draw screen.
+            """
+            # Get the screen size.
+            (h, w) = stdscr.getmaxyx()
+
+            # Get window height.
+            h = h - 2
+
+            # Compute the width of each window.
+            w1: int = int(w * width_ratio[0]) - 1
+            w2: int = int(w * width_ratio[1]) - 1
+            w3: int = w - w1 - w2 - 4
+
+            # Compute the x location of each window.
+            x1: int = 1
+            x2: int = w1 + 2
+            x3: int = w1 + w2 + 3
+
+            # Reset the screen.
+            stdscr.erase()
+
+            # Draw to the screen.
+            screen.rectbox_with_vlines(stdscr, cols_vline=[w1 + 1, w1 + w2 + 2])
+            screen.listbox(stdscr, Rect(x1, 1, w1, h), contents_prev, focus_prev)
+            screen.listbox(stdscr, Rect(x2, 1, w2, h), screen.contents_filt, screen.focus)
+
+            # Draw preview window.
+            screen.preview(stdscr, Rect(x3, 1, w3, h), path, screen[None].left)
+
+            # Draw grep window if exists.
+            screen.draw_grep_win()
+
+            # Update the screen.
+            stdscr.refresh()
+
+        # Define window width ratio.
+        width_ratio: tuple[float, float] = (0.2, 0.45)
+
+        # Initialize state.
+        showdot: bool = False
+
+        # Create an intance of curses screen.
+        screen: CursesScreen = CursesScreen(stdscr)
+
+        # Convert the text to list items.
+        (screen.contents_main, contents_prev, focus_prev) = get_contents(path, showdot)
+
+        # Create filtered list items (default is the same as the original contents).
+        screen.update_filtered()
+
+        while True:
+
+            # Draw screen.
+            draw(stdscr)
+
+            # Get the screen size.
+            (h, w) = stdscr.getmaxyx()
+
+            # Get user input and process it.
+            (k, user_input) = (user_input[0], user_input[1:]) if user_input else ("", "")
+            key: str | None = screen.get_key_and_process(k, w, h)
+
+            # Toggle showdot.
+            if key in {"."}:
+                showdot = not showdot
+
+            # Change directory.
+            elif key in {"h", "KEY_LEFT", "l", "KEY_RIGHT"}:
+
+                # Compute the path to move.
+                path = path.parent if (key in {"h", "KEY_LEFT"}) else (path / screen[None].left)
+                if not path.is_dir():
+                    path = path.parent
+
+                # Convert the text to list items.
+                (screen.contents_main, contents_prev, focus_prev) = get_contents(path, showdot)
+
+                # Create filtered list items (default is the same as the original contents).
+                screen.update_filtered()
+
+            # Keybinds: exit.
+            elif key in {"^D", "q", "Q"}:
+                return []
+
+            # Selection finished and close the textchooser.
+            elif key in {"^J"} and any(item.star for item in screen.contents_filt):
+                return [to_relpath(path / item.left) for item in screen.contents_filt if item.star]
+
+            elif key in {"^J"}:
+                return [to_relpath(path / screen.contents_filt[screen.focus].left)]
+
+    def listdir(path: Path, showdot: bool) -> list[ListItem]:
+        """
+        List dir contents.
+        """
+        items_reg: list[ListItem] = []
+        items_dir: list[ListItem] = []
+
+        for item in sorted(path.iterdir()):
+            if showdot or (not item.name.startswith(".")):
+                attr = curses.color_pair(3) if item.is_dir() else curses.A_NORMAL
+                (items_dir if item.is_dir() else items_reg).append(
+                    ListItem(left=item.name, attr=attr)
+                )
+
+        return items_dir + items_reg
+
+    def get_contents(path: Path, showdot: bool) -> tuple[list[ListItem], list[ListItem], int]:
+        """
+        Get list contents.
+        """
+        contents_crnt: list[ListItem] = listdir(path, showdot)
+        contents_prev: list[ListItem] = listdir(path.parent, showdot)
+
+        focus_prevs = [idx for idx, item in enumerate(contents_prev) if item.left == path.name]
+        focus_prev  = focus_prevs[0] if len(focus_prevs) > 0 else 0
+
+        return (contents_crnt, contents_prev, focus_prev)
+
+    def to_relpath(path: Path):
+        """
+        Shorten the file path.
+        """
+        return os.path.relpath(path, Path.cwd())
+
+    # Convert the path to Path instance.
+    path: Path = Path(path_str).resolve()
+
+    # Initialize locales, start curses, and returns the result.
+    locale.setlocale(locale.LC_ALL, "")
+    return shlex.join(curses.wrapper(file_chooser_main, path, user_input))
+
+
+def text_chooser_main(stdscr: Window, items: list[str], user_input: str = "") -> list[str]:
+    """
+    Main procedure of text chooser.
+
+    Args:
+        stdscr (Window)   : [IN] Standard screen of Curses.
+        items  (list[str]): [IN] List of items shown in the main list.
+        user_input  (str) : [IN] User input.
+
+    Returns:
+        (list[str]): A list of selected items.
+    """
+    # Create an intance of curses screen.
+    screen: CursesScreen = CursesScreen(stdscr)
+
+    # Set the main list contents.
+    screen.contents_main = [ListItem(left=item) for item in items]
+
+    # Create filtered list items (default is the same as the original contents).
+    screen.update_filtered()
+
+    while True:
+
+        # Get the screen size.
+        (h, w) = stdscr.getmaxyx()
+
+        # Reset the screen.
+        stdscr.erase()
+
+        # Draw to the screen.
+        screen.rectbox_with_vlines(stdscr, cols_vline=[])
+        screen.listbox(stdscr, Rect(1, 1, w - 2, h - 2), screen.contents_filt, screen.focus)
+
+        # Draw grep window if exists.
+        screen.draw_grep_win()
+
+        # Update the screen.
+        stdscr.refresh()
+
+        # Capture user input and process basic keybinds.
+        (k, user_input) = (user_input[0], user_input[1:]) if user_input else ("", "")
+        key: str | None = screen.get_key_and_process(k, w, h)
+
+        # Keybind: select all.
+        if key in {"^A"}:
+            for item in screen.contents_filt:
+                item.star = True
+
+        # Keybinds: exit.
+        elif key in {"^D", "q", "Q"}:
+            return []
+
+        # Keybind: selection finished and close the textchooser.
+        elif key in {"^J"} and any(item.star for item in screen.contents_filt):
+            return [item.left for item in screen.contents_filt if item.star]
+        elif key in {"^J"}:
+            return [screen[None].left]
+
+
+def run_proc_chooser(user_input: str = "") -> str:
+    """
+    Run process chooser and returns a list of selected items.
+
+    Args:
+        user_input (str): [IN] User input.
+
+    Returns:
+        (str): A string of selected items.
+    """
+    # Get the result of "ps aux" command.
+    output: bytes = subprocess.run("ps aux", shell=True, check=True, stdout=subprocess.PIPE).stdout
+
+    # Split the output of "ps" command to lines and remove the first line (that is a header line).
+    lines: list[str] = [line.strip() for line in output.decode().strip().split("\n")[1:]]
+
+    # Initialize locales, start curses, and returns the result.
+    locale.setlocale(locale.LC_ALL, "")
+    lines_ps_aux: list[str] = curses.wrapper(text_chooser_main, lines, user_input)
+    return " ".join([line.strip().split()[1] for line in lines_ps_aux])
+
+
+def run_hist_chooser(path_hist: str = "", user_input: str = "") -> str:
+    """
+    Run history chooser and returns a list of selected items.
+
+    Args:
+        user_input (str): [IN] User input.
+        path_hist  (str): [IN] Path to history file.
+
+    Returns:
+        (str): A string of selected items.
+    """
+    if not os.path.exists(path_hist):
+        raise FileNotFoundError(f"History file not found: {path_hist}")
+
+    # Load history.
+    with open(path_hist, "rt", encoding="utf-8") as ofp:
+        histories: list[str] = list(reversed([line.strip() for line in ofp]))
+
+    # Initialize locales, start curses, and returns the result.
+    locale.setlocale(locale.LC_ALL, "")
+    return " ".join(curses.wrapper(text_chooser_main, histories, user_input))
+
+
+#---------------------------------------------------------------------------------------------------
+# Postprocessor of selected filepaths, process IDs, and command histories
+#---------------------------------------------------------------------------------------------------
+
+def postprocess(args: argparse.Namespace, text: str) -> None:
+    """
+    Post-process of chooser.
+
+    Args:
+        args (argparse.Namespace): Parsed command line arguments.
+        text (str)               : Selection result.
+    """
+    # Write the selection results.
+    lhs: str = args.lhs if (args.lhs is not None) else ""
+    rhs: str = args.rhs if (args.rhs is not None) else ""
+    out: str = lhs + text + "\n" + rhs + "\n"
+
+    if args.stdout:
+        sys.stdout.write(out)
+
+    else:
+        Path(args.out).write_text(out, encoding="utf-8")
+
+
+#---------------------------------------------------------------------------------------------------
+# Main function of this script
+#---------------------------------------------------------------------------------------------------
+
+def parse_args() -> argparse.Namespace:
+    """
+    Parse command line arguments.
+
+    Returns:
+        (argparse.Namespace): Parsed command line arguments.
+    """
+    parser = argparse.ArgumentParser(prog="chooser", add_help=False)
+    parser.add_argument("--mode", choices=["file", "hist", "proc"], default=None)
+    parser.add_argument("--lhs", metavar="STR", type=str, default=None)
+    parser.add_argument("--rhs", metavar="STR", type=str, default=None)
+    parser.add_argument("--out", metavar="STR", type=str, default=None)
+    parser.add_argument("--hist", metavar="STR", type=str, default=None)
+    parser.add_argument("--input", metavar="STR", type=str, default="")
+    parser.add_argument("-s", "--stdout", action="store_true")
+    parser.add_argument("-v", "--version", action="store_true")
+    parser.add_argument("-h", "--help", action="store_true")
+    return parser.parse_args()
+
+
+def main(args: argparse.Namespace) -> None:
+    """
+    Entrypoint of this script.
+
+    Args:
+        args (argparse.Namespace): Parsed command line arguments.
+    """
+    if args.version:
+        print("chooser", __version__)
+        print("Copyright (C) Tetsuya Ishikawa")
+        print("This software is released under the MIT License")
+
+    elif args.help:
+        print(__doc__.strip())
+
+    elif args.mode not in {"file", "hist", "proc"}:
+        print("chooser: Error: --mode must be chosen from 'file', 'hist', or 'proc'.")
+        print()
+        print(__doc__.strip())
+
+    elif (args.lhs is None) or (args.rhs is None) or (args.out is None):
+        print("chooser: Error: all of --lhs, --rhs, and --out should be specified.")
+        print()
+        print(__doc__.strip())
+
+    elif (args.mode == "hist") and (args.hist is None):
+        print("chooser: Error: History chooser requires --hist option.")
+        print()
+        print(__doc__.strip())
+
+    elif args.mode == "file":
+        postprocess(args, run_file_chooser(path_str=".", user_input=args.input))
+
+    elif args.mode == "hist":
+        postprocess(args, run_hist_chooser(path_hist=args.hist, user_input=args.input))
+
+    elif args.mode == "proc":
+        postprocess(args, run_proc_chooser(user_input=args.input))
+
+
+if __name__ == "__main__":
+    main(parse_args())
+
+
+# vim: expandtab tabstop=4 shiftwidth=4 fdm=marker

@@ -3,54 +3,50 @@
 #
 # [Available commands]
 #   - make gcc      Build NiShiKi using GNU C++ compiler.
-#   - make clang    Build NiShiKi using Clang C++ compiler.
 #   - make clean    Clean up build cache files.
 ################################################################################
 
-.PHONY: gcc clang clean
+.PHONY: gcc clean
 
-################################################################################
+#-------------------------------------------------------------------------------
 # Compile settings
-################################################################################
+#-------------------------------------------------------------------------------
 
-SRCDIR := ../sources
-OBJDIR := ./objects
-LIBS := ncursesw
+SOFTWARE := nishiki
 
-################################################################################
+CC := g++ -std=c++23 -Ofast -Wall -Wextra -I../sources
+
+SRC_DIR   := ../source
+OBJ_DIR   := objects
+SRC_FILES := $(wildcard $(SRC_DIR)/*.cxx)
+OBJ_FILES := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(patsubst %.cxx,%.obj,$(SRC_FILES)))
+
+#-------------------------------------------------------------------------------
 # Build commands
-################################################################################
+#-------------------------------------------------------------------------------
 
-gcc: external/cxxopts.hpp external/glob.hpp external/pocketpy.o
-	bash compile.bash --compiler=gcc --src=${SRCDIR} --obj=${OBJDIR} --link=${LIBS}
+$(SOFTWARE): $(OBJ_DIR) $(OBJ_FILES)
+	$(CC) -o $(SOFTWARE) $(OBJ_FILES)
+	strip $(SOFTWARE)
 
-clang: external/cxxopts.hpp external/glob.hpp external/pocketpy.o
-	bash compile.bash --compiler=clang --src=../sources --obj=objects --link=${LIBS}
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+$(OBJ_DIR)/%.obj: $(SRC_DIR)/%.cxx $(SRC_DIR)/%.hxx
+	$(CC) -c -o $(@) $(<)
 
 external/cxxopts.hpp:
-	mkdir -p external
-	wget -q -O external/cxxopts.hpp https://raw.githubusercontent.com/jarro2783/cxxopts/master/include/cxxopts.hpp --no-check-certificate
+	wget -O external/cxxopts.hpp https://github.com/p-ranav/argparse/blob/master/include/argparse/argparse.hpp
 
-external/glob.hpp:
-	mkdir -p external
-	wget -q -O external/glob.hpp https://raw.githubusercontent.com/p-ranav/glob/master/single_include/glob/glob.hpp --no-check-certificate
+external/json.hpp:
+	wget -O - https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz | unxz -k - > external/json.hpp
 
-external/pocketpy.c:
-	mkdir -p external
-	wget -q -O external/pocketpy.c https://github.com/pocketpy/pocketpy/releases/download/v2.0.5/pocketpy.c
-
-external/pocketpy.h:
-	mkdir -p external
-	wget -q -O external/pocketpy.h https://github.com/pocketpy/pocketpy/releases/download/v2.0.5/pocketpy.h
-
-external/pocketpy.o: external/pocketpy.c external/pocketpy.h
-	gcc -std=c11 -c -O3 -DNDEBUG -DPK_ENABLE_OS=1 -I./external -o external/pocketpy.o external/pocketpy.c
-
-################################################################################
+#-------------------------------------------------------------------------------
 # Other utility commands
-################################################################################
+#-------------------------------------------------------------------------------
 
 clean:
-	rm -fr nishiki ${OBJDIR}
+	rm -f nishiki
+	rm -fr ${OBJ_DIR}
 
 # vim: noexpandtab shiftwidth=4 tabstop=4 fdm=marker

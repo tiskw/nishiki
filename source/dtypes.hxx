@@ -1,0 +1,67 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/// C++ header file: dtypes.hxx                                                                  ///
+///                                                                                              ///
+/// This header file defines data types, including type name aliases, used in NiShiKi2.          ///
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifndef DTYPES_HXX
+#define DTYPES_HXX
+
+// Include the headers of STL.
+#include <cstdint>
+#include <deque>
+#include <filesystem>
+#include <string>
+#include <tuple>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Type aliases
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Alias of std::filesystem::path.
+using Path = std::filesystem::path;
+
+// Alias of std::string.
+using String = std::string;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Alias templates
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename T>
+using Deque = std::deque<T>;
+
+template<typename T, typename U>
+using Map = std::unordered_map<T, U>;
+
+template<typename T, typename U>
+using Pair = std::pair<T, U>;
+
+template<typename T>
+using Set = std::unordered_set<T>;
+
+template<typename... T>
+using Tuple = std::tuple<T...>;
+
+template<typename T>
+using Vector = std::vector<T>;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Structs
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Terminal size.
+typedef struct
+{
+    uint16_t rows;
+    uint16_t cols;
+}
+TermSize;
+
+#endif
+
+// vim: expandtab tabstop=4 shiftwidth=4 fdm=marker
