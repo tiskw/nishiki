@@ -69,6 +69,13 @@ class PathX : public Path
         //
         // [Returns]
         //   (std::vector<std::string>): List of names of the entries.
+
+        String shorten(void) const noexcept;
+        // [Abstract]
+        //   Returns shorten expression of the path.
+        //
+        // [Returns]
+        //   (String): Shorten expression of the path.
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

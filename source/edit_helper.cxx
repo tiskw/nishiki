@@ -293,7 +293,7 @@ void EditHelper::cands_filepath(const Vector<StringX>& tokens) noexcept
 
         // Append to the candidates (a pair of query string and display string).
         if (name.starts_with(query_key))
-            this->cands.emplace_back((query_dir / name).c_str(), colorize_token(query_dir, name).c_str());
+            this->cands.emplace_back((query_dir / name).shorten().c_str(), colorize_token(query_dir, name).c_str());
     }
 
 }   // }}}

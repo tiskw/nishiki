@@ -98,6 +98,20 @@ Vector<String> PathX::listdir(uint32_t n_max_items) const noexcept
 
 }   // }}}
 
+String PathX::shorten(void) const noexcept
+{   // {{{
+
+    // Get the string expression of the path.
+    String path = this->string();
+
+    // Shorten the home directory.
+    if (path.starts_with(getenv("HOME")))
+        path = replace(path, getenv("HOME"), "~");
+
+    return path;
+
+}   // }}}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Public functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
