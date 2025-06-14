@@ -121,10 +121,10 @@ class CharX
         uint64_t value;
         // Value of the UTF8 character.
 
-        uint16_t size;
+        uint32_t size;
         // Size of the UTF8 character.
 
-        uint16_t width;
+        uint32_t width;
         // Width of the UTF8 character.
 
     private:

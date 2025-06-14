@@ -55,7 +55,7 @@ using Vector = std::vector<T>;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Terminal size.
-typedef struct
+typedef struct TermSize
 {
     uint16_t rows;
     uint16_t cols;

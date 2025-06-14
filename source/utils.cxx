@@ -18,15 +18,15 @@
 Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t height, uint16_t margin) noexcept
 {   // {{{
 
-    constexpr auto get_shape = [](const Vector<uint16_t>& ws, uint16_t width, uint16_t margin, uint16_t row) noexcept -> Pair<uint16_t, bool>
+    constexpr auto get_shape = [](const Vector<uint16_t>& ws, uint16_t w, uint16_t m, uint16_t row) noexcept -> Pair<uint16_t, bool>
     // [Abstract]
     //   Compute shape of column style display.
     //
     // [Args]
-    //   ws     (const Vector<uint16_t>&): [IN] Length of each text.
-    //   width  (uint16_t)               : [IN] Maximum width of display.
-    //   margin (uint16_t)               : [IN] Minimum margin between each text.
-    //   row    (uint16_t)               : [IN] Number of rows.
+    //   ws  (const Vector<uint16_t>&): [IN] Length of each text.
+    //   w   (uint16_t)               : [IN] Maximum width of display.
+    //   m   (uint16_t)               : [IN] Minimum margin between each text.
+    //   row (uint16_t)               : [IN] Number of rows.
     //
     // [Returns]
     //   (Pair<uint16_t, bool>): A pair of (number of columns, true if all texts can be shown).
@@ -37,29 +37,29 @@ Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t he
         for (uint16_t col = 0; true; ++col)
         {
             // Compute start/end index of the texts used in the current column
-            const size_t idx_bgn = col * row;
-            const size_t idx_end = std::min(idx_bgn + row, ws.size());
+            const uint16_t idx_bgn = col * row;
+            const uint16_t idx_end = std::min(static_cast<uint16_t>(idx_bgn + row), static_cast<uint16_t>(ws.size()));
 
             // Compute maximum width of texts used in the current column.
             const uint16_t wid_max = *std::max_element(ws.begin() + idx_bgn, ws.begin() + idx_end);
 
             // Increment of width by this column.
-            const uint16_t wid_inc = ((col > 0) ? margin : 0) + wid_max;
+            const uint16_t wid_inc = ((col > 0) ? m : 0) + wid_max;
 
             // Exit if the current width exceeds the maximum width.
-            if ((wid_total + wid_inc) >= width)
-                return Pair(std::max((uint16_t) 1, col), false);
+            if ((wid_total + wid_inc) >= w)
+                return Pair<uint16_t, bool>(std::max(static_cast<uint16_t>(1), col), false);
 
             // Exit if all text was used.
             if (idx_end == ws.size())
-                return Pair((uint16_t) (col + 1), true);
+                return Pair<uint16_t, bool>(static_cast<uint16_t>(col + 1), true);
 
             // Update current width.
             wid_total += wid_inc;
         }
     };
 
-    constexpr auto get_optimal_height = [get_shape](const Vector<uint16_t>& ws, uint16_t width, uint16_t height, uint16_t margin) noexcept -> Pair<uint16_t, int16_t>
+    constexpr auto get_optimal_height = [get_shape](const Vector<uint16_t>& ws, uint16_t w, uint16_t h, uint16_t m) noexcept -> Pair<uint16_t, int16_t>
     // [Abstract]
     //   Compute optimal shape (rows and columns) of column style display.
     //
@@ -72,20 +72,20 @@ Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t he
     // [Returns]
     //   (Pair<uint16_t, uint16_t>): A pair of (rows of the optimal shape, columns of the optimal shape).
     {
-        for (uint16_t row = 1; row < height; ++row)
+        for (uint16_t row = 1; row < h; ++row)
         {
             // Compute shape for each row.
-            const auto& [col, finished] = get_shape(ws, width, margin, row);
+            const auto& [col, finished] = get_shape(ws, w, m, row);
 
             // Immediately determine optimal shape if all texts can be shown.
             if (finished)
-                return Pair(row, col);
+                return Pair<uint16_t, uint16_t>(row, col);
         }
 
         // Compute column if row is equal with the maximum height.
-        const auto& [col, _] = get_shape(ws, width, margin, height);
+        const auto& [col, _] = get_shape(ws, w, m, h);
 
-        return Pair(height, col);
+        return Pair<uint16_t, uint16_t>(h, col);
     };
 
     // Prepare output lines.
@@ -110,8 +110,8 @@ Vector<StringX> column(const Vector<StringX>& texts, uint16_t width, uint16_t he
     for (uint16_t col = 0; col < cols; ++col)
     {
         // Compute start/end index of the texts used in the current column
-        const size_t idx_bgn = col * rows;
-        const size_t idx_end = std::min(idx_bgn + rows, ws.size());
+        const uint16_t idx_bgn = col * rows;
+        const uint16_t idx_end = std::min(static_cast<uint16_t>(idx_bgn + rows), static_cast<uint16_t>(ws.size()));
 
         // Compute maximum width of texts used in the current column.
         const uint16_t wid_max = *std::max_element(ws.begin() + idx_bgn, ws.begin() + idx_end);
@@ -171,19 +171,19 @@ String get_date(void) noexcept
 String get_random_string(int16_t length) noexcept
 {   // {{{
 
-    constexpr char target_chars[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    constexpr std::string_view target_chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     // Initialize the random generator.
     std::random_device seed_gen;
     std::mt19937       engine(seed_gen());
 
     // Define a wrapper of the random number generator.
-    std::uniform_int_distribution<int16_t> dist(0, sizeof(target_chars) - 1);
+    std::uniform_int_distribution<uint16_t> dist(0, sizeof(target_chars) - 1);
 
     // Generate the random string.
     String rand_str;
     for (int16_t idx = 0; idx < length; ++idx)
-        rand_str += target_chars[dist(engine)];
+        rand_str += target_chars.at(dist(engine));
 
     return rand_str;
 

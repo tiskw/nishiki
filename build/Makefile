@@ -14,7 +14,8 @@
 
 SOFTWARE := nishiki
 
-CC := g++ -std=c++23 -Ofast -Wall -Wextra -I../sources
+# CC := g++ -std=c++23 -Ofast -Wall -Wextra -I../sources
+CC := clang++ -std=c++23 -Ofast -mllvm -polly -march=native -Wall -Wextra -I../sources
 
 SRC_DIR   := ../source
 OBJ_DIR   := objects
