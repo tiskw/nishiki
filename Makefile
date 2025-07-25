@@ -52,12 +52,6 @@ check:
 		     --suppress=missingIncludeSystem --suppress=useStlAlgorithm \
 		     source/*.cxx
 	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
-	@echo "\033[38;5;140m// Check C++ plugin \033[m"
-	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
-	cppcheck --std=c++23 --enable=all -I./source --library=posix \
-		     --suppress=missingIncludeSystem --suppress=useStlAlgorithm \
-		     plugins/*.cxx
-	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
 	@echo "\033[38;5;140m// Check Python plugin - chooser \033[m"
 	@echo "\033[38;5;140m////////////////////////////////////////////////////////////////////////////////\033[m"
 	pyflakes3 plugins/chooser

@@ -21,6 +21,7 @@ import os
 import re
 import subprocess
 import shutil
+import textwrap
 
 
 #---------------------------------------------------------------------------------------------------
@@ -41,14 +42,14 @@ class Color(enum.StrEnum):
     NONE   = "\x1B[0m"
 
 
-def get_username():
+def get_username() -> dict[str, str]:
     """
     Returns user name.
     """
     return {"user": getpass.getuser()}
 
 
-def get_system_info():
+def get_system_info() -> dict[str, str]:
     """
     Returns system info.
     """
@@ -56,7 +57,7 @@ def get_system_info():
     return dict(zip(names, os.uname()))
 
 
-def get_cpu_info():
+def get_cpu_info() -> dict[str, int | str]:
     """
     Returns CPU info.
     """
@@ -68,7 +69,7 @@ def get_cpu_info():
     return {"cpu_name": cpu_name, "n_cpus": n_cpus}
 
 
-def get_disk_info():
+def get_disk_info() -> dict[str, float]:
     """
     Returns disk info.
     """
@@ -78,7 +79,7 @@ def get_disk_info():
     return {"disk_total_gb": disk_total_gb, "disk_used_perc": disk_used_perc}
 
 
-def get_mem_info():
+def get_mem_info() -> dict[str, float]:
     """
     Returns memory info.
     """
@@ -88,7 +89,7 @@ def get_mem_info():
     return {"mem_total_gb": mem_total_gb, "mem_used_perc": mem_used_perc}
 
 
-def get_uptime():
+def get_uptime() -> dict[str, str]:
     """
     Returns uptime.
     """
@@ -99,24 +100,26 @@ def get_uptime():
 # Welcome message function
 #---------------------------------------------------------------------------------------------------
 
-def welcome():
+def welcome() -> None:
     """
     Print welcome message.
     """
-    colored_nishiki  = f"{Color.RED}N {Color.PURPLE}i "
-    colored_nishiki += f"{Color.GREEN}S {Color.YELLOW}h {Color.PURPLE}i "
-    colored_nishiki += f"{Color.BLUE}K {Color.PURPLE}i"
-    colored_nishiki += f"{Color.NONE}"
+    colored_nishiki  = "{RED}N {PURPLE}i "
+    colored_nishiki += "{GREEN}S {YELLOW}h {PURPLE}i "
+    colored_nishiki += "{BLUE}K {PURPLE}i"
+    colored_nishiki += "{NONE}"
 
     # Define colors.
-    info = {"RED"   : Color.RED,
-            "GREEN" : Color.GREEN,
-            "YELLOW": Color.YELLOW,
-            "BLUE"  : Color.BLUE,
-            "PURPLE": Color.PURPLE,
-            "CYAN"  : Color.CYAN,
-            "GRAY"  : Color.GRAY,
-            "NONE"  : Color.NONE}
+    info: dict[str, int | float | str] = {
+        "RED"   : "\x1B[38;2;204;102;102m",
+        "GREEN" : "\x1B[38;2;181;189;104m",
+        "YELLOW": "\x1B[38;2;240;198;116m",
+        "BLUE"  : "\x1B[38;2;129;162;190m",
+        "PURPLE": "\x1B[38;2;178;148;187m",
+        "CYAN"  : "\x1B[38;2;138;190;183m",
+        "GRAY"  : "\x1B[38;2;197;200;198m",
+        "NONE"  : "\x1B[0m",
+    }
 
     # Get user name.
     info |= get_username()
@@ -136,21 +139,32 @@ def welcome():
     # Get uptime info.
     info |= get_uptime()
 
-    print("Welcome to", colored_nishiki, "!")
-    print()
-    print("{RED}{user}{NONE} @ {GREEN}{node_name}{NONE}".format(**info))
-    print("-" * (len(info["user"]) + len(info["node_name"]) + 3))
-    print("{BLUE}OS{NONE}: {sys_name}".format(**info))
-    print("{BLUE}Kernel{NONE}: {kernel_info}".format(**info))
-    print("{BLUE}Arch{NONE}: {march}".format(**info))
-    print("{BLUE}CPU{NONE}: {cpu_name} x {n_cpus}".format(**info))
-    print("{BLUE}Disk{NONE}: {disk_total_gb:,.1f} GB ({disk_used_perc:.1f}% used)".format(**info))
-    print("{BLUE}Memory{NONE}: {mem_total_gb:,.1f} GB ({mem_used_perc:.1f}% used)".format(**info))
-    print("{BLUE}Uptime{NONE}: {uptime}".format(**info))
-    print()
-    print("Copyright (C) Tetsuya Ishikawa")
-    print("This software is released under the MIT License")
-    print()
+    # Get horizontal line.
+    info["hline"] = "-" * (len(str(info["user"])) + len(str(info["node_name"])) + 3)
+
+    # Get colored NiShiKi logo.
+    info["colored_nishiki"] = colored_nishiki.format(**info)
+
+    # Define message.
+    message: str = textwrap.dedent("""
+    Welcome to {colored_nishiki} !
+
+    {RED}{user}{NONE} @ {GREEN}{node_name}{NONE}
+    {hline}
+    {BLUE}OS{NONE}: {sys_name}
+    {BLUE}Kernel{NONE}: {kernel_info}
+    {BLUE}Arch{NONE}: {march}
+    {BLUE}CPU{NONE}: {cpu_name} x {n_cpus}
+    {BLUE}Disk{NONE}: {disk_total_gb:,.1f} GB ({disk_used_perc:.1f}% used)
+    {BLUE}Memory{NONE}: {mem_total_gb:,.1f} GB ({mem_used_perc:.1f}% used)
+    {BLUE}Uptime{NONE}: {uptime}
+
+    Copyright (C) Tetsuya Ishikawa
+    This software is released under the MIT License
+    """).strip()
+
+    # Print the message.
+    print(message.format(**info))
 
 
 #---------------------------------------------------------------------------------------------------

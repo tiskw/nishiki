@@ -22,18 +22,22 @@ Other options:
 """
 
 # Define version.
-__version__ = "2025.05.31"
+__version__ = "2025.07.25"
 
 # Import standard libraries.
 import argparse
 import curses
 import dataclasses
+import datetime
+import grp
 import itertools
 import locale
 import os
 import pathlib
+import pwd
 import re
 import shlex
+import stat
 import subprocess
 import sys
 import unicodedata
@@ -53,7 +57,6 @@ Path: TypeAlias = pathlib.Path
 # Type alias of curses.window.
 Window: TypeAlias = curses.window
 
-
 @dataclasses.dataclass
 class ListItem:
     """
@@ -63,7 +66,6 @@ class ListItem:
     right: str  = ""               # Right-side string.
     attr : int  = curses.A_NORMAL  # Attribute of this item.
     star : bool = False            # True if selected (= starred).
-
 
 @dataclasses.dataclass
 class Rect:
@@ -130,14 +132,32 @@ def get_file_contents(target: Path, num_max: int) -> Iterator[str]:
     Yields:
         (str): Contents of the target directory.
     """
+    def get_colored_name(path: Path):
+        """
+        Returns colored file name.
+        """
+        # Get the color of the item.
+        if path.is_dir():
+            return f"\x1B[33m{path.name}/\x1B[0m"
+        if path.stat().st_mode & (stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH):
+            return f"\x1B[32m{path.name}\x1B[0m"
+        return f"\x1B[0m{path.name}"
+
     if target.is_dir():
-        yield from takewhile(sorted(p.name for p in target.iterdir()), num_max)
+
+        #
+        paths_reg: list[Path] = []
+        paths_dir: list[Path] = []
+        for path in takewhile(target.iterdir(), num_max):
+            (paths_dir if path.is_dir() else paths_reg).append(path)
+
+        #
+        yield from (get_colored_name(path) for path in sorted(paths_dir) + sorted(paths_reg))
 
     else:
         if is_text(target):
             command: str = f"highlight {target} -O ANSI | head -n {num_max}"
-            output: bytes = subprocess.check_output(command, shell=True)
-            yield from output.decode().split("\n")
+            yield from subprocess.check_output(command, shell=True).decode().split("\n")
 
 
 def is_text(target: Path) -> bool:
@@ -154,6 +174,136 @@ def is_text(target: Path) -> bool:
         return 0x00 not in ifp.read(8000)
 
 
+def listdir(path: Path, showdot: bool, extra: bool) -> list[ListItem]:
+    """
+    List dir contents.
+
+    Args:
+        path    (Path): [IN] Target directory path.
+        showdot (bool): [IN] Include dot files if True.
+        extra   (bool): [IN] Append extra info.
+
+    Returns:
+        (list[ListItem]): List of directory contents.
+    """
+    def human_readable_size(size: int) -> str:
+        """
+        Convert file size integer to a human-readable string expression.
+
+        Args:
+            size (int): [IN] File size.
+
+        Returns:
+            (str): Human-readable string expression of the given file size.
+        """
+        size_flt: float = float(size)
+
+        for unit in ["B", "KB", "MB", "GB", "TB", "PB"]:
+            if (size_flt < 1000.0) or (unit == "PB"):
+                break
+            size_flt /= 1000.0
+        return (f"{size:d}  B" if (unit == "B") else f"{size_flt:.2f} {unit}").rjust(9)
+
+    def human_readable_timestamp(timestamp: float, time_fmt: str = "%Y/%m/%d %H:%M") -> str:
+        """
+        Convert timestamp to human-readable string expression.
+
+        Args:
+            timestemp (float): [IN] Target timestemp.
+            time_fmt  (str)  : [IN] Format of the output string expression.
+
+        Returns:
+            (str): Human-readable timestamp.
+        """
+        dt = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+        return dt.strftime(time_fmt)
+
+    def get_user_and_group(uid: int, gid: int) -> str:
+        """
+        Convert a pair of user ID and group ID to string expression.
+
+        Args:
+            uid (int): [IN] User ID.
+            gid (int): [IN] Group ID.
+
+        Returns:
+            (str): String expression of user and group.
+        """
+        # Get user name.
+        try:
+            uname = pwd.getpwuid(uid).pw_name
+        except KeyError:
+            uname = str(uid)
+
+        # Get group name.
+        try:
+            gname = grp.getgrgid(gid).gr_name
+        except KeyError:
+            gname = str(gid)
+
+        return f"{uname}:{gname}"
+
+    def permission_to_unix_format(st_mode: int) -> str:
+        """
+        Convert file mode integer to string expression in unix format.
+
+        Args:
+            st_mode (int): [IN] Mode integer of a file.
+
+        Returns:
+            (str): String expression of the mode integer.
+        """
+        # Dictionaly that maps mode integer to mode string.
+        mode_dict: dict[str, str] = {"7": "rwx", "6": "rw-", "5": "r-x", "4": "r--",
+                                     "3": "-wx", "2": "-w-", "1": "--x", "0": "---"}
+
+        # Get the directory permission (first character of the unix expression).
+        is_dir: str = "d" if stat.S_ISDIR(st_mode) else "-"
+
+        return is_dir + "".join(mode_dict.get(x, x) for x in str(oct(st_mode)[-3:]))
+
+    def get_extra_info(item_stat: os.stat_result) -> str:
+        """
+        Returns a string of extra info.
+        """
+        perm_str = permission_to_unix_format(item_stat.st_mode)
+        user_str = get_user_and_group(item_stat.st_uid, item_stat.st_gid)
+        time_str = human_readable_timestamp(item_stat.st_mtime)
+        size_str = human_readable_size(item_stat.st_size)
+        return f"{perm_str}  {user_str}  {time_str}  {size_str} "
+
+    items_reg: list[ListItem] = []
+    items_dir: list[ListItem] = []
+
+    for item in sorted(path.iterdir()):
+
+        # Ignore dot files if showdot is disabled.
+        if (not showdot) and item.name.startswith("."):
+            continue
+
+        # Get file stat of the target file.
+        item_stat: os.stat_result = item.stat()
+
+        # Get the attribute of the item.
+        if item.is_dir():
+            attr = curses.color_pair(3)
+        elif item_stat.st_mode & (stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH):
+            attr = curses.color_pair(2)
+        else:
+            attr = curses.A_NORMAL
+
+        # Get extra info.
+        extra_info: str = get_extra_info(item_stat) if extra else ""
+
+        # Get the list item intance.
+        list_item: ListItem = ListItem(left=item.name, right=extra_info, attr=attr)
+
+        # Append to the item list.
+        (items_dir if item.is_dir() else items_reg).append(list_item)
+
+    return items_dir + items_reg
+
+
 def strwidth(text: str) -> int:
     """
     Computes width of the given text.
@@ -166,7 +316,7 @@ def strwidth(text: str) -> int:
         (int): Width of the input text.
     """
     # Ignroe ANSI SGR.
-    text = re.sub("\x1b\\[[0-9]*m", "", text)
+    text = re.sub("\x1B\\[[0-9]*m", "", text)
 
     # Compute text widths.
     return sum(strwidths(text))
@@ -258,6 +408,15 @@ class CursesScreen:
         # Cache of preview contents.
         self.preview_cache: dict[Path, list[str]] = {}
 
+    def __iter__(self) -> Iterator[ListItem]:
+        """
+        Returns list items as a generator.
+
+        Returns:
+            (Iterator[ListItem]): A generator instance of list items.
+        """
+        return (item for item in self.contents_filt)
+
     def __getitem__(self, idx: int | None) -> ListItem:
         """
         Returns contents.
@@ -279,14 +438,14 @@ class CursesScreen:
             self.rectbox_with_vlines(self.grep_win, cols_vline=[])
             self.grep_win.addstr(1, 1, self.grep_str)
 
-    def get_key_and_process(self, k: str | None, w: int, h: int) -> str | None:
+    def get_key_and_process(self, k: str | None, h: int, w: int) -> str | None:
         """
         Get a keycode from stdscr.
 
         Args:
             k (str): [IN] User input.
-            w (int): [IN] Width of the screen.
             h (int): [IN] Height of the screen.
+            w (int): [IN] Width of the screen.
 
         Returns:
             (str | None): String expression of the received keycode.
@@ -503,7 +662,7 @@ def run_file_chooser(path_str: str = ".", user_input: str = "") -> str:
         """
         Main procedure of file chooser.
         """
-        def draw(stdscr: Window):
+        def draw(stdscr: Window, contents_prev, focus_prev: int):
             """
             Draw screen.
             """
@@ -558,14 +717,11 @@ def run_file_chooser(path_str: str = ".", user_input: str = "") -> str:
         while True:
 
             # Draw screen.
-            draw(stdscr)
-
-            # Get the screen size.
-            (h, w) = stdscr.getmaxyx()
+            draw(stdscr, contents_prev, focus_prev)
 
             # Get user input and process it.
             (k, user_input) = (user_input[0], user_input[1:]) if user_input else ("", "")
-            key: str | None = screen.get_key_and_process(k, w, h)
+            key: str | None = screen.get_key_and_process(k, *stdscr.getmaxyx())
 
             # Toggle showdot.
             if key in {"."}:
@@ -573,6 +729,11 @@ def run_file_chooser(path_str: str = ".", user_input: str = "") -> str:
 
             # Change directory.
             elif key in {"h", "KEY_LEFT", "l", "KEY_RIGHT"}:
+
+                # Set query string for the cursor position after change directory.
+                query_focus: str | None = None
+                if key in {"h", "KEY_LEFT"}:
+                    query_focus = path.name
 
                 # Compute the path to move.
                 path = path.parent if (key in {"h", "KEY_LEFT"}) else (path / screen[None].left)
@@ -585,6 +746,13 @@ def run_file_chooser(path_str: str = ".", user_input: str = "") -> str:
                 # Create filtered list items (default is the same as the original contents).
                 screen.update_filtered()
 
+                # Move cursor if query is set.
+                if query_focus is not None:
+                    for idx, item in enumerate(screen):
+                        if item.left.strip() == query_focus:
+                            screen.focus = idx
+                            break
+
             # Keybinds: exit.
             elif key in {"^D", "q", "Q"}:
                 return []
@@ -594,30 +762,14 @@ def run_file_chooser(path_str: str = ".", user_input: str = "") -> str:
                 return [to_relpath(path / item.left) for item in screen.contents_filt if item.star]
 
             elif key in {"^J"}:
-                return [to_relpath(path / screen.contents_filt[screen.focus].left)]
-
-    def listdir(path: Path, showdot: bool) -> list[ListItem]:
-        """
-        List dir contents.
-        """
-        items_reg: list[ListItem] = []
-        items_dir: list[ListItem] = []
-
-        for item in sorted(path.iterdir()):
-            if showdot or (not item.name.startswith(".")):
-                attr = curses.color_pair(3) if item.is_dir() else curses.A_NORMAL
-                (items_dir if item.is_dir() else items_reg).append(
-                    ListItem(left=item.name, attr=attr)
-                )
-
-        return items_dir + items_reg
+                return [to_relpath(path / screen[None].left)]
 
     def get_contents(path: Path, showdot: bool) -> tuple[list[ListItem], list[ListItem], int]:
         """
         Get list contents.
         """
-        contents_crnt: list[ListItem] = listdir(path, showdot)
-        contents_prev: list[ListItem] = listdir(path.parent, showdot)
+        contents_crnt: list[ListItem] = listdir(path,        showdot, extra=True)
+        contents_prev: list[ListItem] = listdir(path.parent, showdot, extra=False)
 
         focus_prevs = [idx for idx, item in enumerate(contents_prev) if item.left == path.name]
         focus_prev  = focus_prevs[0] if len(focus_prevs) > 0 else 0
@@ -679,7 +831,7 @@ def text_chooser_main(stdscr: Window, items: list[str], user_input: str = "") ->
 
         # Capture user input and process basic keybinds.
         (k, user_input) = (user_input[0], user_input[1:]) if user_input else ("", "")
-        key: str | None = screen.get_key_and_process(k, w, h)
+        key: str | None = screen.get_key_and_process(k, h, w)
 
         # Keybind: select all.
         if key in {"^A"}:
