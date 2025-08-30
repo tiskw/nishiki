@@ -241,7 +241,9 @@ StringX StringX::colorize(void) const noexcept
     StringX result;
     for (const StringX& token : this->tokenize())
     {
-        if      (set_commands.contains(token)) { result += StringX("\x1B[32m") + token + StringX("\x1B[m"); }  // Command color.
+        if      (token[0].value == ' ')        { result +=                       token                    ; }  // Whitespace.
+        else if (token[0].value == '\t')       { result +=                       token                    ; }  // Whitespace.
+        else if (set_commands.contains(token)) { result += StringX("\x1B[32m") + token + StringX("\x1B[m"); }  // Command color.
         else if (set_keywords.contains(token)) { result += StringX("\x1B[33m") + token + StringX("\x1B[m"); }  // Keyword color.
         else if (set_symbols.contains(token))  { result += StringX("\x1B[34m") + token + StringX("\x1B[m"); }  // Symbols color.
         else if (is_string_token(token))       { result += StringX("\x1B[31m") + token + StringX("\x1B[m"); }  // Strings color.

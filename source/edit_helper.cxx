@@ -15,6 +15,8 @@
 #include "string_x.hxx"
 #include "utils.hxx"
 
+#include <iostream>
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EditHelper: Constructors and destructors
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -190,6 +192,19 @@ StringX EditHelper::complete(const StringX& lhs) const noexcept
         return result;
     };
 
+    constexpr auto get_first = [](const Pair<StringX, StringX>& pair) noexcept -> StringX
+    // [Abstract]
+    //   Get the first string of the given string pair.
+    //
+    // [Args]
+    //   pair (const Pair<StringX, StringX>&): [IN] Pair of strings.
+    //
+    // [Returns]
+    //   (StringX): First string of the pair.
+    {
+        return pair.first;
+    };
+
     // Split the given text (left hand side of the cursor) to tokens.
     Vector<StringX> tokens = lhs.tokenize();
 
@@ -215,19 +230,25 @@ StringX EditHelper::complete(const StringX& lhs) const noexcept
         // therefore just adding the completion token is enough.
         return lhs_without_last_token + this->cands[0].first;
     }
-    else if (num_cands == 1)
+
+    if (num_cands == 1)
     {
         // Add extra white-space at the end if number of completion candidate is one.
         return lhs_without_last_token + this->cands[0].first + CharX(' ');
     }
-    else
-    {
-        // Create an array of completion strings.
-        constexpr auto get_first = [](const Pair<StringX, StringX>& pair) noexcept -> StringX { return pair.first; };
-        Vector<StringX> keys = transform<Pair<StringX, StringX>, StringX>(this->cands, get_first);
 
-        return lhs_without_last_token + get_common_substr(keys);
-    }
+    // Create an array of completion strings.
+    Vector<StringX> keys = transform<Pair<StringX, StringX>, StringX>(this->cands, get_first);
+
+    // Compute common substring of the completion strings.
+    StringX common_substr = get_common_substr(keys);
+
+    // Do nothing if the common substring is empty.
+    if (common_substr.size() == 0)
+        return lhs;
+
+    // Returns completed string.
+    return lhs_without_last_token + common_substr;
 
 }   // }}}
 
