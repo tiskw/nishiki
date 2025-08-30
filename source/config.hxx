@@ -49,6 +49,9 @@ typedef struct NiShiKiConfig
     const char* horizontal_line_char = "⎯";
     const char* horizontal_line_color = "\x1B[38;2;112;120;128m";
 
+    // Enables real-time completion if true.
+    bool realtime_completion = false;
+
     ////////////////////////////////////////////////////////////////////////////
     // Prompt strings.
     ////////////////////////////////////////////////////////////////////////////

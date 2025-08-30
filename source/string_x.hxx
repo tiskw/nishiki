@@ -319,6 +319,7 @@ template<> struct std::hash<StringX>
             hash_value = prime * (hash_value ^ cx.value);
 
         return static_cast<std::size_t>(hash_value);
+
     }   // }}}
 };
 

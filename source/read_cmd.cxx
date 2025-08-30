@@ -22,7 +22,7 @@
 // Static variables
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool is_not_interrupted = true;
+static bool is_not_interrupted = true;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Static functions
@@ -72,6 +72,9 @@ readcmd(const StringX& lhs_ini, const StringX& rhs_ini, const Deque<StringX>& hi
     TextBuffer    buffer  = TextBuffer(lhs_ini, rhs_ini, hists);
     HistCompleter histcmp = HistCompleter();
 
+    // Initialize the completion candidates.
+    Vector<StringX> comps;
+
     // Covert the prompt strings to StringX.
     const StringX ps1i_x = StringX(ps1i.c_str());
     const StringX ps1n_x = StringX(ps1n.c_str());
@@ -98,8 +101,12 @@ readcmd(const StringX& lhs_ini, const StringX& rhs_ini, const Deque<StringX>& hi
         // Select ps1 buffer.
         const StringX& ps1_x = (buffer.get_mode() == TextBuffer::Mode::INSERT) ? ps1i_x : ps1n_x;
 
+        // Compute complete candidate if real-time completion is enabled.
+        if (config.realtime_completion)
+            comps = helper.candidate(lhs);
+
         // Re-draw terminal.
-        writer.write(lhs, rhs, ps1_x, ps2_x, helper.candidate(lhs), histcmp.complete(lhs), histhint_pre, histhint_post);
+        writer.write(lhs, rhs, ps1_x, ps2_x, comps, histcmp.complete(lhs), histhint_pre, histhint_post);
 
         // Get user input.
         const CharX cx = (input.size() > 0) ? input.pop(StringX::Pos::BEGIN) : reader.getch(is_not_interrupted);
@@ -125,7 +132,9 @@ readcmd(const StringX& lhs_ini, const StringX& rhs_ini, const Deque<StringX>& hi
 
             // Execute completion if Ctrl-I (= horizontal tab) is pressed.
             case 0x09:
+                helper.candidate(lhs);
                 buffer.set(helper.complete(lhs), rhs);
+                comps = helper.candidate(lhs);
                 break;
 
             // History completion if Ctrl-N is pressed.

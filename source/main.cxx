@@ -62,6 +62,21 @@ static Tuple<String, String, String, String> get_prompt_strings(const TermSize& 
 
 }   // }}}
 
+static void print_welcome_message()
+// [Abstract]
+//   Print welcome message to STDOUT.
+//
+{   // {{{
+
+    PathX path_welcome = PathX(config.path_plugins) / "welcome";
+
+    if (path_welcome.exists())
+        std::printf("%s\n", run_command(path_welcome.string(), true).c_str());
+    else
+        std::printf("%s\n", "Welcome to NiShiKi!");
+
+}   // }}}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main function
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,9 +95,7 @@ int32_t main(int32_t argc, char* const argv[])
     Map<String, String> args = parse_args(argc, argv, VERSION);
 
     // Show welcome message.
-    PathX path_welcome = PathX(config.path_plugins) / "welcome";
-    if (path_welcome.exists()) std::printf("%s\n", run_command(path_welcome.string(), true).c_str());
-    else                       std::printf("%s\n", "Welcome to NiShiKi!");
+    print_welcome_message();
 
     // Initialize the left and right hand side strings.
     StringX lhs, rhs;
